@@ -1,50 +1,44 @@
 needsPackage "PushForward"
+needsPackage "Complexes"
 
 frobeniusMap = method()
-frobeniusMap(Ring, ZZ) := (R, e) -> (
-    d := length gens R;
+frobeniusMap(Ring, ZZ) := (R, e) -> frobeniusMap(e, R)
+frobeniusMap(ZZ, Ring) := (e, R) -> (
     p := char R;
-    Rpe := newRing(R, Degrees => toList(d:p^e));
-    F := map(R, Rpe, apply(gens R, R -> R^(p^e)));
-    F
-    )
+    Rpe := newRing(R, Degrees => p^e * degrees R);
+    map(R, Rpe, apply(gens R, g -> g^(p^e))))
 
 frobeniusPushforward = method()
-frobeniusPushforward(Ring, ZZ) := (R, e) -> (
-    F := frobeniusMap(R, e);
-    FR := pushFwd(F, R^1);
-    FR
-    )
-
-frobeniusPushforward(Module, ZZ) := (M, e) -> (
+frobeniusPushforward(Thing, ZZ)   := (T, e) -> frobeniusPushforward(e, T)
+frobeniusPushforward(ZZ, Ring)    := (e, R) -> frobeniusPushforward(e, module R)
+frobeniusPushforward(ZZ, Ideal)   := (e, I) -> frobeniusPushforward(e, quotient I)
+frobeniusPushforward(ZZ, Module)  := (e, M) -> (
     R := ring M;
-    F := frobeniusMap(R, e);
-    FM := pushFwd(F, M);
-    FM
-    )
+    p := char R;
+    f := presentation pushFwd(frobeniusMap(e, R), M);
+    (tardegs, srcdegs) := -toSequence(degrees f // p^e);
+    coker map(R^tardegs, R^srcdegs, sub(f, R)))
+--frobeniusPushforward(ZZ, Module)  := (e, M) -> pushFwd(frobeniusMap(e, ring M), M)
 
-frobeniusPushforward(SheafOfRings, ZZ) := (N0, e) -> (
-    N := N0(0);
+frobeniusPushforward(ZZ, Matrix)  := (e, f) -> () -- TODO
+frobeniusPushforward(ZZ, Complex) := (e, C) -> () -- TODO
+
+frobeniusPushforward(ZZ, SheafOfRings)  := (e, N0) -> frobeniusPushforward(e, N0(0))
+frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> (
     R := ring N;
     p := char R;
-    F := frobeniusMap(R, e);
-    FN := pushFwd(F, module N);
-    gendeg := p^e*(max( (degrees presentation FN )_0 )//p^e);
+    --FN := frobeniusPushforward(e, module N);
+    -- TODO: prune sheaf doesn't work with toric varieties
+    -- also, why do this?
+    --prune sheaf image basis(max degrees FN, FN)
+    FN := pushFwd(frobeniusMap(e, R), module N);
+    gendeg := p^e * (max degrees FN // p^e);
     FNs := prune sheaf image basis(gendeg, FN);
     Fmatrix := sub(presentation module FNs, R);
-    L := degrees(Fmatrix);
-    prune sheaf coker map(R^(-(flatten (L_0))//p^e),  R^(-(flatten( L_1))//p^e), Fmatrix)
+    (tardegs, srcdegs) := -toSequence(degrees Fmatrix // p^e);
+    prune sheaf coker map(R^tardegs,  R^srcdegs, Fmatrix)
     )
 
+end--
 
-frobeniusPushforward(CoherentSheaf, ZZ) := (N, e) -> (
-    R := ring N;
-    p := char R;
-    F := frobeniusMap(R, e);
-    FN := pushFwd(F, module N);
-    gendeg := p^e*(max( (degrees presentation FN )_0 )//p^e);
-    FNs := prune sheaf image basis(gendeg, FN);
-    Fmatrix := sub(presentation module FNs, R);
-    L := degrees(Fmatrix);
-    prune sheaf coker map(R^(-(flatten (L_0))//p^e),  R^(-(flatten( L_1))//p^e), Fmatrix)
-    )
+--TODO: add tests
