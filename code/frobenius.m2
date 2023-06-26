@@ -2,19 +2,30 @@ needs "helpers.m2"
 needsPackage "PushForward"
 --needsPackage "Complexes"
 
-frobeniusMap = method()
+frobeniusRing = method(TypicalValue => Ring)
+frobeniusRing(ZZ, Ring) := (e, R) -> (
+    (Rp0, e0) := if R.cache.?FrobeniusFormation then R.cache.FrobeniusFormation else (R, 0);
+    if Rp0.cache#?(symbol FrobeniusRing, e0 + e) then Rp0.cache#(symbol FrobeniusRing, e0 + e)
+    else Rp0.cache#(symbol FrobeniusRing, e0 + e) = (
+	Rpe := newRing(Rp0, Degrees => (char Rp0)^(e0 + e) * degrees Rp0);
+	Rpe.cache.FrobeniusFormation = (Rp0, e0 + e);
+	Rpe)
+    )
+
+frobeniusMap = method(TypicalValue => RingMap)
 frobeniusMap(Ring, ZZ) := (R, e) -> frobeniusMap(e, R)
-frobeniusMap(ZZ, Ring) := (e, R) -> (
-    p := char R;
-    -- TODO: cache these rings for each e
-    Rpe := newRing(R, Degrees => p^e * degrees R);
-    map(R, Rpe, apply(gens R, g -> g^(p^e))))
+frobeniusMap(ZZ, Ring) := (e, R) -> map(R, frobeniusRing(e, R), apply(gens R, g -> g^((char R)^e)))
 
 decomposeFrobeniusPresentation = (e, f) -> (
     p := char ring f;
+    tardegrees := degrees target f;
+    srcdegrees := degrees source f;
     -- TODO: make this work for multigradings
-    tarclasses := apply(p^e, i -> positions(degrees target f, deg -> deg % p^e == {i}));
-    srcclasses := apply(p^e, i -> positions(degrees source f, deg -> deg % p^e == {i}));
+    tarclasses := apply(p^e, i -> positions(tardegrees, deg -> deg % p^e == {i}));
+    srcclasses := apply(p^e, i -> positions(srcdegrees, deg -> deg % p^e == {i}));
+    -- sorts the degrees of source and column
+    tarclasses = apply(tarclasses, ell -> ell_(last \ sort \\ reverse \ toList pairs tardegrees_ell));
+    srcclasses = apply(srcclasses, ell -> ell_(last \ sort \\ reverse \ toList pairs srcdegrees_ell));
     apply(tarclasses, srcclasses, (tarclass, srcclass) -> submatrix(f, tarclass, srcclass)))
 
 frobeniusPushforward = method()
@@ -35,21 +46,12 @@ frobeniusPushforward(ZZ, SheafOfRings)  := (e, N0) -> frobeniusPushforward(e, N0
 frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> (
     R := ring N;
     p := char R;
-    --FN := frobeniusPushforward(e, module N);
-    -- TODO: prune sheaf doesn't work with toric varieties
-    -- also, why do this?
-    --prune sheaf image basis(max degrees FN, FN)
-    --
-    -- FN := pushFwd(frobeniusMap(e, R), module N);
-    -- gendeg := p^e * (max degrees FN // p^e);
-    -- FNs := prune sheaf image basis(gendeg, FN);
-    -- Fmatrix := sub(presentation module FNs, R);
-    -- (tardegs, srcdegs) := toSequence(-degrees Fmatrix // p^e);
-    -- prune sheaf coker map(R^tardegs,  R^srcdegs, Fmatrix)
     FN := first components frobeniusPushforward(e, module N);
+    -- slow alternative:
+    -- FN = pushFwd(frobeniusMap(e, R), module N);
+    -- prune sheaf image basis(p^e * (max degrees FN // p^e), FN)
     Fmatrix := sub(presentation FN, R);
     (tardegs, srcdegs) := toSequence(-degrees Fmatrix // p^e);
-    -- TODO: add code to reorder summands of presentation?
     sheaf prune coker map(R^tardegs,  R^srcdegs, Fmatrix)
     )
 
@@ -65,27 +67,20 @@ I = ideal(x_0^3+x_1^3+x_2^3)
 J = ideal(x_0^3+x_0^2*x_1+x_1^3+x_0*x_1*x_2+x_2^3)
 
 R = quotient I
-M = frobeniusPushforward(1, module OO_(Proj R))
-M = module frobeniusPushforward(1, OO_(Proj R))
-
-M = coker sub(frobeniusPushforward(char S, I), R)
-M = coker sub(presentation frobeniusPushforward(1, R), R)
-M = coker sub(presentation frobeniusPushforward(R, 1), R)
-M = frobeniusPushforward(R, 1)
-summands M
-assert(summands M == {M})
+assert(rank \ summands frobeniusPushforward(1, OO_(Proj R)) == {2})
+assert(rank \ summands frobeniusPushforward(1, R) == {2,2})
+--M = coker frobeniusPushforward(char S, I) -- TODO: consolidate with toric version
 
 R = quotient J
-M = module frobeniusPushforward(1, OO_(Proj R))
-M = coker frobeniusPushforward(char S, J)
-M = coker sub(frobeniusPushforward(char S, J), R)
-M = frobeniusPushforward(1, R)
-summands M
-assert(rank \ summands M == {1,1})
+assert(rank \ summands frobeniusPushforward(1, OO_(Proj R)) == {1,1})
+assert(rank \ summands frobeniusPushforward(1, R) == {1, 1, 2}) -- FIXME: is this correct?
+--M = coker frobeniusPushforward(char S, J) -- TODO: consolidate with toric version
 
 --
 R = quotient I
-M1 = frobeniusPushforward(1, module OO_(Proj R))
-M2 = frobeniusPushforward(2, module OO_(Proj R))
-f = presentation M
-M0 = prune coker frobeniusPushforward(1, f)
+M = frobeniusPushforward(1, R);
+N1 = frobeniusPushforward(2, R)
+N2 = frobeniusPushforward(1, M)
+assert(N1 == N2) -- FIXME: why is this different?
+N2' = prune coker frobeniusPushforward(1, presentation M)
+assert(N2 == N2')
