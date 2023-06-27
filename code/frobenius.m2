@@ -32,17 +32,25 @@ frobeniusPushforward = method()
 frobeniusPushforward(Thing, ZZ)   := (T, e) -> frobeniusPushforward(e, T)
 frobeniusPushforward(ZZ, Ring)    := (e, R) -> frobeniusPushforward(e, module R)
 frobeniusPushforward(ZZ, Ideal)   := (e, I) -> frobeniusPushforward(e, quotient I)
+-- TODO: cache in a way that the second pushforward is the same as applying pushforward twice
 frobeniusPushforward(ZZ, Module)  := (e, M) -> (
+    if  M.cache#?(FrobeniusPushforward, e)
+    then M.cache#(FrobeniusPushforward, e)
+    else M.cache#(FrobeniusPushforward, e) = (
     f := presentation pushFwd(frobeniusMap(e, ring M), M);
     if not isHomogeneous f then coker f
-    else directSum apply(decomposeFrobeniusPresentation(e, f), coker))
+    else directSum apply(decomposeFrobeniusPresentation(e, f), coker)))
+--
 frobeniusPushforward(ZZ, Matrix)  := (e, f) -> (
+    if  f.cache#?(FrobeniusPushforward, e)
+    then f.cache#(FrobeniusPushforward, e)
+    else f.cache#(FrobeniusPushforward, e) = (
     g := pushFwd(frobeniusMap(e, ring f), f);
     if not isHomogeneous g then g
-    else directSum decomposeFrobeniusPresentation(e, g))
+    else directSum decomposeFrobeniusPresentation(e, g)))
 --frobeniusPushforward(ZZ, Complex) := (e, C) -> () -- TODO
 
-frobeniusPushforward(ZZ, SheafOfRings)  := (e, N0) -> frobeniusPushforward(e, N0^1)
+frobeniusPushforward(ZZ, SheafOfRings)  := (e, N0) -> frobeniusPushforward(e, N0^1) -- TODO: is this cached?
 frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> (
     R := ring N;
     p := char R;
@@ -52,8 +60,8 @@ frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> (
     -- prune sheaf image basis(p^e * (max degrees FN // p^e), FN)
     Fmatrix := sub(presentation FN, R);
     (tardegs, srcdegs) := toSequence(-degrees Fmatrix // p^e);
-    sheaf prune coker map(R^tardegs,  R^srcdegs, Fmatrix)
-    )
+    -- TODO: how long does this take? is it worth caching?
+    sheaf prune coker map(R^tardegs,  R^srcdegs, Fmatrix))
 
 end--
 restart
