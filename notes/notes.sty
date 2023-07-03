@@ -1,0 +1,448 @@
+%\usepackage{mtpro2}
+\def\makeop#1{\@namedef{#1}{\mathop{\operator@font #1}\nolimits}}
+\let\Bbbk\relax
+\usepackage[top=.5in]{geometry}
+\usepackage{amsmath,amsthm,microtype,amssymb,tikz,tikz-cd}
+\newtheorem*{thm}{Theorem}
+\newtheorem*{lem}{Lemma}
+\newtheorem*{cor}{Corollary}
+\newtheorem*{prop}{Proposition}
+\newtheorem*{conj}{Conjecture}
+%\numberwithin{thm}{section}
+\theoremstyle{definition}
+\newtheorem*{prob}{Problem}
+\newtheorem*{dfn}{Definition}
+\newtheorem*{exa}{Example}
+\newtheorem*{exe}{Exercise}
+\newtheorem{prb}{Problem}
+\newtheorem*{cons}{Construction}
+\newtheorem*{defcla}{Definition/Claim}
+\newtheorem*{note}{Note}
+\newtheorem*{nota}{Notation}
+\newtheorem*{quest}{Question}
+\newtheorem*{ans}{Answer}
+\newtheorem*{rem}{Remark}
+\newtheorem*{fact}{Fact}
+\let\<\langle
+\let\>\rangle
+
+\def\labelenumi{(\theenumi)}
+\def\liso{\mathrel{\hbox{$-\mskip-12mu\to$}\kern-12.5pt\lower-3.5pt\hbox{$\scriptstyle\sim$}\kern7pt}}
+%%%%%GENERAL%%%%%
+\DeclareMathOperator\rank{rank}
+\DeclareMathOperator\sgn{sgn}
+\def\a{\alpha}
+\def\b{\beta}
+\def\g{\gamma}
+\def\w{\omega}
+\def\e{\epsilon}
+\def\emdash{\unskip\thinspace---\hskip.16667em\ignorespaces}
+\def\res#1{|_{#1}}
+\DeclareMathOperator\Char{char}
+\def\cA{\mathcal{A}}
+\def\cB{\mathcal{B}}
+\let\phi\varphi
+\def\R{\mathbb R}
+\def\Rn{\mathbb R^n}
+\def\Rm{\mathbb R^m}
+\def\Rnm{\mathbb R^{nm}}
+\def\Z{\mathbb Z}
+\def\Q{\mathbb Q}
+\def\C{\mathbb C}
+\def\N{\mathbb N}
+\def\S{\mathbb S}
+\makeop{St}
+\makeop{st}
+\makeop{disc}
+\makeop{codim}
+\makeop{diam}
+\makeop{End}
+\makeop{id}
+\makeop{Re}
+\let\Im\relax
+\DeclareMathOperator\Im{im}
+\makeop{ker}
+\makeop{im}
+\makeop{coker}
+\def\set#1{\relpenalty=10000 \binoppenalty=10000\{#1\}} 
+\def\sett#1{\{\text{#1}\}} 
+\def\abs#1{|#1|}
+\def\nnorm#1{\|#1\|}
+\def\bra#1{\langle#1\rangle}
+
+\def\ovA{\overkern22 A}
+\def\ovB{\overkern22 B}
+\def\ovC{\overkern22 C}
+\def\ovD{\overkern22 D}
+\def\ovE{\overkern22 E}
+\def\ovF{\overkern22 F}
+\def\ovG{\overkern22 G}
+\def\ovH{\overkern22 H}
+\def\ovI{\overkern22 I}
+\def\ovJ{\overkern22 J}
+\def\ovK{\overkern40 K}
+\def\ovL{\overkern22 L}
+\def\ovM{\overkern22 M}
+\def\ovN{\overkern22 N}
+\def\ovO{\overkern22 O}
+\def\ovP{\overkern31 P}
+\def\ovQ{\overkern22 Q}
+\def\ovR{\overkern22 R}
+\def\ovS{\overkern22 S}
+\def\ovT{\overkern22 T}
+\def\ovU{\overkern22 U}
+\def\ovV{\overkern22 V}
+\def\ovW{\overkern22 W}
+\def\ovX{\overkern22 X}
+\def\ovY{\overkern22 Y}
+\def\ovZ{\overkern22 Z}
+
+\let\oxra\xrightarrow
+\def\xrightarrow#1{\oxra{\ \,#1\ \,}}
+\let\xra\xrightarrow
+\let\lra\longrightarrow
+
+
+
+%%%%%MSP STUFF%%%%%
+\let\dsty\displaystyle \let\tsty\textstyle
+\let\ssty\scriptstyle \let\sssty\scriptscriptstyle
+\def\overkern#1#2#3{{}\mskip#1mu\overline{\mskip-#1mu #3\mskip-#2mu}\mskip#2mu{}}
+\let\mod\bmod
+\def\eqalign#1{%
+ \null\,\vcenter{\openup\jot\m@th
+  \ialign{\strut\hfil$\displaystyle{##}$&$\displaystyle{{}##}$\hfil
+      &&\hfil$\displaystyle{##}$&$\displaystyle{{}##}$\hfil\crcr#1\crcr}}\,}
+\def\eqalignbot#1{%
+ \null\,\vbox{\openup\jot\m@th
+  \ialign{\strut\hfil$\displaystyle{##}$&$\displaystyle{{}##}$\hfil
+      &&\hfil$\displaystyle{##}$&$\displaystyle{{}##}$\hfil\crcr#1\crcr}}\,}
+\def\eqaligntop#1{%
+ \null\,\vtop{\openup\jot\m@th
+  \ialign{\strut\hfil$\displaystyle{##}$&$\displaystyle{{}##}$\hfil
+      &&\hfil$\displaystyle{##}$&$\displaystyle{{}##}$\hfil\crcr#1\crcr}}\,}
+
+\def\mfrac#1#2{{\tsty{\tsty\medmuskip1mu\hbox{$#1$}\lower2.5pt\hbox{}\over
+      \tsty\medmuskip1mu\hbox{$\cramped{#2}$}\vbox to9pt{}}}}
+%%%%%TOPOLOGY%%%%%
+\let\W\Omega
+% smallish bullet
+\makeop{Alt}
+\let\obull@t\bullet \def\bull@{\raise1pt\hbox{$\ssty\obull@t$}}
+\def\bulle{\mathbin{\mathchoice{\bull@}{\bull@}{{\sssty\obull@t}}{\obull@t}}}
+\def\df#1#2{d\mkern-2mu#1_{#2}}
+\def\rD#1#2{\mathrm{d}\mkern-2mu#1_{#2}}
+\def\rd{\mathrm{d}}
+\def\rmD#1#2{{{d}}\mkern-2mu#1\res{#2}}
+\def\bres#1{\Big|_{#1}}
+\def\Cinf{C^\infty}
+\def\pd#1#2{\frac{\d #1}{\d #2}}
+\def\pdr#1#2#3{\frac{\d #1}{\d #2}\bres{#3}}
+\def\Df#1#2{D_{#1}\res#2}
+\let\D\df
+%\def\T#1{\mathop{\mathrm{T}_{{\!#1}}}}
+\def\T#1{\mathop{T_{{\!#1}}}\mskip-1.25mu}
+\def\cT#1{\mathop{T^*_{{\!#1}}}}
+\def\Tfp{\mathop{T_{F(p)}}}
+\makeop{supp}
+\def\Sn{S^n}
+\def\B{\mathbb B}
+\DeclareMathOperator{\Int}{int}
+\def\H{\mathcal H}
+\def\d{\partial}
+\def\dM{\d M}
+\makeop{Gr}
+\def\Up{(U,\phi)}
+\def\Vp{(V,\psi)}
+\def\RP{\mathbb{RP}}
+\def\CP{\mathbb{CP}}
+\def\xn{(x_1,\dots,x_n)}
+%\def\x#1{(x^1,\dots,x^{#1})}
+\def\M#1{M^1 \times \dots \times M^{#1}}
+\def\y#1{(y_1,\dots,y_{#1})}
+\def\yn{(y^1,\dots,y^n)}
+\def\inv{^{-1}}
+
+%%%%%ALGEBRA%%%%%%
+\makeop{Gal}
+\makeop{lcm}
+\def\ind{{\uparrow}}
+\def\rst{{\downarrow}}
+\makeop{Irr}
+\makeop{Tor}
+\makeop{Spec}
+\DeclareMathOperator\Sym{Sym}
+\DeclareMathOperator\Span{span}
+\makeop{disc}
+\makeop{diag}
+\makeop{len}
+\makeop{Mod}
+\makeop{Cl}
+\def\cC{\mathcal C}
+\def\cD{\mathcal D}
+\def\cF{\mathcal F}
+\def\cE{\mathcal E}
+\def\O{\mathcal{O}}
+\def\p{\mathfrak{p}}
+\makeop{Frac}
+%\makeop{Rad}
+\makeop{rad}
+\DeclareMathOperator{\Rad}{rad}
+\makeop{Nil}
+\makeop{nil}
+\makeop{Spec}
+\def\Zmn{\Z/mn\Z}
+\def\Zn{\Z/n\Z}
+\def\Zm{\Z/m\Z}
+\def\m{\mathfrak m}
+
+%%%%%LIE ALGEBRA%%%%%%
+\DeclareMathOperator{\SO}{SO}
+\DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\SU}{SU}
+\DeclareMathOperator{\SP}{SP}
+\def\t{\mathfrak t}
+\def\k{\kappa}
+\def\gl{\mathfrak{gl}}
+\def\sl{\mathfrak{sl}}
+\def\n{\mathfrak{n}}
+\makeop{Skew}
+\makeop{ad}
+\makeop{Der}
+\makeop{Lie}
+\makeop{Inn}
+\makeop{Ad}
+\makeop{Hom}
+\makeop{Aut}
+\makeop{trace}
+\makeop{Tr}
+\makeop{GL}
+\makeop{AGL}
+\makeop{PGL}
+\let\sm\setminus
+\usepackage{xparse}
+
+\ExplSyntaxOn
+\NewDocumentCommand{\cycle}{ O{\;} m }
+ {
+  (
+  \alec_cycle:nn { #1 } { #2 }
+  )
+ }
+
+\seq_new:N \l_alec_cycle_seq
+\cs_new_protected:Npn \alec_cycle:nn #1 #2
+ {
+  \seq_set_split:Nnn \l_alec_cycle_seq {   } { #2 }
+  \seq_use:Nn \l_alec_cycle_seq { #1 }
+ }
+\ExplSyntaxOff
+
+%\def\c#1 {\cycle{#1}}
+\newcount\cols
+
+{\catcode`,=\active\catcode`|=\active
+\gdef\Young(#1){\,\,\hbox{$\vcenter
+{\mathcode`,="8000\mathcode`|="8000
+\def,{\global\advance\cols by 1 &}%
+\def|{\cr       
+      \multispan{\the\cols}\hrulefill\cr 
+      &\global\cols=2 }%  
+  \offinterlineskip\everycr{}\tabskip=0pt  
+  \dimen0=\ht\strutbox \advance\dimen0 by \dp\strutbox    
+    \halign
+    {\vrule height \ht\strutbox depth \dp\strutbox##
+      &&\hbox to \dimen0{\hss$##$\hss}\vrule\cr
+     \noalign{\hrule}&\global\cols=2 #1\crcr
+     \multispan{\the\cols}\hrulefill\cr%
+    }
+}$}\,\,}
+}
+
+%%COMB REP THEOR
+\makeop{Shape}
+\makeop{Row}
+\makeop{Col}
+\makeop{SYT}
+\makeop{Ch}
+\makeop{ch}
+
+%%ALGEBRAIC GEOMETRY
+\def\A{\mathbb A}
+%\DeclareMathOperator{\MSpec}{MaxSpec}
+\DeclareMathOperator{\MSpec}{Specm}
+\makeop{Specm}
+\def\x#1{x_1,\dots,x_{#1}}
+\def\y#1{y_1,\dots,y_{#1}}
+\def\z#1{z_1,\dots,z_{#1}}
+%\def\a#1{a_1,\dots,a_{#1}}
+%\def\b#1{b_1,\dots,b_{#1}}
+\def\O{\mathcal O}
+\def\fa{\mathfrak a}
+\makeatletter
+\newcommand{\dashedrightarrow}[1][2pt]{%
+  \settowidth{\@tempdima}{$\rightarrow$}\rightarrow% typeset arrow
+  \makebox[-\@tempdima]{\hskip-1.5ex\color{white}\rule[0.5ex]{#1}{1pt}}% typeset overlay
+  \phantom{\rightarrow}% advance appropriate horizontal distance
+}
+\makeatother
+\let\dra\dashedrightarrow
+
+\def\rto{\dashedrightarrow}
+\def\P{\mathbb P}
+\let\l\lambda
+\makeop{Ver}
+\def\OxX{\O_{x,X}}
+\def\OyY{\O_{y,Y}}
+\makeop{trdeg}
+\makeop{Sing}
+\def\I{\mathcal{I}}
+\makeop{Div}
+\makeop{Pic}
+\makeop{CDiv}
+\makeop{div}
+%\def\sm{{\mathrm{sm}}}
+\makeop{Cl}
+\def\L{\mathcal L}
+\def\V{\mathcal V}
+
+
+%%COMMUTATIVE ALGEBRA
+\def\Kn{K[x_1,\dots,x_n]}
+\def\F{\mathbb F}
+\def\op{\mathrm{op}}
+\makeop{Ob}
+\def\FF{\mathcal F}
+\makeop{Fun}
+\makeop{Set}
+\makeop{Group}
+\makeop{Top}
+\makeop{Ring}
+\makeop{alg}
+\def\ccdot{\,\cdot\,}
+\def\cC{\mathcal C}
+\def\cD{\mathcal D}
+\makeop{Jac}
+\def\red{{\mathrm{red}}}
+\def\tor{{\mathrm{tor}}}
+\DeclareMathOperator{\Ann}{ann}
+\makeop{ann}
+\makeop{Ass}
+\makeop{Max}
+\makeop{adj}
+\makeop{Kdim}
+\DeclareMathOperator{\Ht}{ht}
+\makeop{Supp}
+\makeop{Min}
+
+
+
+%%RIEMANN SURFACES
+\def\D{\mathbb D}
+\makeop{PSL}
+\makeop{CR}
+\makeop{ev}
+
+
+%%%%615
+\def\Ak{\mathbb A_k}
+\def\k{\kappa}
+\def\dlim{\varinjlim}
+\def\ilim{\varprojlim}
+%%%%697
+\def\oa{\overrightarrow}
+\makeop{Ext}
+\makeop{Der}
+\makeop{gr}
+\def\ss{{\mathrm{ss}}}
+\makeop{Rep}
+\makeop{Com}
+\makeop{Cons}
+\makeop{adj}
+%%%%632
+\makeop{ord}
+\def\alt{{\mathrm{alt}}}
+\def\walt{{\mathrm{walt}}}
+\makeop{length}
+\makeop{WDiv}
+\def\E{\mathcal E}
+\makeop{Alb}
+\def\SHom{\mathcal{H}\mathrm{om}}
+\def\U{\mathcal U}
+\def\J{\mathcal J}
+\makeop{Res}
+\makeop{td}
+\makeop{NS}
+\makeop{Num}
+
+
+
+%%%%732
+\makeop{Ram}
+\makeop{mult}
+\DeclareMathOperator\MProj{Projm}
+\DeclareMathOperator\Proj{Proj}
+\makeop{Hilb}
+\makeop{Bl}
+\makeop{Br}
+\DeclareMathOperator\Et{Et}
+\makeop{CH}
+\def\rat{{\mathrm{rat}}}
+\makeop{norm}
+
+%%
+\def\an{{\mathrm{an}}}
+\makeop{pr}
+\let\setminus-
+\makeop{Mat}
+\def\top{{\mathrm{top}}}
+
+
+
+%%%731
+\def\Sch{\mathrm{Sch}}
+\def\G{\mathbb G}
+\def\uSpec{\underline{\Spec}}
+
+%%%711
+\makeop{CoInd}
+\let\coind\CoInd
+\makeop{triv}
+\makeop{std}
+\makeop{Coh}
+\makeop{QCoh}
+\def\btimes{\boxtimes}
+\def\K{\mathcal K}%
+\let\blt\bullet
+
+\def\domge{\triangleright}
+\def\domle{\triangleleft}
+\makeop{Inj}
+\makeop{colim}
+\makeop{Frob}
+\makeop{pd}
+\makeop{reg}
+\DeclareMathOperator\In{in}
+\makeop{Soc}
+\makeop{Alb}
+\makeop{Ab}
+\makeop{Pic}
+\def\upic{\underline{\Pic}}
+
+\makeatletter
+\def\renewtheorem#1{%
+  \expandafter\let\csname#1\endcsname\relax
+  \expandafter\let\csname c@#1\endcsname\relax
+  \gdef\renewtheorem@envname{#1}
+  \renewtheorem@secpar
+}
+\def\renewtheorem@secpar{\@ifnextchar[{\renewtheorem@numberedlike}{\renewtheorem@nonumberedlike}}
+\def\renewtheorem@numberedlike[#1]#2{\newtheorem{\renewtheorem@envname}[#1]{#2}}
+\def\renewtheorem@nonumberedlike#1{  
+\def\renewtheorem@caption{#1}
+\edef\renewtheorem@nowithin{\noexpand\newtheorem{\renewtheorem@envname}{\renewtheorem@caption}}
+\renewtheorem@thirdpar
+}
+\def\renewtheorem@thirdpar{\@ifnextchar[{\renewtheorem@within}{\renewtheorem@nowithin}}
+\def\renewtheorem@within[#1]{\renewtheorem@nowithin[#1]}
+\makeatother

@@ -1,0 +1,150 @@
+\documentclass{article}
+
+\let\oldb\b
+\let\oldl\l
+\usepackage[dvipsnames]{xcolor}
+\usepackage{notes,hyperref}
+\let\l\lambda
+\let\wtilde\widetilde
+\let\bar\overline
+\def\O{\mathcal O}
+\def\sing{{\mathrm{sing}}}
+\let\b\beta
+\def\F{\mathcal F}
+
+\let\inc\hookrightarrow
+\let\xinc\xhookrightarrow
+
+\numberwithin{equation}{section}
+\let\d\partial
+
+\theoremstyle{theorem}
+\renewtheorem{thm}{Theorem}
+\renewtheorem{lem}[thm]{Lemma}
+\renewtheorem{cor}[thm]{Corollary}
+\renewtheorem{prop}[thm]{Proposition}
+\renewtheorem{conj}[thm]{Conjecture}
+\numberwithin{thm}{section}
+\theoremstyle{definition}
+\renewtheorem{dfn}[thm]{Definition}
+\renewtheorem{exa}[thm]{Example}
+\renewtheorem{note}[thm]{Note}
+\renewtheorem{nota}[thm]{Notation}
+\renewtheorem{quest}[thm]{Question}
+\renewtheorem{rem}[thm]{Remark}
+
+\def\L{\mathcal L}
+\def\M{\mathcal M}
+
+\newcommand{\mahrud}[1]{{\color{ForestGreen} \sf $\blacklozenge$ Mahrud: [#1]}}
+\newcommand{\devlin}[1]{{\color{red} \sf $\clubsuit$ Devlin: [#1]}}
+
+\title{(Frobenius) splittings in Macaulay2}
+\author{Devlin Mallory and Mahrud Sayrafi}
+\begin{document}
+\maketitle
+
+Throughout, $R$ will be an $\N$-graded ring with $R_0=k$ a field\mahrud{I think most of this applies to any grading as long as the latter condition holds}; we write $m$ for the homogeneous maximal ideal. Note that if $M$ is a finitely generated $R$-module, and $A\in \End_R(M)$, then $A$ acts on the $k$-vector space $M/mM$.
+
+\begin{lem}
+  Let $M$ be an $R$-module, and let $A\in\End_R(M)$. If the induced action of $A$ on $M/mM$ is idempotent\mahrud{Maybe you're proving something stronger, but it's possible that action of $A$ on $M$ is either idempotent of nonzero degree or not idempotent, but the induced action on $M/mM$ is}, then $M$ admits a direct sum decomposition $N\oplus M/N$, where $N\cong \im A$.
+\end{lem}
+
+\begin{proof}
+  By assumption, we can write $A^2 = A + B$, where $B\in\End_R(M)$ with $B(M)\subset mM$.
+Note that if $n \in m^kM$, then $A^2(n) - A(n) = B(n)$  lies in $m^{k+1}M$.
+
+Let $N = \im A$. Consider the composition $N\inc M \xra{A} \im(A) = N$. We claim that this composition is surjective. We may complete at the maximal ideal to check this, and thus assume $R$ and $M$ are complete\mahrud{out of curiosity, what can go wrong?}. Let $n_0\in N$. By assumption, $n_0=A(m_1)$ for some $m_1\in M$. Applying $A$ again, we get 
+\[ A(n_0) = A^2(m_1) = A(m_1) + n_1 = n_0 + n_1, \]
+or equivalently \mahrud{should this say $n_1 = A(n_0) - n_0$ instead?}
+\[ n_0 = A(n_0) - n_1 \]
+for some $n_1\in mM$. In fact, since $n_0$ and $A(n_0)$ are both in $N$, we have $n_1\in N$ also, so $n_1\in mM\cap N$.
+
+Thus, we can write $n_1 = A(m_2)$ for $m_2\in M$.
+Now, apply $A$ to both sides: by the assumption that $A$ is idempotent modulo $m$\mahrud{how is this used here?}, we have
+\[ A(n_1)=A^2(m_2) = A(m_2) + n_2 = n_1+n_2, \]
+Thus, $n_2=A(n_1)-n_1$, so $n_2\in m^2M$; clearly also $n_2\in N$ as well. 
+Combining the previous equations, we can write
+\[ n_0 = A(n_0) - n_1 = A(n_0) - A(n_1) + n_2 = A(n_0 - n_1) + n_2, \]
+with $n_1\in mM\cap N$ and $n_2\in m^2M\cap N$.
+
+Continuing in this fashion, for any $k$ we can write 
+\[ n_0=A(n_0-n_1+\dots \pm n_k) \mp n_{k+1}, \]
+with $n_i \in m^i M\cap N$.
+
+By the Artin--Rees lemma, for there's some positive integer $k$ such that for $n\gg0$ we can write
+\[ m^n M\cap N = m^{n-k} ( m^kM\cap N)\subset m^{n-k} N. \]
+That is, the terms of $n_0-n_1+n_2-\dots$ are going to 0 in the $m$-adic topology on $N$. Thus, we can write
+\[ n_0=A(n_0-n_1+n_2-\dots), \]
+with $n_0-n_1+n_2-\dots\in N$. Thus, we have that $A$ is surjective as a map $N\to N$.
+
+Since a surjective endomorphism of finitely generated modules is invertible, we have that this composition is an isomorphism on $N$; say $\a$.
+Finally, we then have that
+\[ 0 \inc N \inc M \]
+is split by the map of $R$-modules $M\xra A N\xra{\a\inv} N$. 
+\end{proof}
+
+\begin{lem}
+Let $k$ be a finite field of characteristic $p$, and let $A$ be an endomorphism of a $k$-vector space such that all eigenvalues of $A$ are contained in $k$. If $\l$ is an eigenvalue of $A$, then some power of $A-\l I$ acts idempotently.
+Furthermore, if $\l$ is not the only eigenvalue of $A$, then a nonzero power of $A-\l I$ acts idempotently.
+\end{lem}
+
+\begin{proof}
+Since all eigenvalues of $A$ are contained in $k$, we can without loss of generality put $A$ in Jordan canonical form, with each Jordan block having the form
+$$
+r_i\Biggl\{
+\underbrace{\begin{pmatrix}
+\l_i & 1 & 0 &\dots & 0
+\\
+0& \l_i & 1  &\dots & 0
+\\
+\vdots & &&&\vdots
+\\
+0& 0 & 0  &\dots & \l_i
+\end{pmatrix}}_{r_i}
+$$
+with each $\l_i$ an eigenvalue of $A$.
+In this basis, $A-\l I$ will be block-diagonal with blocks of form
+$$
+\begin{pmatrix}
+\l_i-\l & 1 & 0 &\dots & 0
+\\
+0& \l_i-\l & 1  &\dots & 0
+\\
+\vdots & &&&\vdots
+\\
+0& 0 & 0  &\dots & \l_i-\l
+\end{pmatrix}
+$$
+Set $\mu_i=\l_i-\l$. Then $(A-\l I)^l$ is block-diagonal with blocks of the form
+$$
+\begin{pmatrix}
+\mu_i^l & \binom{l}1\mu_i^{l-1} & \binom{l}2\mu_i^{l-2} &\dots & \binom{l}{r_i}\mu_i^{l-r_i}
+\\
+0& \mu_i^l &
+\binom{l}1\mu_i^{l-1}  &\dots & \binom{l}{r_i-1}\mu_i^{l-r_i+1}
+\\
+\vdots & &&&\vdots
+\\
+0& 0 & 0  &\dots & \mu_i^l
+\end{pmatrix}
+$$
+If $l$ is $> r_i$ and divisible by $p$, then all nondiagonal terms will vanish, so all blocks will have the form
+$$
+\begin{pmatrix}
+\mu_i^l & 0 & 0 &\dots & 0
+\\
+0& \mu_i^l & 0  &\dots & 0
+\\
+\vdots & &&&\vdots
+\\
+0& 0 & 0  &\dots & \mu_i^l 
+\end{pmatrix}.
+$$
+Finally, choosing $l$ to be divisible also by $p^e-1$ for some $e>0$, we have that $$\mu_i^{l-1} = (\mu_i^{p^{e}-1})^{l/(p^{e}-1)} =1,$$ since $\mu_i$ is contained in a finite field of characteristic $p$.
+Thus, $(A-\l I)^l$ is simply a diagonal matrix with 1 or 0 on the diagonal, hence idempotent. Note moreover that if some $\l_i\neq \l$, then $(A-\l I)^l$ is not the zero matrix.
+
+\end{proof}
+
+
+\end{document}
