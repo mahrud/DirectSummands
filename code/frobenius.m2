@@ -4,10 +4,12 @@ needsPackage "PushForward"
 
 frobeniusRing = method(TypicalValue => Ring)
 frobeniusRing(ZZ, Ring) := (e, R) -> (
+    if not R.?cache then R.cache = new CacheTable;
     (Rp0, e0) := if R.cache.?FrobeniusFormation then R.cache.FrobeniusFormation else (R, 0);
     if Rp0.cache#?(symbol FrobeniusRing, e0 + e) then Rp0.cache#(symbol FrobeniusRing, e0 + e)
     else Rp0.cache#(symbol FrobeniusRing, e0 + e) = (
 	Rpe := newRing(Rp0, Degrees => (char Rp0)^(e0 + e) * degrees Rp0);
+	Rpe.cache = new CacheTable;
 	Rpe.cache.FrobeniusFormation = (Rp0, e0 + e);
 	Rpe)
     )
