@@ -22,9 +22,9 @@ decomposeFrobeniusPresentation = (e, f) -> (
     p := char ring f;
     tardegrees := degrees target f;
     srcdegrees := degrees source f;
-    -- TODO: make this work for multigradings
-    tarclasses := apply(p^e, i -> positions(tardegrees, deg -> deg % p^e == {i}));
-    srcclasses := apply(p^e, i -> positions(srcdegrees, deg -> deg % p^e == {i}));
+    cube := flatten \ entries \ latticePoints hypercube(degreeLength ring f, 0, p^e - 1);
+    tarclasses := apply(cube, i -> positions(tardegrees, deg -> deg % p^e == i));
+    srcclasses := apply(cube, i -> positions(srcdegrees, deg -> deg % p^e == i));
     -- sorts the degrees of source and column
     tarclasses = apply(tarclasses, ell -> ell_(last \ sort \\ reverse \ toList pairs tardegrees_ell));
     srcclasses = apply(srcclasses, ell -> ell_(last \ sort \\ reverse \ toList pairs srcdegrees_ell));
@@ -83,7 +83,7 @@ assert(rank \ summands frobeniusPushforward(1, R) == {2,2})
 
 R = quotient J
 assert(rank \ summands frobeniusPushforward(1, OO_(Proj R)) == {1,1})
-assert(rank \ summands frobeniusPushforward(1, R) == {1, 1, 2}) -- FIXME: is this correct?
+assert(rank \ summands frobeniusPushforward(1, R) == {1, 1, 2}) -- FIXME: this is not correct
 --M = coker frobeniusPushforward(char S, J) -- TODO: consolidate with toric version
 
 --
@@ -94,3 +94,37 @@ N2 = frobeniusPushforward(1, M)
 assert(N1 == N2) -- FIXME: why is this different?
 N2' = prune coker frobeniusPushforward(1, presentation M)
 assert(N2 == N2')
+
+
+--
+S=(ZZ/2)[x_0..x_2,y_0..y_2,Degrees=>{{1,0},{1,0},{1,0},{0,1},{0,1},{0,1}}];
+J=ideal(x_0*y_0+x_1*y_1+x_2*y_2);
+B=S/J;
+Y=Proj B;
+ frobeniusPushforward(B,1)
+--why is this giving 0? (if the degrees are standard it doesn't)
+--this is now fixed with the new code for decomposeFrobeniusPresentation -DM
+
+
+---
+restart
+needs "frobenius.m2"
+debug PushForward
+S=(ZZ/2)[x_0,x_1,x_2,y_0,y_1,y_2,Degrees=>{{1,0},{1,0},{1,0},{0,1},{0,1},{0,1}}]
+S0=(ZZ/2)[x_0,x_1,x_2]**(ZZ/2)[y_0,y_1,y_2];
+S0=tensor((ZZ/2)[x_0,x_1,x_2], (ZZ/2)[y_0,y_1,y_2], DegreeMap => null)
+e=1
+errorDepth=1
+target presentation pushFwd(frobeniusMap(e, ring S^1), S^1)
+target presentation pushFwd(frobeniusMap(e, ring S0^1), S0^1)
+
+g' = g
+peek g
+
+degrees (pushAuxHgs g')_0
+degrees (pushAuxHgs g'')_0
+--why are the degrees right for S but not S0?
+
+RB = RA = S0
+tensor(RB, RA, Join => false)
+tensor(RB, RA, Join => true)
