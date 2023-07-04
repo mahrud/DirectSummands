@@ -4,6 +4,8 @@ needsPackage "FourierMotzkin"
 needsPackage "LinearTruncations"
 debug needsPackage "Truncations"
 
+kk = ZZ/101
+
 importFrom_Core {"nonnull"}
 
 -- erase the symbols first
@@ -14,13 +16,14 @@ importFrom(Package, List) := (P, x) -> apply(nonnull x, s -> if not currentPacka
 
 importFrom_"SpectralSequences" {"spots"}
 spots GradedModule := lookup(spots, ChainComplex)
+spots ChainComplexMap := f -> select(keys f, i -> class i === ZZ)
 support GradedModule := lookup(support, ChainComplex)
 
 - Sequence := Sequence => p -> apply(p, minus)
 
-PP = method()
-PP ZZ   := NormalToricVariety => n -> toricProjectiveSpace(n, CoefficientRing => kk)
-PP List := NormalToricVariety => w -> weightedProjectiveSpace(w, CoefficientRing => kk)
+if instance(PP, Symbol) then PP = method()
+PP ZZ   := NormalToricVariety => memoize(n -> toricProjectiveSpace(n, CoefficientRing => kk))
+PP List := NormalToricVariety => memoize(w -> weightedProjectiveSpace(w, CoefficientRing => kk))
 
 cartesianProduct List := lookup(cartesianProduct, Sequence)
 
@@ -37,6 +40,13 @@ pad(Matrix, ZZ) := (M, n) -> M | map(target M, (ring M)^(max(n - numcols M, 0)),
 gale = m -> gens ker (if coker m == 0 then identity else transpose) m
 -- TODO: can we use this? galeDualMatrix := matrix (fromWDivToCl X)^torsionlessCoord;
 
+-- return the submatrix with given degrees of target and source
+submatrixByDegrees(Matrix, Sequence) := (m, degs) -> (
+    (tar, src) := degs;
+    col := if src =!= null then positions(degrees source m, deg -> member(deg, src));
+    row := if tar =!= null then positions(degrees target m, deg -> member(deg, tar));
+    submatrix(m, row, col))
+
 intersect(Set, Set) := (S, T) -> select(keys S, k -> T#?k)
 
 -- TODO: add to NormalToricVarieties
@@ -45,6 +55,9 @@ cotangentSheaf(List, NormalToricVariety) := CoherentSheaf => opts -> (a, X) -> (
     if X#?(cotangentSheaf, a)
     then X#(cotangentSheaf, a) 
     else X#(cotangentSheaf, a) = tensor apply(#a, i -> pullback(X^[i], cotangentSheaf(a#i, Xs#i))))
+
+-- returns K_X
+canonicalDivisor = X -> toricDivisor X
 
 -- redefining this from NormalToricVarieties/ToricVarieties.m2 to allow P(1,2)
 weightedProjectiveSpace List := NormalToricVariety => opts -> q -> (
@@ -61,6 +74,8 @@ weightedProjectiveSpace List := NormalToricVariety => opts -> q -> (
 	Variable        => opts.Variable))
 
 -- redefining nefGenerators to be in class group instead of Picard group
+-- TODO: why did I need this?
+-*
 nefGenerators NormalToricVariety := Matrix => X -> (
     if isDegenerate X then 
 	error "-- not implemented for degenerate varieties";
@@ -97,6 +112,7 @@ nefGenerators NormalToricVariety := Matrix => X -> (
 --    (indexOfPic * coneGens) // fromPic 
     coneGens
     );
+*-
 
 coh = memoize(rank @@ cohomology)
 fano = memoize smoothFanoToricVariety
@@ -132,20 +148,27 @@ findRegularity = (X, M, low, high) -> findRegion({low, high}, M, (ell, M) -> isR
 -- plot regularity of M, for X with Picard rank 2
 plotRegularity = (X, M, low, high) -> plotRegion(findRegularity(X, M, low, high), low, high)
 
-
 -- patch of a bug
 degrees ChainComplex :=
 supportOfTor ChainComplex := F -> (
     for i from min F to max F list (
 	degs := unique degrees F_i;
-	if degs == {} then continue else degs))
+	if #degs == 0 then continue else degs))
+
+sot = netList @@ supportOfTor
 
 -- compMin/compMax with respect to general cones
 needsPackage "Polyhedra"
-coneMax = (C, L) -> first entries transpose sub(vertices intersection apply(L, ell -> C + convexHull matrix vector ell), ZZ)
-coneMax = memoize coneMax
-coneMin = (C, L) -> coneMax(coneFromVData(- rays C), L)
-coneMin = memoize coneMin
+- Cone := C -> coneFromVData(-rays C) -- TODO: there's room for improvement
+ring Cone := C -> ring linealitySpace C
+coneMax = (C, L) -> first entries transpose sub(vertices intersection apply(unique L, ell -> C + convexHull matrix vector ell), ring C)
+--coneMax = memoize coneMax
+coneMin = (C, L) -> coneMax(-C, L)
+--coneMin = memoize coneMin
+coneComp = (C, u, v) -> (
+    --if u == v                            then symbol== else
+    if contains(C, matrix vector(v - u)) then symbol <= else
+    if contains(C, matrix vector(u - v)) then symbol > else incomparable)
 -*
 nefX = coneFromVData nefGenerators X
 aa = coneMin(nefX, L = degrees K_0)
@@ -157,11 +180,34 @@ getNefDivisor = X -> toricDivisor(
 
 -- much, MUCH, faster version!
 fan List := Fan => inputCones -> (
+    -- if #inputCones == 0 then return fan coneFromVData matrix{{0}};
     A := apply(inputCones, C ->
 	if instance(C, Cone) then cols rays C else
 	if instance(C, Matrix) then cols C else C);
     B := unique flatten A;
     H := hashTable apply(toList pairs B, reverse);
+    -- FIXME: fails if there are no rays
     rayList := concatCols B;
     maxList := apply(A, C -> apply(C, ray -> H#ray));
     fan(rayList, -* linealityGens, *- maxList))
+
+-- cached version
+coneFromVData Matrix := (cacheValue symbol cone) (R -> (
+    r := ring R;
+    -- Generating the zero lineality space LS
+    LS := map(target R, r^0,0);
+    coneFromVData(R,LS)
+    ))
+
+show NormalToricVariety := X -> (
+    if dim X > 3 then error "cannot visualize fans in dimensions higher than 3";
+    name = temporaryFileName() | ".pm";
+    name << concatenate(///
+  	use application "fulton";
+  	declare $F = new PolyhedralFan(
+      	    INPUT_RAYS => ///, toString apply(new Array from rays X, rho -> new Array from rho), ///,
+      	    INPUT_CONES => ///, toString apply(new Array from max X, sigma -> new Array from sigma), ///);
+  	declare $X = new NormalToricVariety($F);
+  	$X->VISUAL;
+	///) << close;
+    run("polymake --script " | name))
