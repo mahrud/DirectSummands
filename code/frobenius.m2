@@ -2,6 +2,13 @@ needs "helpers.m2"
 needsPackage "PushForward"
 --needsPackage "Complexes"
 
+myPushForward = (f, M) -> (
+    pushFwd(f, M)
+    -- doesn't work for matrices:
+    -- pushForward(f, M)
+    -- pushForward(f, M, UseHilbertFunction => false)
+    )
+
 frobeniusRing = method(TypicalValue => Ring)
 frobeniusRing(ZZ, Ring) := (e, R) -> (
     if not R.?cache then R.cache = new CacheTable;
@@ -39,7 +46,7 @@ frobeniusPushforward(ZZ, Module)  := (e, M) -> (
     if  M.cache#?(FrobeniusPushforward, e)
     then M.cache#(FrobeniusPushforward, e)
     else M.cache#(FrobeniusPushforward, e) = (
-    f := presentation pushFwd(frobeniusMap(e, ring M), M);
+    f := presentation myPushForward(frobeniusMap(e, ring M), M);
     if not isHomogeneous f then coker f
     else directSum apply(decomposeFrobeniusPresentation(e, f), coker)))
 --
@@ -47,7 +54,7 @@ frobeniusPushforward(ZZ, Matrix)  := (e, f) -> (
     if  f.cache#?(FrobeniusPushforward, e)
     then f.cache#(FrobeniusPushforward, e)
     else f.cache#(FrobeniusPushforward, e) = (
-    g := pushFwd(frobeniusMap(e, ring f), f);
+    g := myPushForward(frobeniusMap(e, ring f), f);
     if not isHomogeneous g then g
     else directSum decomposeFrobeniusPresentation(e, g)))
 --frobeniusPushforward(ZZ, Complex) := (e, C) -> () -- TODO
@@ -58,12 +65,35 @@ frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> (
     p := char R;
     FN := first components frobeniusPushforward(e, module N);
     -- slow alternative:
-    -- FN = pushFwd(frobeniusMap(e, R), module N);
+    -- FN = myPushForward(frobeniusMap(e, R), module N);
     -- prune sheaf image basis(p^e * (max degrees FN // p^e), FN)
     Fmatrix := sub(presentation FN, R);
     (tardegs, srcdegs) := toSequence(-degrees Fmatrix // p^e);
     -- TODO: how long does this take? is it worth caching?
     sheaf prune coker map(R^tardegs,  R^srcdegs, Fmatrix))
+
+frobeniusPullback = method()
+frobeniusPullback(Thing, ZZ)   := (T, e) -> frobeniusPullback(e, T)
+frobeniusPullback(ZZ, Module)  := (e, M) -> (
+    if  M.cache#?(FrobeniusPullback, e)
+    then M.cache#(FrobeniusPullback, e)
+    else M.cache#(FrobeniusPullback, e) = (
+	R:=ring M;
+	F:=frobeniusMap(R,e);
+	p:=char R;
+	R0:=source F;
+	A:=presentation M;
+	A0:=sub(A,R0);
+	coker(F**map((R0)^(-(p^e)*degrees target A0),,A0))
+	)
+    )
+
+frobeniusPullback(ZZ, CoherentSheaf)  := (e, F) -> (
+    sheaf frobeniusPullback(e,module F)
+    )
+
+
+
 
 end--
 restart
@@ -115,8 +145,8 @@ S0=(ZZ/2)[x_0,x_1,x_2]**(ZZ/2)[y_0,y_1,y_2];
 S0=tensor((ZZ/2)[x_0,x_1,x_2], (ZZ/2)[y_0,y_1,y_2], DegreeMap => null)
 e=1
 errorDepth=1
-target presentation pushFwd(frobeniusMap(e, ring S^1), S^1)
-target presentation pushFwd(frobeniusMap(e, ring S0^1), S0^1)
+target presentation myPushForward(frobeniusMap(e, ring S^1), S^1)
+target presentation myPushForward(frobeniusMap(e, ring S0^1), S0^1)
 
 g' = g
 peek g

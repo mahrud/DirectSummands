@@ -1,6 +1,7 @@
 needs "helpers.m2"
 needs "frobenius.m2"
 needs "idempotents.m2"
+needs "expandedhom.m2"
 
 -* needed for toric frobeniusDirectImage
 path = append(path, "~/sasha/code/")
@@ -26,30 +27,79 @@ Module ? Module := (M, N) -> rank M ? rank N
 -- TODO: add this as a strategy to basis
 smartBasis = (deg, M) -> (
     if instance(deg, ZZ) then deg = {deg};
-    C := coneFromVData effGenerators ring M;
-    degs := select(unique degrees M, d -> coneComp(C, d, deg) == symbol <=); -- TODO: could be faster
-    -- M_(positions(degrees M, d -> d == deg))
+    degs := if #deg == 1 then {min(unique degrees M)} else (
+	-- FIXME: in the multigraded case sometimes just using basis is faster:
+	return basis(deg, M);
+        -- in the multigraded case, coneMin and coneComp can be slow
+	-- but for sufficiently large modules they are still an improvement
+        -- TODO: make them faster
+        C := coneFromVData effGenerators ring M;
+        --elapsedTime compMin(C, unique degrees M) -- TODO: this is not the right thing
+        select(unique degrees M, d -> coneComp(C, d, deg) == symbol <=));
     if degs == {deg} then map(M, , submatrixByDegrees(gens cover M, (, degs)))
+    -- M_(positions(degrees M, d -> d == deg))
     -- FIXME: this line forgets the homomorphism information
     --else basis(deg, image map(M, , submatrixByDegrees(gens cover M, (, degs))))) -- TODO: confirm that this is faster
     else basis(deg, M)) -- caching this causes issues!
 
+-- TODO: move to Core
+position(ZZ, Function) := o -> (n, f) -> position(0..n-1, f)
+
+-- TODO: what generality should this be in?
+-- WANT:
+--   R ** ZZ/101 to change characteristic
+--   R ** S to change coefficient ring
+-- TODO: can you change the ground field but keep the tower structure?
+QuotientRing   ** GaloisField :=
+PolynomialRing ** GaloisField := (R, L) -> (
+    -- TODO: in general we may want to keep part of the ring tower
+    A := first flattenRing(R, CoefficientRing => null);
+    quotient sub(ideal A, L monoid A))
+
+changeBaseField = (L, M) -> (
+    S := first flattenRing(ring M, CoefficientRing => null);
+    R := quotient sub(ideal S, L monoid S);
+    coker sub(presentation M, R))
+
 -- Note: M may need to be extended to a field extensions
 -- TODO: cache the inclusion maps
-summands = method(Options => { Verbose => true, Endo => null }) --renamed End to Endo since End is taken as a method already
-summands Module := List => opts -> (cacheValue symbol summands) (M -> sort(
+-- Strategies:
+-- 1 => use expanded hom
+summands = method(Options => { Verbose => true, Strategy => 1, ExtendGroundField => null })
+summands Module := List => opts -> (cacheValue (symbol summands => opts.ExtendGroundField)) (M -> sort(
     -- Note: rank does weird stuff if R is not a domain
-    if opts.Verbose then printerr("encountered summand of rank: ", toString rank M);
+    if 0 < debugLevel then printerr("splitting module of rank: ", toString rank M);
+    if opts.ExtendGroundField =!= null then (
+	L := opts.ExtendGroundField;
+	L  = if instance(L, ZZ)   then GF(char ring M, L)
+	else if instance(L, Ring) then L else error "expected an integer or a ground field";
+	M = changeBaseField(L, M));
     if 1 < #components M then return flatten apply(components M, summands);
-    elapsedTime A := End M; -- most time consuming step
-    elapsedTime B := smartBasis(degree 1_(ring M), A);
+    zdeg := degree 1_(ring M);
+    --TODO: make "elapsedTime" contingent on verbosity
+    A := if opts.Strategy == 1 then Hom(M, M, zdeg) else End M; -- most time consuming step
+    B := smartBasis(zdeg, A);
+    K := coker vars ring M;
     -- FIXME: this currently does not find _all_ idempotents
     -- FIXME: why is B_{0} so slow for the Horrocks-Mumford example?!
-    idem := if numcols B > 1 then position(cols B, f -> isIdempotent homomorphism f and homomorphism f != id_M);
+    flag := true; -- whether all homomorphisms are zero mod m;
+    idem := position(numcols B, c -> (
+	    h := homomorphism B_{c};
+	    if h == id_M then false else (
+	    	if flag and K ** h != 0 then flag = false;
+		isIdempotent h))
+	);
+    -- check if M is certifiably indecomposable
+    -- TODO: is homomorphism cached?
+    if flag then (
+	-- this is the same as checking:
+    	-- all(numcols B, i -> homomorphism B_{i} == id_M or K ** homomorphism B_{i} == 0)
+	if 0 < debugLevel then printerr("\t... certified indecomposable!"); 
+	M.cache.Indecomposable = true; {M} );
     -- TODO: parallelize
-    -- TODO: restrict End M to each summand and pass it on
-    if idem === null then {M} else flatten join(
-	h := homomorphism B_{idem};
+    h = if idem =!= null then homomorphism B_{idem} else try findIdem M;
+    if h === null then {M} else flatten join(
+        -- TODO: restrict End M to each summand and pass it on
 	M1 := prune image h;
 	M2 := prune coker h;
 	-- Projection maps to the summands
@@ -59,9 +109,15 @@ summands Module := List => opts -> (cacheValue symbol summands) (M -> sort(
 	summands(M1, opts),
 	summands(M2, opts))
     ))
-summands CoherentSheaf := List => opts -> F -> apply(summands(module F, opts), N -> sheaf(variety F, N))
+
+-- TODO: if ExtendGroundField is given, change variety
+summands CoherentSheaf := List => opts -> F -> apply(summands(module F, opts), N -> sheaf(-*variety F,*- N))
 --summands Matrix  := List => opts -> f -> () -- TODO: should be functorial
 --summands Complex := List => opts -> C -> () -- TODO: should be functorial
+
+isDefinitelyIndecomposable = method()
+isDefinitelyIndecomposable Module := M -> M.cache.?Indecomposable
+isDefinitelyIndecomposable CoherentSheaf := M -> isDefinitelyIndecomposable module M
 
 -* TODO: not done yet
 diagonalize = M -> (
@@ -81,14 +137,52 @@ diagonalize = M -> (
     )
 *-
 
+doc ///
+    Key
+        summands
+    Headline
+        summands of a module or sheaf
+    Usage
+        summands(M)
+    Inputs
+        M:
+            a module or coherent sheaf
+    Outputs
+        :
+            a list of modules or coherent sheaves that are summands of M
+    Description
+        Text
+            this attempts to find the indecomposable summands of a module or sheaf M
+        Example
+            S=QQ[x,y]
+            summands(coker matrix{{x,y},{x,x}})
+    SeeAlso
+        findIdem
+///
+
+
+
+
+
 end--
 restart
 needs "splitting.m2"
 
+-- basic free module test
+R = ZZ/2[x_0..x_5]
+M = R^{2:-2,2:0,2:2}
+debugLevel=1
+elapsedTime summands M
+elapsedTime summands(M, ExtendGroundField => 2)
+elapsedTime summands(M, ExtendGroundField => 4)
+
+summands(M, ExtendGroundField => ZZ/101)
+summands(M, ExtendGroundField => GF(2,2))
+
 -- basic multigraded test
 R = kk[x,y,z] ** kk[a,b,c]
 M = R^{{0,0},{0,1},{1,0},{-1,0},{0,-1},{1,-1},{-1,1}}
-assert isIsomorphic(directSum summands M, M)
+assert isIsomorphic(directSum elapsedTime summands M, M)
 
 -- presentation of the Horrocks-Mumford bundle
 restart
@@ -113,13 +207,31 @@ restart
 needs "splitting.m2"
 R = (ZZ/7)[x,y,z]/(x^3+y^3+z^3);
 X = Proj R;
-M = End module frobeniusPushforward(OO_X,1);
+M = frobeniusPushforward(OO_X,1);
+A = End M;
 -- 0.39809 seconds elapsed
-elapsedTime basis({3}, M);
+elapsedTime basis({3}, A);
 -- 0.171702 seconds elapsed
-elapsedTime smartBasis({3}, M);
+elapsedTime smartBasis({3}, A);
 
+assert({1, 2, 2, 2} == rank \ summands M)
+assert({1, 2, 2, 2} == rank \ summands(M, ExtendGroundField => GF 7))
+assert({1, 2, 2, 2} == rank \ summands(M, ExtendGroundField => GF(7, 3)))
+assert(toList(7:1) == rank \ summands(M, ExtendGroundField => GF(7, 2)))
 
 restart
 needs "splitting.m2"
 
+-- Direct Summands of a ring
+S = kk[x,y,z]
+R = kk[x,y,z,w]/(x^3+y^3+z^3+w^3)
+f = map(R, S)
+M = pushForward(f, module R)
+
+
+-- currently broken
+ S=QQ[x,y]
+ M=coker matrix{{1,0},{1,y}}
+summands(M) --doesn't work
+summands(prune M) --works fine
+summands(trim M) --works fine
