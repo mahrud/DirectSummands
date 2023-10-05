@@ -1,4 +1,4 @@
-needsPackage "RationalPoints2"
+--needsPackage "RationalPoints2"
 
 generalEndomorphism = method()
 generalEndomorphism Module := M -> (
@@ -17,12 +17,14 @@ charMatrix = A -> (
     R := ring A;
     m := ideal gens R;
     k := coefficientRing R;
+    local t;
     T := k[t];
     AT := sub(cover A, T);
     n := rank source AT;
     AT-t*id_(T^n)
     )
 
+protect Tries
 findIdem = method(Options => { Tries => 50 })
 findIdem Module      := opts ->  M     -> findIdem(M, fieldExponent coefficientRing ring M)
 findIdem(Module, ZZ) := opts -> (M, e) -> (
@@ -42,30 +44,21 @@ findIdem(Module, ZZ) := opts -> (M, e) -> (
 	    break opers_idem)))
 findIdem CoherentSheaf := opts -> M -> findIdem module M
 
-testSplitting = (L,M0)->(
-    B:=smartBasis(0,module sheafHom(L,M0));
-    b:=rank source B;
-    C:=smartBasis(0,module sheafHom(M0,L));
-    c:=rank source C;
-isSplitting:=(i,j)->reduceScalar(homomorphism(C_{j})*homomorphism(B_{i}))==id_(module L);
-    l:=if (P= position'(0..b-1,0..c-1,isSplitting))===null then return else first P ;
-    sheaf coker homomorphism (B_{l})
+testSplitting = (L, M0)->(
+    B := smartBasis(0, module sheafHom(L, M0));
+    b := rank source B;
+    C := smartBasis(0, module sheafHom(M0, L));
+    c := rank source C;
+    isSplitting := (i,j) -> reduceScalar(homomorphism C_{j} * homomorphism B_{i}) == id_(module L);
+    l := if (P := position'(0..b-1, 0..c-1, isSplitting)) === null then return else first P;
+    sheaf coker homomorphism B_{l}
     )
 
-position' = (B, C, f) -> for b in B do for c in C do if f(b,c) then return (b,c)
-
-fieldExponent= (L)->(
-p := char L;
-if p == 0 then return 1 else(
-a:=L_0;
-e := 1;
-while a^(p^e) != a do (e=e+1);
-e)
-)
-
-
-
-
---------
---summand of 4th syzygy of residue field of ring defined by ideal(y*z,x*z,y^3,x*y^2+z^3,x^2*y,x^3) is indecomposable, but the current method doesn't really show that definitively
-
+fieldExponent = L -> (
+    p := char L;
+    if p == 0 then return 1 else (
+	a := L_0;
+	e := 1;
+	while a^(p^e) != a do (e = e + 1);
+	e)
+    )
