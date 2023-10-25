@@ -1,5 +1,5 @@
-needs "helpers.m2"
-needsPackage "PushForward"
+--needsPackage "PushForward"
+--needsPackage "Polyhedra" -- for lattice points
 --needsPackage "Complexes"
 
 myPushForward = (f, M) -> (
@@ -9,6 +9,8 @@ myPushForward = (f, M) -> (
     -- pushForward(f, M, UseHilbertFunction => false)
     )
 
+protect FrobeniusRing
+protect FrobeniusFormation
 frobeniusRing = method(TypicalValue => Ring)
 frobeniusRing(ZZ, Ring) := (e, R) -> (
     if not R.?cache then R.cache = new CacheTable;
@@ -37,6 +39,7 @@ decomposeFrobeniusPresentation = (e, f) -> (
     srcclasses = apply(srcclasses, ell -> ell_(last \ sort \\ reverse \ toList pairs srcdegrees_ell));
     apply(tarclasses, srcclasses, (tarclass, srcclass) -> submatrix(f, tarclass, srcclass)))
 
+protect FrobeniusPushforward
 frobeniusPushforward = method()
 frobeniusPushforward(Thing, ZZ)   := (T, e) -> frobeniusPushforward(e, T)
 frobeniusPushforward(ZZ, Ring)    := (e, R) -> frobeniusPushforward(e, module R)
@@ -70,30 +73,23 @@ frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> (
     Fmatrix := sub(presentation FN, R);
     (tardegs, srcdegs) := toSequence(-degrees Fmatrix // p^e);
     -- TODO: how long does this take? is it worth caching?
-    sheaf prune coker map(R^tardegs,  R^srcdegs, Fmatrix))
+    sheaf prune coker map(R^tardegs, R^srcdegs, Fmatrix))
 
+protect FrobeniusPullback
 frobeniusPullback = method()
-frobeniusPullback(Thing, ZZ)   := (T, e) -> frobeniusPullback(e, T)
-frobeniusPullback(ZZ, Module)  := (e, M) -> (
+frobeniusPullback(Thing, ZZ)  := (T, e) -> frobeniusPullback(e, T)
+frobeniusPullback(ZZ, Module) := (e, M) -> (
     if  M.cache#?(FrobeniusPullback, e)
     then M.cache#(FrobeniusPullback, e)
     else M.cache#(FrobeniusPullback, e) = (
-	R:=ring M;
-	F:=frobeniusMap(R,e);
-	p:=char R;
-	R0:=source F;
-	A:=presentation M;
-	A0:=sub(A,R0);
-	coker(F**map((R0)^(-(p^e)*degrees target A0),,A0))
-	)
-    )
-
-frobeniusPullback(ZZ, CoherentSheaf)  := (e, F) -> (
-    sheaf frobeniusPullback(e,module F)
-    )
-
-
-
+	R := ring M;
+	p := char R;
+	F := frobeniusMap(R, e);
+	R0 := source F;
+	A := presentation M;
+	A0 := sub(A, R0);
+	coker(F ** map(R0^(-(p^e) * degrees target A0), , A0))))
+frobeniusPullback(ZZ, CoherentSheaf) := (e, F) -> sheaf frobeniusPullback(e, module F)
 
 end--
 restart
