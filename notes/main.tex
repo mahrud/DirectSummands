@@ -147,4 +147,31 @@ Thus, $(A-\l I)^l$ is simply a diagonal matrix with 1 or 0 on the diagonal, henc
 \end{proof}
 
 
+\begin{lem}
+Let $A\in \End_R M$ be idempotent. Then $M=\im  A\oplus \ker A$.
+\end{lem}
+
+\begin{proof}
+Consider the short exact sequence
+$$
+0\to \ker A \to M \to \im A\to 0.
+$$
+The map $M\to M$ given by $-A+\id_M$ sends $M\to \ker A$, since $-A(A-\id_M)(m) = -(A^2-A)(m)=0$. In fact, this map $M\to \ker A$ is a splitting of $\ker A\to M$, since if $m\in \ker A$ we have $-(A-\id_M)(m) = -A(m)+\id_M(m)=m$.
+\end{proof}
+
+\begin{lem}
+Let $A\in \End_R M$ satisfy $A^d=A$. Then $M=\im  A\oplus \ker A$.
+\end{lem}
+
+\begin{proof}
+Consider the short exact sequence
+$$
+0\to \ker A \to M \to \im A\to 0.
+$$
+The map $M\to M$ given by $-A^{d-1}+\id_M$ sends $M\to \ker A$, since $-A(A^{d-1}-\id_M)(m) = -(A^d-A)(m)=0$. In fact, this map $M\to \ker A$ is a splitting of $\ker A\to M$, since if $m\in \ker A$ then also $m\in \ker A^{d-1}$ and thus we have $-(A^{d-1}-\id_M)(m) = -A^d(m)+\id_M(m)=m$.
+
+\end{proof}
+
+
+
 \end{document}
