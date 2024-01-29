@@ -1,0 +1,3 @@
+Computing summands of the Frobenius pushforward over Cox rings
+It is known that the Frobenius pushforward of the structure sheaf on toric varieties splits as a sum of line bundles, and high enough pushforwards of it generate the derived category. Working over the multigraded Cox ring of a Mori Dream Space, we discuss algorithms for determining the summands of the Frobenius pushforward of the structure sheaf.
+

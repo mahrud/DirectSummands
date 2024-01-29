@@ -1,0 +1,328 @@
+\documentclass[beamer]{paper}
+
+\usepackage{quiver}
+\usepackage[italic,symbolgreek]{mathastext}
+
+% for highlighting
+\usepackage{xcolor, soul}
+\makeatletter
+\let\HL\hl
+\renewcommand\hl{%
+  \let\set@color\beamerorig@set@color
+  \let\reset@color\beamerorig@reset@color
+  \HL}
+\makeatother
+
+\usetheme{Warsaw}
+\beamertemplatenavigationsymbolsempty
+%\setbeamertemplate{footline}[frame number]
+%\setbeamercovered{transparent} % gray out hidden stuff
+\AtBeginSection{\frame{\sectionpage}}
+
+\newcommand{\lc}{\MakeLowercase}
+
+\newcommand{\PPN}{\PP{\underline{\nn}}}
+
+\newcommand{\reg}{\operatorname{reg}}
+
+\newcommand{\cH}{\mathcal{H}} % Hirzebruch surface
+
+\renewcommand{\aa}{\mathbf a}
+\newcommand{\bb}{\mathbf b}
+\newcommand{\cc}{\mathbf c}
+\newcommand{\dd}{\mathbf d}
+\newcommand{\ee}{\mathbf e}
+\newcommand{\vv}{\mathbf v}
+\newcommand{\ww}{\mathbf w}
+\newcommand{\pp}{\mathbf p}
+\newcommand{\qq}{\mathbf q}
+\newcommand{\nn}{\mathbf n}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\zero}{\mathbf 0}
+\newcommand{\Om}{\Omega}
+\newcommand{\om}{\omega}
+\newcommand{\cech}{\check{C}}
+\newcommand{\Alt}{\bigwedge\nolimits}
+\newcommand{\R}{\mathbf R} % right derived
+
+\def\OO{\mathcal{O}}
+\def\FF{\mathbb{F}}
+
+\def\a{\alpha}
+\def\b{\beta}
+\def\g{\gamma}
+\def\del{\partial}
+\def\cech{\check{C}}
+\def\Gs{\Gamma_{\!*}}
+
+\def\ub{\underbrace}
+\def\on{\operatorname}
+\def\ph{\phantom{-}}
+
+\def\Sym{\operatorname{Sym}}
+
+\def\L{\mathcal{L}}
+\def\E{\mathcal{E}}
+\def\X{\mathcal{X}}
+\def\B{\mathbf{B}}
+\def\RR{\mathbf{R}}
+\def\cR{\mathcal{R}}
+\def\L{\mathbf{L}}
+\def\U{\mathbf{U}}
+\def\H{\mathbb{F}}
+\def\F{\mathcal{F}}
+\def\G{\mathcal{G}}
+\def\C{\mathcal{C}}
+\def\Z{\ZZ}
+
+\def\Db{\operatorname{D}^{\operatorname{b}}} % -> \Db{X}
+\def\coh{\operatorname{coh}}
+\def\cL{\mathcal{L}}
+
+\def\from{\leftarrow}
+\def\into{\hookrightarrow}
+\def\operatornameto{\twoheadrightarrow}
+
+\def\id{\operatorname{id}}
+\def\th{\operatorname{th}}
+\def\colim{\operatorname{colim}}
+\def\lenef{\le_{\operatorname{nef}}}
+\def\lnef{<_{\operatorname{nef}}}
+\def\Dsat{D_{\operatorname{sat}}}
+
+\def\cS{\mathcal{S}}
+\def\cT{\mathcal{T}}
+\def\cK{\mathcal{K}}
+\def\cB{\mathcal{B}}
+\def\tS{\widetilde{S}}
+\def\cU{\mathcal{U}}
+\def\cW{\mathcal{W}}
+\def\cC{\mathcal{C}}
+\def\tr{\widetilde{\rho}}
+\def\ts{\widetilde{\sigma}}
+\def\tt{\widetilde{\tau}}
+
+\newcommand{\PG}[1]{{\color{PineGreen}#1} }
+\newcommand{\dao}[1]{{\color{DarkOrchid}#1} }
+
+\begin{document}
+
+% Use Computer Modern with Serif Roman Font Family
+\rmfamily
+\setbeamerfont{frametitle}{family=\rmfamily\selectfont}
+
+\title[Computing summands of the Frobenius over Cox rings]
+      {\textsc{Computing Summands of the Frobenius \\ over Multigraded Cox Rings}}
+
+% I acknowledge that the University of Minnesota stands on Miní Sóta Makhóčhe, the homelands of the Dakhóta Oyáte.
+
+% Abstract: It is known that the Frobenius pushforward of the structure sheaf on toric varieties splits as a sum of line bundles, and high enough pushforwards of it generate the derived category. Working over the multigraded Cox ring of a Mori Dream Space, we discuss algorithms for determining the summands of the Frobenius pushforward of the structure sheaf.
+
+\author[Mahrud Sayrafi]{M\lc{ahrud} S\lc{ayrafi} \\
+  {\footnotesize U\lc{niversity} of M\lc{innesota}, T\lc{win} C\lc{ities}} \\[0em]
+  {\footnotesize Joint work with Devlin Mallory (University of Utah)}}
+
+%\institute[UMN]{U\lc{niversity} of M\lc{innesota}, T\lc{win} C\lc{ities}}
+
+% https://www.jointmathematicsmeetings.org/meetings/national/jmm2024/2300_progfull.html
+\date{{\footnotesize AMS Special Session on \\
+    Derived Categories, Arithmetic, and Geometry, \\
+    Joint Mathematics Meetings} \\ January 4, 2024}
+
+\frame[plain]{\titlepage}
+
+
+\begin{frame}[t]{Warm-up: Frobenius pushforward on $\PPn$}
+  Let $\kk$ be an algebraically closed field of char $p>0$.
+
+  Let $S = \kk[x_0,\dots,x_n]$ be a polynomial ring with $\deg x_i = 1$.
+
+  \vfill
+  %\pause
+  Consider the Frobenius endomorphism
+  \[ F\colon S\to S \quad \text{given by} \quad f \to f^p \]
+
+  %\pause
+  - Hartshorne: any $L\in\Pic\PPn$, $F_*L$ splits as a sum of line bundles.
+  %\pause
+  \begin{block}{Example: $F_*\o_{\PPn}$}
+    \vspace*{-0.2in}
+    \begin{align*}
+      \text{When $p=3$, $n=2$:} \\
+      F_*\o_{\PP2} = \o \oplus &\o(-1)^7 \oplus \o(-2). \\
+      \text{When $p=2$, $n=5$:} \\
+      F_*\o_{\PP5} = \o \oplus &\o(-1)^{15} \oplus \o(-2)^{15} \oplus \o(-3). \\
+      F_*^2\o_{\PP5} = \o \oplus &\o(-1)^{120} \oplus \o(-2)^{546} \oplus \o(-3)^{336} \oplus \o(-4)^{21}
+    \end{align*}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}[t]{Warm-up: Frobenius pushforward on toric varieties}
+  Let $X$ be a smooth toric variety and consider the Cox ring
+  \[ S = \bigoplus\!{}_{[D]\in\Pic{X}} \; \Gamma(X, \OO(D)) \]
+
+  %\pause
+  \begin{theorem}[Thm.~3.2, \cite{[Cox95]}]
+    Every coherent sheaf on a simplicial toric variety $X$ corresponds \\
+    to a finitely generated $\Pic X$-graded $S$-module.
+  \end{theorem}
+
+  \vfill
+  %\pause
+  Fact: for any toric variety, $S$ is a \textbf{multigraded} polynomial ring.
+  %\pause
+  Upshot: we can do commutative algebra on a toric variety! \\
+  %\pause
+  \hfill + easy monomial orderings, Gr\"obner bases, syzygies, etc.
+\end{frame}
+
+
+\begin{frame}[t]{Warm-up: Frobenius pushforward on toric varieties}
+  Let $X$ be a smooth toric variety and consider the Cox ring
+  \[ S = \bigoplus\!{}_{[D]\in\Pic{X}} \; \Gamma(X, \OO(D)) \]
+
+  %\pause
+  - Bogvad '98, Thomsen '00: $F_*L$ totally splits for any $L\in\Pic X$.
+  %\pause
+  \begin{block}{Example: $X = $ Hirzebruch surface of type 3, $F_*\o_X, p = 2$}
+    \vspace*{-0.2in}
+    \[ F_*\o_X = \o_X \oplus \o_X(-1,0)^2 \oplus \o_X(0,-1)^2 \oplus \o_X(1,-1)^3 \oplus \o_X(2,-1). \]
+  \end{block}
+
+  - Achinger '13: \\ \hfill splitting of $F_*L$ characterizes smooth projective toric varieties.
+
+  \vfill
+  %\pause
+  \begin{block}{Remark}
+    The toric Frobenius is simply multiplication by $p$ on the torus.
+  \end{block}
+  %\pause
+  \begin{alertblock}{Funky Remark}
+    The $p$ need not be prime, nor even match the characteristic!
+  \end{alertblock}
+\end{frame}
+
+
+\begin{frame}{Frobenius pushforward on Grassmannians}
+  We can still consider the Cox ring
+  \[ S = \bigoplus\!{}_{[D]\in\Pic{X}} \; \Gamma(X, \OO(D)) \]
+  which in this case coincides with the coordinate ring.
+
+  %\pause
+  \begin{block}{Example: $X = \mathrm{Gr(2,4)}, F_*\o_X, p = 3$}
+    Working over the coordinate ring:
+    \[ S = \frac{\kk[p_{0,1},\dots p_{0,2},p_{1,2},p_{0,3},p_{1,3},p_{2,3}]}{p_{1,2}p_{0,3}-p_{0,2}p_{1,3}+p_{0,1}p_{2,3}} \]
+    When $p = 3$:
+    \[ F_*\o_X = \o \oplus \o(-1)^{44} \oplus \o(-2)^{20} \oplus A^4 \oplus B^4, \]
+    where $A$ and $B$ are rank 2 indecomposable bundles. \\
+    \hfill (c.f. [Raedschelders--Špenko--Van den Bergh, '17])
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Frobenius pushforward on Mori Dream Spaces}
+  This is the natural setting to work over the Cox ring
+  \[ S = \bigoplus\!{}_{[D]\in\Pic{X}} \; \Gamma(X, \OO(D)). \]
+  Hu--Keel: $X$ is an $MDS$ $\iff$ the Cox ring is finitely generated.
+
+  \vfill
+  %\pause
+  \begin{exampleblock}{Examples}
+  \; - Projective toric varieties \\
+  \; - Grassmannians and flag varieties \\
+  \; - Determinantal varieties \\
+  \; - Many complete intersection rings \\
+  \; - Smooth Fano varieties over $\CC$ \\
+  \; - $\overline{M}_{0,n}$ for $n\leq 6$ (7,8,9 are unknown)
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{Frobenius pushforward on Mori Dream Spaces}
+  \begin{block}{Example: $X = \mathrm{Bl}_4\PP2, F_*\o_X, p = 2$}
+    Working over the $\ZZ^5$-graded Cox ring \vspace*{-0.15in}
+    \[ S = \kk[x_1,\dots,x_{10}]/\text{(five quadric Pl\"ucker relations)} \]
+    %\pause
+    With degrees \vspace*{-0.15in}
+    \[
+    \left(\!\begin{array}{cccccccccc}
+      0&0&0&0&1&1&1&1&1&1 \\
+      1&0&0&0&-1&-1&-1&0&0&0 \\
+      0&1&0&0&-1&0&0&-1&-1&0 \\
+      0&0&1&0&0&-1&0&-1&0&-1 \\
+      0&0&0&1&0&0&-1&0&-1&-1
+    \end{array}\!\right)
+    \]
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Frobenius pushforward on Mori Dream Spaces}
+  \begin{block}{Example: $X = \mathrm{Bl}_4\PP2, F_*\o_X, p = 2$}
+    \vspace*{-0.15in}
+    h\begin{align*}
+      F_*^2\o_X = {\o_{X}^{1}}
+      &\oplus {\o_{X}^{2}\ \left(-2,\,1,\,1,\,1,\,1\right)} \oplus {\o_{X}^{2}\ \left(-1,\,0,\,0,\,0,\,1\right)} \\ 
+      &\oplus {\o_{X}^{2}\ \left(-1,\,0,\,0,\,1,\,0\right)} \oplus {\o_{X}^{2}\ \left(-1,\,0,\,1,\,0,\,0\right)} \\
+      &\oplus {\o_{X}^{2}\ \left(-1,\,1,\,0,\,0,\,0\right)} \oplus B \oplus G,
+    \end{align*}
+    where $B, G$ are rank 3 and rank 2 indecomposables. \\
+    \hfill (c.f. [Hara, '15])
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{The splitting algorithm}
+  \begin{alertblock}{The ``Meataxe'' algorithm}
+    Input: finitely generated graded module $M$ over an algebra.
+    %\pause
+    \begin{enumerate}
+    \item compute $\Hom(M, M)$; %\pause
+    \item find element $h$ corresponding to an idempotent; %\pause
+    \item find the image and cokernel of $h$; %\pause
+    \item repeat.
+    \end{enumerate}
+  \end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t]{Frobenius pushforward on determinantal varieties}
+  \textbf{Fact:} a determinantal variety $X$ is a Mori dream space. \\
+  \hfill (i.e. the Cox ring is a finitely generated algebra.)
+
+  \vfill
+  Singh: does $F^e_*\OO_X$ have finitely many classes of summands? \\
+  This is known as having \emph{globally finite $F$-representation type}.
+
+  \begin{block}{Problem}
+    Classify MDS with globally finite $F$-representation type.
+  \end{block}
+
+  \begin{alertblock}{Upshot}
+    Determining line bundle summands is easy over the Cox ring.
+  \end{alertblock}
+
+  \vfill
+\end{frame}
+
+
+\begin{frame}[t]{References}
+  \scriptsize{
+    - Hartshorne \hfill\textit{Ample subvarieties of algebraic varieties} \\
+    - Bogvad, \hfill\textit{Splitting of the direct image of sheaves under the Frobenius} \\
+    - Thomsen, \hfill\textit{Frobenius direct images of line bundles on toric varieties} \\
+    - Achinger, \hfill\textit{A characterization of toric varieties in characteristic $p$} \\
+    - Hara, \hfill\textit{Looking out for Frobenius summands on a blown-up surface of $\PP2$} \\
+    - Raedschelders, Špenko, Van den Bergh, \hfill\textit{The Frobenius morphism in invariant theory}
+  }
+
+  \renewcommand{\section}{\subsection}
+  \printbibliography
+\end{frame}
+
+\end{document}
+
+% Local Variables:
+% tab-width: 2
+% eval: (visual-line-mode)
+% End:
