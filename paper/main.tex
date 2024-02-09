@@ -39,139 +39,290 @@
 \newcommand{\mahrud}[1]{{\color{ForestGreen} \sf $\blacklozenge$ Mahrud: [#1]}}
 \newcommand{\devlin}[1]{{\color{red} \sf $\clubsuit$ Devlin: [#1]}}
 
-\title{The DirectSummands package in Macaulay2}
+\title{Computing direct sum decompositions}
 \author{Devlin Mallory and Mahrud Sayrafi}
 \begin{document}
 \maketitle
 
-Throughout, $R$ will be an $\N$-graded ring with $R_0=k$ a field\mahrud{I think most of this applies to any grading as long as the latter condition holds}; we write $m$ for the homogeneous maximal ideal. Note that if $M$ is a finitely generated $R$-module, and $A\in \End_R(M)$, then $A$ acts on the $k$-vector space $M/mM$.
+% Regular papers, aimed to contributed talks:
+% for these, authors can choose to submit either an extended abstract of at least six pages (not counting bibliography) that should contain full results, an outline of the proofs and all of the main ideas; or else a full paper with complete proofs.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+%% The introduction of the paper must explicitly address the following questions in succinct and informal manner:
+%% – What is the problem?
+%% – Why is the problem important?
+%% – What has been done so far on the problem?
+%% – What is the main contribution of the paper on the problem?
+%% – Why is the contribution original? (see below for clarification)
+%% – Why is the contribution non-trivial?
+%% – How does the journal paper differ from the conference paper (if relevant)?
+
+The problem of finding isomorphism classes of indecomposable modules with certain properties is ubiquitous in commutative algebra, group theory, representation theory, and other fields. Within commutative algebra, for instance, the classification of Cohen--Macaulay local rings $R$ for which there are only finitely many indecomposable maximal Cohen--Macaulay $R$-modules (the \emph{finite CM-type} property), or determining whether iterated Frobenius pushforwards of a Noetherian ring in positive characteristic have finitely many isomorphism classes of indecomposable summands (the \emph{finite F-representation type} property) are two well established research problems where making and testing conjectures depends on the ability to find all summands of modules or verify their indecomposability.
+
+Currently there are no widely used algorithms for checking indecomposability or finding summands of modules over commutative rings. In contrast, variants of the ``Meat-Axe'' algorithm for determining irreducibility of finite dimensional modules over a group algebra have wide ranging applications in computational group theory \cite{Parker84,HR94,Holt98} and are available through symbolic algebra software such as Magma and GAP \cite{MAGMA,GAP}.
+
+The purpose of this paper is to describe and prove correctness of a practical algorithm for computing indecomposable summands of finitely generated modules over a Noetherian commutative ring. In particular, our algorithm works over multigraded rings, which enables applications in toric geometry. We present multiple examples in the end.
+
+An accompanying implementation in Macaulay2 is available online via the GitHub repository \\
+\centerline{
+  \href{https://github.com/mahrud/DirectSummands}
+  {\texttt{https://github.com/mahrud/DirectSummands}}.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{The main algorithm}
+
+Throughout, $R$ will be an $\Z^r$-graded ring with $R_0 = k$ a field and homogeneous maximal ideal $m$. Note that if $M$ is a finitely generated $R$-module, and $A\in \End_R(M)$, then $A$ acts on the $k$-vector space $M/mM$.
+
+We begin with the observation that if $\phi\in\End_R(M)$\mahrud{why is it $\phi$ here but $A$ everywhere else? I feel somewhat inclined to use $A=\End_R(M)$ and $\alpha\in A$ as an endomorphism.} is an idempotent, then $M$ decomposes as $\im\phi \oplus \ker\phi$; if $\phi$ is nontrivial (i.e., neither an isomorphism nor the zero morphism), then $M$ is decomposable. The following lemma allows us to check this condition modulo the maximal ideal:
 
 \begin{lem}
-  Let $M$ be an $R$-module, and let $A\in\End_R(M)$. If the induced action of $A$ on $M/mM$ is idempotent\mahrud{Maybe you're proving something stronger, but it's possible that action of $A$ on $M$ is either idempotent of nonzero degree or not idempotent, but the induced action on $M/mM$ is}, then $M$ admits a direct sum decomposition $N\oplus M/N$, where $N\cong \im A$.
+  Let $M$ be an $R$-module, and let $A\in\End_R(M)$. If the induced action of $A$ on $M/mM$ is idempotent, then $M$ admits a direct sum decomposition $N\oplus M/N$, where $N\cong \im A$.
 \end{lem}
-
 \begin{proof}
   By assumption, we can write $A^2 = A + B$, where $B\in\End_R(M)$ with $B(M)\subset mM$.
-Note that if $n \in m^kM$, then $A^2(n) - A(n) = B(n)$  lies in $m^{k+1}M$.
+  Note that if $n \in m^kM$, then $A^2(n) - A(n) = B(n)$  lies in $m^{k+1}M$.
 
-Let $N = \im A$. Consider the composition $N\inc M \xra{A} \im(A) = N$. We claim that this composition is surjective. We may complete at the maximal ideal to check this, and thus assume $R$ and $M$ are complete\mahrud{out of curiosity, what can go wrong?}. Let $n_0\in N$. By assumption, $n_0=A(m_1)$ for some $m_1\in M$. Applying $A$ again, we get 
-\[ A(n_0) = A^2(m_1) = A(m_1) + n_1 = n_0 + n_1, \]
-or equivalently \mahrud{should this say $n_1 = A(n_0) - n_0$ instead?}
-\[ n_0 = A(n_0) - n_1 \]
-for some $n_1\in mM$. In fact, since $n_0$ and $A(n_0)$ are both in $N$, we have $n_1\in N$ also, so $n_1\in mM\cap N$.
+  Let $N = \im A$. Consider the composition $N\inc M \xra{A} \im(A) = N$. We claim that this composition is surjective. We may complete at the maximal ideal to check this, and thus assume $R$ and $M$ are complete\mahrud{out of curiosity, what can go wrong?}. Let $n_0\in N$. By assumption, $n_0=A(m_1)$ for some $m_1\in M$. Applying $A$ again, we get
+  \[ A(n_0) = A^2(m_1) = A(m_1) + n_1 = n_0 + n_1, \]
+  or equivalently \mahrud{should this say $n_1 = A(n_0) - n_0$ instead?}
+  \[ n_0 = A(n_0) - n_1 \]
+  for some $n_1\in mM$. In fact, since $n_0$ and $A(n_0)$ are both in $N$, we have $n_1\in N$ also, so $n_1\in mM\cap N$.
 
-Thus, we can write $n_1 = A(m_2)$ for $m_2\in M$.
-Now, apply $A$ to both sides: by the assumption that $A$ is idempotent modulo $m$\mahrud{how is this used here?}, we have
-\[ A(n_1)=A^2(m_2) = A(m_2) + n_2 = n_1+n_2, \]
-Thus, $n_2=A(n_1)-n_1$, so $n_2\in m^2M$; clearly also $n_2\in N$ as well. 
-Combining the previous equations, we can write
-\[ n_0 = A(n_0) - n_1 = A(n_0) - A(n_1) + n_2 = A(n_0 - n_1) + n_2, \]
-with $n_1\in mM\cap N$ and $n_2\in m^2M\cap N$.
+  Thus, we can write $n_1 = A(m_2)$ for $m_2\in M$.
+  Now, apply $A$ to both sides: by the assumption that $A$ is idempotent modulo $m$\mahrud{how is this used here?}, we have
+  \[ A(n_1)=A^2(m_2) = A(m_2) + n_2 = n_1+n_2, \]
+  Thus, $n_2=A(n_1)-n_1$, so $n_2\in m^2M$; clearly also $n_2\in N$ as well.
+  Combining the previous equations, we can write
+  \[ n_0 = A(n_0) - n_1 = A(n_0) - A(n_1) + n_2 = A(n_0 - n_1) + n_2, \]
+  with $n_1\in mM\cap N$ and $n_2\in m^2M\cap N$.
 
-Continuing in this fashion, for any $k$ we can write 
-\[ n_0=A(n_0-n_1+\dots \pm n_k) \mp n_{k+1}, \]
-with $n_i \in m^i M\cap N$.
+  Continuing in this fashion, for any $k$ we can write
+  \[ n_0=A(n_0-n_1+\dots \pm n_k) \mp n_{k+1}, \]
+  with $n_i \in m^i M\cap N$.
 
-By the Artin--Rees lemma, for there's some positive integer $k$ such that for $n\gg0$ we can write
-\[ m^n M\cap N = m^{n-k} ( m^kM\cap N)\subset m^{n-k} N. \]
-That is, the terms of $n_0-n_1+n_2-\dots$ are going to 0 in the $m$-adic topology on $N$. Thus, we can write
-\[ n_0=A(n_0-n_1+n_2-\dots), \]
-with $n_0-n_1+n_2-\dots\in N$. Thus, we have that $A$ is surjective as a map $N\to N$.
+  By the Artin--Rees lemma, for there's some positive integer $k$ such that for $n\gg0$ we can write
+  \[ m^n M\cap N = m^{n-k} ( m^kM\cap N)\subset m^{n-k} N. \]
+  That is, the terms of $n_0-n_1+n_2-\dots$ are going to 0 in the $m$-adic topology on $N$. Thus, we can write
+  \[ n_0=A(n_0-n_1+n_2-\dots), \]
+  with $n_0-n_1+n_2-\dots\in N$. Thus, we have that $A$ is surjective as a map $N\to N$.
 
-Since a surjective endomorphism of finitely generated modules is invertible, we have that this composition is an isomorphism on $N$; say $\a$.
-Finally, we then have that
-\[ 0 \inc N \inc M \]
-is split by the map of $R$-modules $M\xra A N\xra{\a\inv} N$. 
+  Since a surjective endomorphism of finitely generated modules is invertible, we have that this composition is an isomorphism on $N$; say $\a$.
+  Finally, we then have that
+  \[ 0 \inc N \inc M \]
+  is split by the map of $R$-modules $M\xra A N\xra{\a\inv} N$.
 \end{proof}
 
 \begin{lem}
-Let $k$ be a finite field of characteristic $p$, and let $A$ be an endomorphism of a $k$-vector space such that all eigenvalues of $A$ are contained in $k$. If $\l$ is an eigenvalue of $A$, then some power of $A-\l I$ acts idempotently.
-Furthermore, if $\l$ is not the only eigenvalue of $A$, then a nonzero power of $A-\l I$ acts idempotently.
+  Let $k$ be a finite field of characteristic $p$, and let $A$ be an endomorphism of a $k$-vector space such that all eigenvalues of $A$ are contained in $k$. If $\l$ is an eigenvalue of $A$, then some power of $A-\l I$ acts idempotently.
+Furthermore, if $\l$ is not the only eigenvalue of $A$, then a power of $A-\l I$ that is nonzero acts idempotently.
 \end{lem}
-
 \begin{proof}
-Since all eigenvalues of $A$ are contained in $k$, we can without loss of generality put $A$ in Jordan canonical form, with each Jordan block having the form
-$$
-r_i\Biggl\{
-\underbrace{\begin{pmatrix}
-\l_i & 1 & 0 &\dots & 0
-\\
-0& \l_i & 1  &\dots & 0
-\\
-\vdots & &&&\vdots
-\\
-0& 0 & 0  &\dots & \l_i
-\end{pmatrix}}_{r_i}
-$$
-with each $\l_i$ an eigenvalue of $A$.
-In this basis, $A-\l I$ will be block-diagonal with blocks of form
-$$
-\begin{pmatrix}
-\l_i-\l & 1 & 0 &\dots & 0
-\\
-0& \l_i-\l & 1  &\dots & 0
-\\
-\vdots & &&&\vdots
-\\
-0& 0 & 0  &\dots & \l_i-\l
-\end{pmatrix}
-$$
-Set $\mu_i=\l_i-\l$. Then $(A-\l I)^l$ is block-diagonal with blocks of the form
-$$
-\begin{pmatrix}
-\mu_i^l & \binom{l}1\mu_i^{l-1} & \binom{l}2\mu_i^{l-2} &\dots & \binom{l}{r_i}\mu_i^{l-r_i}
-\\
-0& \mu_i^l &
-\binom{l}1\mu_i^{l-1}  &\dots & \binom{l}{r_i-1}\mu_i^{l-r_i+1}
-\\
-\vdots & &&&\vdots
-\\
-0& 0 & 0  &\dots & \mu_i^l
-\end{pmatrix}
-$$
-If $l$ is $> r_i$ and divisible by $p$, then all nondiagonal terms will vanish, so all blocks will have the form
-$$
-\begin{pmatrix}
-\mu_i^l & 0 & 0 &\dots & 0
-\\
-0& \mu_i^l & 0  &\dots & 0
-\\
-\vdots & &&&\vdots
-\\
-0& 0 & 0  &\dots & \mu_i^l 
-\end{pmatrix}.
-$$
-Finally, choosing $l$ to be divisible also by $p^e-1$ for some $e>0$, we have that $$\mu_i^{l-1} = (\mu_i^{p^{e}-1})^{l/(p^{e}-1)} =1,$$ since $\mu_i$ is contained in a finite field of characteristic $p$.
-Thus, $(A-\l I)^l$ is simply a diagonal matrix with 1 or 0 on the diagonal, hence idempotent. Note moreover that if some $\l_i\neq \l$, then $(A-\l I)^l$ is not the zero matrix.
-
+  Since all eigenvalues of $A$ are contained in $k$, we can without loss of generality put $A$ in Jordan canonical form, with each Jordan block having the form
+  \[ r_i\Biggl\{
+  \underbrace{\begin{pmatrix}
+      \l_i & 1 & 0 & \dots & 0 \\
+      0 & \l_i & 1  & \dots & 0 \\
+      \vdots & & & & \vdots \\
+      0 & 0 & 0 & \dots & \l_i
+  \end{pmatrix}}_{r_i} \]
+  with each $\l_i$ an eigenvalue of $A$.
+  In this basis, $A-\l I$ will be block-diagonal with blocks of form
+  \[ \begin{pmatrix}
+    \l_i-\l & 1 & 0 & \dots & 0 \\
+    0 & \l_i-\l & 1 & \dots & 0 \\
+    \vdots & & & & \vdots \\
+    0 & 0 & 0 & \dots & \l_i-\l
+  \end{pmatrix} \]
+  Set $\mu_i=\l_i-\l$. Then $(A-\l I)^l$ is block-diagonal with blocks of the form
+  \[ \begin{pmatrix}
+    \mu_i^l & \binom{l}1\mu_i^{l-1} & \binom{l}2\mu_i^{l-2} & \dots & \binom{l}{r_i}\mu_i^{l-r_i} \\
+    0 & \mu_i^l & \binom{l}1\mu_i^{l-1} & \dots & \binom{l}{r_i-1}\mu_i^{l-r_i+1} \\
+    \vdots & & & & \vdots \\
+    0 & 0 & 0 & \dots & \mu_i^l
+  \end{pmatrix} \]
+  If $l$ is $> r_i$ and divisible by $p$, then all nondiagonal terms will vanish, so all blocks will have the form
+  \[ \begin{pmatrix}
+    \mu_i^l & 0 & 0 & \dots & 0 \\
+    0 & \mu_i^l & 0 & \dots & 0 \\
+    \vdots & & & & \vdots \\
+    0 & 0 & 0 & \dots & \mu_i^l
+  \end{pmatrix}. \]
+  Finally, choosing $l$ to be divisible also by $p^e-1$ for some $e>0$, we have that $$\mu_i^{l-1} = (\mu_i^{p^{e}-1})^{l/(p^{e}-1)} =1,$$ since $\mu_i$ is contained in a finite field of characteristic $p$.
+  Thus, $(A-\l I)^l$ is simply a diagonal matrix with 1 or 0 on the diagonal, hence idempotent. Note moreover that if some $\l_i\neq \l$, then $(A-\l I)^l$ is not the zero matrix.
 \end{proof}
 
+
+This leads to a probabilistic algorithm to find the indecomposable summands of a module $M$, as follows:
+\begin{enumerate}
+\item Take a general element $A_0$ of $[\End M]_0$, the degree-0 part of $\End M$, and consider the resulting endomorphism $A$ of the $k$-vector space $M/mM$.
+\item Find the eigenvalues of $A$.
+\item If $A$ has at least two eigenvalues, choose one eigenvalue $\l$, and compute a sufficiently high power of $A$ (with the power explicitly as in the proof of \ref{}). This power will be a nonzero idempotent, and thus produce a splitting of $M$ as $\im A_0 \oplus \coker A_0$ by \ref{}.
+\item Repeat steps (1)--(3) for both $\im A_0$ and $\coker A_0$.
+\end{enumerate}
+
+The following observation implies that if $M$ is indecomposable, then the above algorithm should find the decomposition of $M$:
 
 \begin{lem}
-Let $A\in \End_R M$ be idempotent. Then $M=\im  A\oplus \ker A$.
+  If $M$ is not indecomposable, then a general degree-0 endomorphism of $M$ reduces to an endomorphism of $M/mM$ with at least two distinct eigenvalues.
 \end{lem}
 
+\begin{rem}
+  By ``general'' we mean that a general linear combination of a basis for $[\End(M)]_0$ over the algebraic closure of $k$, or equivalently over a sufficiently large algebraic extension of $k$.
+\end{rem}
+
 \begin{proof}
-Consider the short exact sequence
-$$
-0\to \ker A \to M \to \im A\to 0.
-$$
-The map $M\to M$ given by $-A+\id_M$ sends $M\to \ker A$, since $-A(A-\id_M)(m) = -(A^2-A)(m)=0$. In fact, this map $M\to \ker A$ is a splitting of $\ker A\to M$, since if $m\in \ker A$ we have $-(A-\id_M)(m) = -A(m)+\id_M(m)=m$.
+  We may assume that the base field $k$ is algebraically closed.
+  Let $\Phi_1,\dots,\Phi_r$ be a basis for $[\End(M)]_0$, and $\phi_1,\dots,\phi_r$ their images modulo $m$, which we view as matrices with entries in $k$.
+  Let $U\subset \A^r$ be the subset of $r$-tuples $(\l_1,\dots,\l_r)$ such that $\l_1\phi_1+\dots+\l_r\phi_r$ has at least two distinct eigenvalues, i.e., such that $\l_1\Phi_1+\dots+\l_r\Phi_r$ reduces to an endomorphism of $M/mM$ with at least two distinct eigenvalues.
+
+  It suffices to show that $U$ is a nonempty open subset of $\A^r$. First, we show $U$ is nonempty:
+  Say $M=M_1\oplus M_2$, with $M_1$ a nontrivial indecomposable summand. We may choose $\Phi_1$ to be the projection to $M_1$, and $\Phi_2$ the projection to $M_2$. Then for any $\l_1,\l_2\in k$, $\l_1\phi_1 + \l_2\phi_2$ has eigenvalues $\l_1,\l_2$; thus in particular there is \emph{an} element of $[\End(M)]_0$ reducing to an endomorphism of $M/mM$ with distinct eigenvalues, so $U$ is nonempty.
+
+  Now, we show that $U$ is open. This is a purely linear algebraic statement: we claim that given a matrix $\phi$ with at least two distinct eigenvalues, and any $r$ matrices $\phi_1,\dots,\phi_r$, that
+  $$ A_{\l_1,\dots,\l_r}:=\phi+\l_1\phi_1+\dots+\l_r\phi_r $$
+  has at least two distinct eigenvalues for $\l_1,\dots,\l_r$ outside a Zariski-closed subset of $\A^r$.
+  The eigenvalues of $A_{\l_1,\dots,\l_r}$ are the roots of $\det(A_{\l_1,\dots,\l_r}-t I)$, which is of course a polynomial in $t$ with coefficients in $\l_1,\dots,\l_r$. $A_{\l_1,\dots,\l_r}$ fails to have at least two distinct eigenvalues exactly when this polynomial factors as a power of a linear term. This is a polynomial condition in the coefficients of powers of $t$ in $\det(A_{\l_1,\dots,\l_r}-t I)$ and thus in the $\l_i$; to see this, note that if
+  $ f:=t^n b_n +\dots +t b_1 +b_0 $
+  has an $n$-fold root exactly when
+  $ f,\d f/\d t,\dots, \d^n f/\d t^n $
+  vanish simultaneously; the resultant of these $n$ polynomials in $n$ equations gives polynomial conditions in the $b_i$ for this to occur; in our setting, the $b_i$ are themselves polynomials in the $\l_i$, and thus we have obtained polynomial equations defining the locus where $A_{\l_1,\dots,\l_r}$ fails to have distinct roots.
 \end{proof}
+
+
+\begin{rem}
+  Note that the above algorithm is quite sensitive to the ground field $k$, because it needs an eigenvalue of the endomorphism $A$ of $M/mM$ to be contained in $k$. While theoretically the issue can be avoided by working over an algebraically closed ground field $\bar k$, for practical use on a computer algebra system it is better to extend $k$ to some larger finite field. However, the general linear combinations we take in Step \ref{} should be taken with respect to the prime subfield (otherwise, as we increase the size of the finite field $k$, the eigenvalues of a general linear combination will live in higher and higher field extensions).
+\end{rem}
+
+If the above algorithm fails to produce a nontrivial idempotent, it does not certify that $M$ is indecomposable. However, there are a few sufficient conditions to be indecomposable, which in practice often (but not always) produce such a certification.
+The following sufficiency condition is immediate, but can be quite useful in practice for verifying indecomposability:
 
 \begin{lem}
-Let $A\in \End_R M$ satisfy $A^d=A$. Then $M=\im  A\oplus \ker A$.
+  Let $M$ be a finitely generated $R$-module and let $[\End M]_0$ be the $k$-vector space of degree-0 endomorphisms. Suppose that either:
+  \begin{enumerate}
+  \item $[\End M]_0$ is 1-dimensional and thus spanned by the identity endomorphism, or
+  \item every non-identity element of $[\End M]_0$, viewed as a matrix, has all entries contained in $m$;
+  \end{enumerate}
+  then $M$ is indecomposable.
 \end{lem}
-
 \begin{proof}
-Consider the short exact sequence
-$$
-0\to \ker A \to M \to \im A\to 0.
-$$
-The map $M\to M$ given by $-A^{d-1}+\id_M$ sends $M\to \ker A$, since $-A(A^{d-1}-\id_M)(m) = -(A^d-A)(m)=0$. In fact, this map $M\to \ker A$ is a splitting of $\ker A\to M$, since if $m\in \ker A$ then also $m\in \ker A^{d-1}$ and thus we have $-(A^{d-1}-\id_M)(m) = -A^d(m)+\id_M(m)=m$.
-
+  If $M$ decomposes nontrivially as $M_1\oplus M_2$, then the projections onto each factor are nontrivial degree-0 endomorphisms not equal to the identity, and which does not have entries contained in $m$.
 \end{proof}
 
+This is the local analog of the following fact about indecomposability of coherent sheaves:
 
+\begin{cor}
+  Let $X$ be a projective variety over a field $k$, and $\F$ a coherent sheaf on $X$.
+  If $ H^0(\End \F) = k, $ then $\F$ is indecomposable.
+\end{cor}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Examples}
+
+While the preceding section was written in the language of modules, by the standard translation to global (multi)projective varieties, it works equally well to find indecomposable decompositions of coherent sheaves.
+In this section, we give examples of the kind of observations the algorithm from the previous section allows us to make.
+
+\renewcommand{\char}{\operatorname{char}}
+
+\begin{exa}(Frobenius pushforward on the projective space $\P^n$).
+  Let $S = k[x_0,\dots,x_n]$ be a polynomial ring with $\char k = p$ and $\deg x_i = 1$ and consider the Frobenius endomorphism
+  \[ F\colon S\to S \quad \text{given by} \quad f \to f^p. \]
+  Hartshorne proved \cite{Hartshorne70} that for any line bundle $L\in\Pic\P^n$, the Frobenius pushforward $F_*L$ splits as a sum of line bundles.
+  \begin{align*}
+    \text{When p=3, n=2:} \\
+    F_*\O_{\P^2} = \O \oplus &\O(-1)^7 \oplus \O(-2). \\
+    \text{When p=2, n=5:} \\
+    F_*\O_{\P^5} = \O \oplus &\O(-1)^{15} \oplus \O(-2)^{15} \oplus \O(-3). \\
+    F_*^2\O_{\P^5} = \O \oplus &\O(-1)^{120} \oplus \O(-2)^{546} \oplus \O(-3)^{336} \oplus \O(-4)^{21}
+  \end{align*}
+\end{exa}
+
+\begin{exa}(Frobenius pushforward on toric varieties).
+  Let $X$ be a smooth toric variety and consider its Cox ring
+  \[ S = \bigoplus\!{}_{[D]\in\Pic{X}} \; \Gamma(X, \O(D)). \]
+  Similar to the case of the projective space, Bogvad and Thomsen showed that $F_*L$ totally splits as a direct sum of line bundles for any line bundle $L\in\Pic X$ \cite{Bogvad98,Thomsen00}.
+
+  As an example, consider the Hirzebruch surface $X$ of type 3 over a field of characteristic 2.
+  \[ F_*\O_X = \O_X \oplus \O_X(-1,0)^2 \oplus \O_X(0,-1)^2 \oplus \O_X(1,-1)^3 \oplus \O_X(2,-1). \]
+
+  In fact, Achinger \cite{Achinger13} showed that the total splitting of $F_*L$ characterizes smooth projective toric varieties.
+
+  % The toric Frobenius is simply multiplication by $p$ on the torus.
+  % The $p$ need not be prime, nor even match the characteristic!
+\end{exa}
+
+\begin{exa}(Frobenius pushforward on Grassmannians).
+  Consider the Grassmannian $X = \mathrm{Gr(2,4)}$. We may work over the Cox ring $S$,
+  %\[ S = \bigoplus\!{}_{[D]\in\Pic{X}} \; \Gamma(X, \O(D)). \]
+  which in this case coincides with the coordinate ring
+  \[ S = \frac{k[p_{0,1},\dots p_{0,2},p_{1,2},p_{0,3},p_{1,3},p_{2,3}]}{p_{1,2}p_{0,3}-p_{0,2}p_{1,3}+p_{0,1}p_{2,3}}. \]
+  Then in characteristic $p=3$ we have:
+  \[ F_*\O_X = \O \oplus \O(-1)^{44} \oplus \O(-2)^{20} \oplus A^4 \oplus B^4, \]
+  where $A$ and $B$ are rank 2 indecomposable bundles (c.f.~\mahrud{cite[Raedschelders--Špenko--Van den Bergh, '17]}).
+\end{exa}
+
+\begin{exa}(Frobenius pushforward on Mori Dream Spaces).
+  Continuing with the theme of computations over the Cox ring, the natural geometric setting is to consider the class of projective varieties known as Mori dream spaces \cite{HuKeel00}.
+
+  For instance, consider $X = \mathrm{Bl}_4\P^2$, the blowup of $\P^2$ at 4 general points. We will working over the $\Z^5$-graded Cox ring
+  \[ S = k[x_1,\dots,x_{10}]/\text{(five quadric Pl\"ucker relations)} \]
+  With degrees
+    \[
+    \left(\!\begin{array}{cccccccccc}
+      0&0&0&0&1&1&1&1&1&1 \\
+      1&0&0&0&-1&-1&-1&0&0&0 \\
+      0&1&0&0&-1&0&0&-1&-1&0 \\
+      0&0&1&0&0&-1&0&-1&0&-1 \\
+      0&0&0&1&0&0&-1&0&-1&-1
+    \end{array}\!\right)
+    \]
+    Then in characteristic 2 we have:
+    \begin{align*}
+      F_*^2\O_X = {\O_{X}^{1}}
+      &\oplus {\O_{X}^{2}\ \left(-2,\,1,\,1,\,1,\,1\right)} \oplus {\O_{X}^{2}\ \left(-1,\,0,\,0,\,0,\,1\right)} \\
+      &\oplus {\O_{X}^{2}\ \left(-1,\,0,\,0,\,1,\,0\right)} \oplus {\O_{X}^{2}\ \left(-1,\,0,\,1,\,0,\,0\right)} \\
+      &\oplus {\O_{X}^{2}\ \left(-1,\,1,\,0,\,0,\,0\right)} \oplus B \oplus G,
+    \end{align*}
+    where $B, G$ are rank 3 and rank 2 indecomposable modules \cite{Hara15}.
+\end{exa}
+
+\begin{exa}
+Cubic surfaces
+\end{exa}
+
+\begin{exa}
+Summands of syzyzgies
+\end{exa}
 
 \end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{lem}
+  Let $A\in \End_R M$ be idempotent. Then $M=\im  A\oplus \ker A$.
+\end{lem}
+
+\begin{proof}
+  Consider the short exact sequence
+  $$ 0\to \ker A \to M \to \im A\to 0. $$
+  The map $M\to M$ given by $-A+\id_M$ sends $M\to \ker A$, since $-A(A-\id_M)(m) = -(A^2-A)(m)=0$. In fact, this map $M\to \ker A$ is a splitting of $\ker A\to M$, since if $m\in \ker A$ we have $-(A-\id_M)(m) = -A(m)+\id_M(m)=m$.
+\end{proof}
+
+\begin{lem}
+  Let $A\in \End_R M$ satisfy $A^d=A$. Then $M=\im  A\oplus \ker A$.
+\end{lem}
+
+\begin{proof}
+  Consider the short exact sequence
+  $$ 0\to \ker A \to M \to \im A\to 0. $$
+  The map $M\to M$ given by $-A^{d-1}+\id_M$ sends $M\to \ker A$, since $-A(A^{d-1}-\id_M)(m) = -(A^d-A)(m)=0$. In fact, this map $M\to \ker A$ is a splitting of $\ker A\to M$, since if $m\in \ker A$ then also $m\in \ker A^{d-1}$ and thus we have $-(A^{d-1}-\id_M)(m) = -A^d(m)+\id_M(m)=m$.
+\end{proof}
+
+% Local Variables:
+% tab-width: 2
+% eval: (visual-line-mode)
+% End:
