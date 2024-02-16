@@ -1,0 +1,70 @@
+\begin{thebibliography}{RvVdB22}
+
+\bibitem[Ach15]{Achinger13}
+Piotr Achinger.
+\newblock A characterization of toric varieties in characteristic {$p$}.
+\newblock {\em Int. Math. Res. Not. IMRN}, (16):6879--6892, 2015.
+
+\bibitem[BCP97]{MAGMA}
+Wieb Bosma, John Cannon, and Catherine Playoust.
+\newblock The {M}agma algebra system. {I}. {T}he user language.
+\newblock {\em J. Symbolic Comput.}, 24(3-4):235--265, 1997.
+\newblock Computational algebra and number theory (London, 1993).
+
+\bibitem[B{\o}g98]{Bogvad98}
+Rikard B{\o}gvad.
+\newblock Splitting of the direct image of sheaves under the {F}robenius.
+\newblock {\em Proc. Amer. Math. Soc.}, 126(12):3447--3454, 1998.
+
+\bibitem[GAP]{GAP}
+The GAP~Group.
+\newblock {\em {GAP -- Groups, Algorithms, and Programming}}.
+
+\bibitem[Har70]{Hartshorne70}
+Robin Hartshorne.
+\newblock {\em Ample subvarieties of algebraic varieties}, volume Vol. 156 of
+  {\em Lecture Notes in Mathematics}.
+\newblock Springer-Verlag, Berlin-New York, 1970.
+\newblock Notes written in collaboration with C. Musili.
+
+\bibitem[Har15]{Hara15}
+Nobuo Hara.
+\newblock Looking out for {F}robenius summands on a blown-up surface of
+  {$\mathbb P^2$}.
+\newblock {\em Illinois J. Math.}, 59(1):115--142, 2015.
+
+\bibitem[HK00]{HuKeel00}
+Yi~Hu and Sean Keel.
+\newblock Mori dream spaces and {GIT}.
+\newblock volume~48, pages 331--348. 2000.
+\newblock Dedicated to William Fulton on the occasion of his 60th birthday.
+
+\bibitem[Hol98]{Holt98}
+D.~F. Holt.
+\newblock {\em The Meataxe as a tool in computational group theory}, page
+  74–81.
+\newblock London Mathematical Society Lecture Note Series. Cambridge University
+  Press, 1998.
+
+\bibitem[HR94]{HR94}
+Derek~F. Holt and Sarah Rees.
+\newblock Testing modules for irreducibility.
+\newblock {\em J. Austral. Math. Soc. Ser. A}, 57(1):1--16, 1994.
+
+\bibitem[Par84]{Parker84}
+R.~A. Parker.
+\newblock The computer calculation of modular characters (the meat-axe).
+\newblock In {\em Computational group theory ({D}urham, 1982)}, pages 267--274.
+  Academic Press, London, 1984.
+
+\bibitem[RvVdB22]{RSB22}
+Theo Raedschelders, \v{S}pela \v{S}penko, and Michel Van~den Bergh.
+\newblock The {F}robenius morphism in invariant theory {II}.
+\newblock {\em Adv. Math.}, 410:Paper No. 108587, 64, 2022.
+
+\bibitem[Tho00]{Thomsen00}
+Jesper~Funch Thomsen.
+\newblock Frobenius direct images of line bundles on toric varieties.
+\newblock {\em J. Algebra}, 226(2):865--874, 2000.
+
+\end{thebibliography}
