@@ -39,13 +39,17 @@
 \newcommand{\mahrud}[1]{{\color{ForestGreen} \sf $\blacklozenge$ Mahrud: [#1]}}
 \newcommand{\devlin}[1]{{\color{red} \sf $\clubsuit$ Devlin: [#1]}}
 
-\title{Computing direct sum decompositions}
+\title{Computing Direct Sum Decompositions}
 \author{Devlin Mallory and Mahrud Sayrafi}
 \begin{document}
 \maketitle
 
 % Regular papers, aimed to contributed talks:
 % for these, authors can choose to submit either an extended abstract of at least six pages (not counting bibliography) that should contain full results, an outline of the proofs and all of the main ideas; or else a full paper with complete proofs.
+
+% Abstract
+% The problems of finding isomorphism classes of indecomposable modules with certain properties, or determining the indecomposable summands of a module, are ubiquitous in commutative algebra, group theory, representation theory, and other fields. The purpose of this paper is to describe and prove correctness of a practical algorithm for computing indecomposable summands of finitely generated modules over a finitely generated $k$-algebra, for $k$ a field of positive characteristic. Our algorithm works over multigraded rings, which enables the computation of indecomposable summands of coherent sheaves on subvarieties of toric varieties (in particular, for varieties embedded in projective space). We also present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -60,40 +64,48 @@
 %% – Why is the contribution non-trivial?
 %% – How does the journal paper differ from the conference paper (if relevant)?
 
-The problem of finding isomorphism classes of indecomposable modules with certain properties is ubiquitous in commutative algebra, group theory, representation theory, and other fields. Within commutative algebra, for instance, the classification of Cohen--Macaulay local rings $R$ for which there are only finitely many indecomposable maximal Cohen--Macaulay $R$-modules (the \emph{finite CM-type} property), or determining whether iterated Frobenius pushforwards of a Noetherian ring in positive characteristic have finitely many isomorphism classes of indecomposable summands (the \emph{finite F-representation type} property) are two well established research problems where making and testing conjectures depends on the ability to find all summands of modules or verify their indecomposability.
+The problems of finding isomorphism classes of indecomposable modules with certain properties, or determining the indecomposable summands of a module, are ubiquitous in commutative algebra, group theory, representation theory, and other fields. Within commutative algebra, for instance, the classification of Cohen--Macaulay local rings $R$ for which there are only finitely many indecomposable maximal Cohen--Macaulay $R$-modules (the \emph{finite CM-type} property), or determining whether iterated Frobenius pushforwards of a Noetherian ring in positive characteristic have finitely many isomorphism classes of indecomposable summands (the \emph{finite F-representation type} property) are two well-established research problems. For both these problems, and many others, making and testing conjectures depends on finding summands of modules and verifying their indecomposability.
 
-Currently there are no widely used algorithms for checking indecomposability or finding summands of modules over commutative rings. In contrast, variants of the ``Meat-Axe'' algorithm for determining irreducibility of finite dimensional modules over a group algebra have wide ranging applications in computational group theory \cite{Parker84,HR94,Holt98} and are available through symbolic algebra software such as Magma and GAP \cite{MAGMA,GAP}.
+Currently there are no efficient algorithms available for checking indecomposability or finding summands of modules over commutative rings. In contrast, variants of the ``Meat-Axe'' algorithm for determining irreducibility of finite dimensional modules over a group algebra have wide ranging applications in computational group theory \cite{Parker84,HR94,Holt98} and are available through symbolic algebra software such as Magma and GAP \cite{MAGMA,GAP}.
 
-The purpose of this paper is to describe and prove correctness of a practical algorithm for computing indecomposable summands of finitely generated modules over a Noetherian commutative ring. In particular, our algorithm works over multigraded rings, which enables applications in toric geometry. We present multiple examples in the end.
+The purpose of this paper is to describe and prove correctness of a practical algorithm for computing indecomposable summands of finitely generated modules over a finitely generated $k$-algebra, for $k$ a field of positive characteristic.
+In particular, our algorithm works over multigraded rings, which enables the computation of indecomposable summands of coherent sheaves on subvarieties of toric varieties (in particular, for varieties embedded in projective space).
+After describing the algorithm and proving its correctness, we present multiple examples in the end, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings.
 
-An accompanying implementation in Macaulay2 is available online via the GitHub repository \\
+An accompanying implementation in Macaulay2 is available online via the GitHub repository 
 \centerline{
   \href{https://github.com/mahrud/DirectSummands}
   {\texttt{https://github.com/mahrud/DirectSummands}}.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{rem}
+  Although the algorithm described below is only proved to result (probabilistically) in a decomposition into indecomposable summands in positive characteristic, in practice it often does produce nontrivial indecomposable decompositions even in characteristic 0. Moreover, if a module over a ring of characteristic 0 is decomposable, its reductions modulo $p$ will be as well; thus, our algorithm provides a heuristic for verifying decomposability in characteristic 0. 
+
+  We also point out that while the discussion below, and our implementation in Macaulay2, concerns the case where $R$ is a \emph{commutative} $k$-algebra, many of the techniques extend beyond this case; we plan to extend the results and algorithms to noncommutative rings such as Weyl algebras in future work.
+\end{rem}
+
 \section{The main algorithm}
 
-Throughout, $R$ will be an $\Z^r$-graded ring with $R_0 = k$ a field and homogeneous maximal ideal $m$. Note that if $M$ is a finitely generated $R$-module, and $A\in \End_R(M)$, then $A$ acts on the $k$-vector space $M/mM$.
+Throughout, $R$ will be an $\Z^r$-graded ring with $R_0 = k$ a field of positive characteristic and homogeneous maximal ideal $m$. Note that if $M$ is a finitely generated $R$-module, and $A\in \End_R(M)$, then $A$ acts on the $k$-vector space $M/mM$.
 
-We begin with the observation that if $\phi\in\End_R(M)$\mahrud{why is it $\phi$ here but $A$ everywhere else? I feel somewhat inclined to use $A=\End_R(M)$ and $\alpha\in A$ as an endomorphism.} is an idempotent, then $M$ decomposes as $\im\phi \oplus \ker\phi$; if $\phi$ is nontrivial (i.e., neither an isomorphism nor the zero morphism), then $M$ is decomposable. The following lemma allows us to check this condition modulo the maximal ideal:
+We begin with the observation that if $A\in\End_R(M)$ is an idempotent, then $M$ decomposes as $\im A \oplus \ker A$; if $A$ is nontrivial (i.e., neither an isomorphism nor the zero morphism), then $M$ is decomposable. The following lemma allows us to check only for idempotents modulo the maximal ideal:
 
-\begin{lem}
+\begin{lem}\label{idem}
   Let $M$ be an $R$-module, and let $A\in\End_R(M)$. If the induced action of $A$ on $M/mM$ is idempotent, then $M$ admits a direct sum decomposition $N\oplus M/N$, where $N\cong \im A$.
 \end{lem}
 \begin{proof}
   By assumption, we can write $A^2 = A + B$, where $B\in\End_R(M)$ with $B(M)\subset mM$.
   Note that if $n \in m^kM$, then $A^2(n) - A(n) = B(n)$  lies in $m^{k+1}M$.
 
-  Let $N = \im A$. Consider the composition $N\inc M \xra{A} \im(A) = N$. We claim that this composition is surjective. We may complete at the maximal ideal to check this, and thus assume $R$ and $M$ are complete\mahrud{out of curiosity, what can go wrong?}. Let $n_0\in N$. By assumption, $n_0=A(m_1)$ for some $m_1\in M$. Applying $A$ again, we get
+  Let $N = \im A$. Consider the composition $N\inc M \xra{A} \im(A) = N$. We claim that this composition is surjective. We may complete at the maximal ideal to check this, and thus assume $R$ and $M$ are complete. Let $n_0\in N$. By assumption, $n_0=A(m_1)$ for some $m_1\in M$. Applying $A$ again, we get
   \[ A(n_0) = A^2(m_1) = A(m_1) + n_1 = n_0 + n_1, \]
-  or equivalently \mahrud{should this say $n_1 = A(n_0) - n_0$ instead?}
+  or equivalently
   \[ n_0 = A(n_0) - n_1 \]
   for some $n_1\in mM$. In fact, since $n_0$ and $A(n_0)$ are both in $N$, we have $n_1\in N$ also, so $n_1\in mM\cap N$.
 
   Thus, we can write $n_1 = A(m_2)$ for $m_2\in M$.
-  Now, apply $A$ to both sides: by the assumption that $A$ is idempotent modulo $m$\mahrud{how is this used here?}, we have
+  Now, apply $A$ to both sides: by the assumption that $A$ is idempotent modulo $m$, we have
   \[ A(n_1)=A^2(m_2) = A(m_2) + n_2 = n_1+n_2, \]
   Thus, $n_2=A(n_1)-n_1$, so $n_2\in m^2M$; clearly also $n_2\in N$ as well.
   Combining the previous equations, we can write
@@ -117,8 +129,9 @@ We begin with the observation that if $\phi\in\End_R(M)$\mahrud{why is it $\phi$
 \end{proof}
 
 \begin{lem}
-  Let $k$ be a finite field of characteristic $p$, and let $A$ be an endomorphism of a $k$-vector space such that all eigenvalues of $A$ are contained in $k$. If $\l$ is an eigenvalue of $A$, then some power of $A-\l I$ acts idempotently.
-Furthermore, if $\l$ is not the only eigenvalue of $A$, then a power of $A-\l I$ that is nonzero acts idempotently.
+\label{JordanLemma}
+  Let $k$ be a finite field of characteristic $p$, and let $A$ be an endomorphism of a $k$-vector space such that all eigenvalues of $A$ are contained in $k$. If $\l$ is an eigenvalue of $A$, then some power of $A-\l I$ is an idempotent.
+Furthermore, if $\l$ is not the only eigenvalue of $A$, then a power of $A-\l I$ that is nonzero is an idempotent.
 \end{lem}
 \begin{proof}
   Since all eigenvalues of $A$ are contained in $k$, we can without loss of generality put $A$ in Jordan canonical form, with each Jordan block having the form
@@ -144,7 +157,7 @@ Furthermore, if $\l$ is not the only eigenvalue of $A$, then a power of $A-\l I$
     \vdots & & & & \vdots \\
     0 & 0 & 0 & \dots & \mu_i^l
   \end{pmatrix} \]
-  If $l$ is $> r_i$ and divisible by $p$, then all nondiagonal terms will vanish, so all blocks will have the form
+  If $l$ is $> r_i$ and divisible by $p$, then all non-diagonal terms will vanish, so all blocks will have the form
   \[ \begin{pmatrix}
     \mu_i^l & 0 & 0 & \dots & 0 \\
     0 & \mu_i^l & 0 & \dots & 0 \\
@@ -158,9 +171,9 @@ Furthermore, if $\l$ is not the only eigenvalue of $A$, then a power of $A-\l I$
 
 This leads to a probabilistic algorithm to find the indecomposable summands of a module $M$, as follows:
 \begin{enumerate}
-\item Take a general element $A_0$ of $[\End M]_0$, the degree-0 part of $\End M$, and consider the resulting endomorphism $A$ of the $k$-vector space $M/mM$.
+\item \label{1} Take a general element $A_0$ of $[\End M]_0$, the degree-0 part of $\End M$, and consider the resulting endomorphism $A$ of the $k$-vector space $M/mM$.
 \item Find the eigenvalues of $A$.
-\item If $A$ has at least two eigenvalues, choose one eigenvalue $\l$, and compute a sufficiently high power of $A$ (with the power explicitly as in the proof of \ref{}). This power will be a nonzero idempotent, and thus produce a splitting of $M$ as $\im A_0 \oplus \coker A_0$ by \ref{}.
+\item If $A$ has at least two eigenvalues, choose one eigenvalue $\l$, and compute a sufficiently high power of $A$ (with the power explicitly as in the proof of Lemma~\ref{JordanLemma}). This power will be a nonzero idempotent, and thus produce a splitting of $M$ as $\im A_0 \oplus \coker A_0$ by Lemma~\ref{idem}.
 \item Repeat steps (1)--(3) for both $\im A_0$ and $\coker A_0$.
 \end{enumerate}
 
@@ -194,7 +207,8 @@ The following observation implies that if $M$ is indecomposable, then the above 
 
 
 \begin{rem}
-  Note that the above algorithm is quite sensitive to the ground field $k$, because it needs an eigenvalue of the endomorphism $A$ of $M/mM$ to be contained in $k$. While theoretically the issue can be avoided by working over an algebraically closed ground field $\bar k$, for practical use on a computer algebra system it is better to extend $k$ to some larger finite field. However, the general linear combinations we take in Step \ref{} should be taken with respect to the prime subfield (otherwise, as we increase the size of the finite field $k$, the eigenvalues of a general linear combination will live in higher and higher field extensions).
+  Note that the above algorithm is quite sensitive to the ground field $k$, because it needs an eigenvalue of the endomorphism $A$ of $M/mM$ to be contained in $k$. While theoretically the issue can be avoided by working over an algebraically closed ground field $\bar k$, for practical use on a computer algebra system it is better to extend $k$ to some larger finite field. However, the general linear combinations we take in Step \ref{1} should be taken with respect to the prime subfield (otherwise, as we increase the size of the finite field $k$, the eigenvalues of a general linear combination will live in higher and higher field extensions).
+See Example~\ref{algclos} for a demonstration of the necessity of extending the base field.
 \end{rem}
 
 If the above algorithm fails to produce a nontrivial idempotent, it does not certify that $M$ is indecomposable. However, there are a few sufficient conditions to be indecomposable, which in practice often (but not always) produce such a certification.
@@ -209,7 +223,7 @@ The following sufficiency condition is immediate, but can be quite useful in pra
   then $M$ is indecomposable.
 \end{lem}
 \begin{proof}
-  If $M$ decomposes nontrivially as $M_1\oplus M_2$, then the projections onto each factor are nontrivial degree-0 endomorphisms not equal to the identity, and which does not have entries contained in $m$.
+  If $M$ decomposes non-trivially as $M_1\oplus M_2$, then the projections onto each factor are nontrivial degree-0 endomorphisms not equal to the identity, and which does not have entries contained in~$m$.
 \end{proof}
 
 This is the local analog of the following fact about indecomposability of coherent sheaves:
@@ -224,61 +238,79 @@ This is the local analog of the following fact about indecomposability of cohere
 \section{Examples}
 
 While the preceding section was written in the language of modules, by the standard translation to global (multi)projective varieties, it works equally well to find indecomposable decompositions of coherent sheaves.
-In this section, we give examples of the kind of observations the algorithm from the previous section allows us to make.
+In this section, we give examples of the kind of calculations and observations the algorithm from the previous section allows us to make.
 
 \renewcommand{\char}{\operatorname{char}}
 
-\begin{exa}(Frobenius pushforward on the projective space $\P^n$).
+\begin{exa}[Frobenius pushforward on the projective space $\P^n$]
   Let $S = k[x_0,\dots,x_n]$ be a polynomial ring with $\char k = p$ and $\deg x_i = 1$ and consider the Frobenius endomorphism
   \[ F\colon S\to S \quad \text{given by} \quad f \to f^p. \]
-  Hartshorne proved \cite{Hartshorne70} that for any line bundle $L\in\Pic\P^n$, the Frobenius pushforward $F_*L$ splits as a sum of line bundles.
+  Hartshorne \cite{Hartshorne70} proved that for any line bundle $L\in\Pic\P^n$, the Frobenius pushforward $F_*L$ splits as a sum of line bundles. While the following calculations are straightforward to do by hand, they are immediately calculated via our algorithm:
   \begin{align*}
-    \text{When p=3, n=2:} \\
-    F_*\O_{\P^2} = \O \oplus &\O(-1)^7 \oplus \O(-2). \\
-    \text{When p=2, n=5:} \\
-    F_*\O_{\P^5} = \O \oplus &\O(-1)^{15} \oplus \O(-2)^{15} \oplus \O(-3). \\
-    F_*^2\O_{\P^5} = \O \oplus &\O(-1)^{120} \oplus \O(-2)^{546} \oplus \O(-3)^{336} \oplus \O(-4)^{21}
+    \text{When }p=3, n=2: \\
+    F_*\O_{\P^2} &= \O \oplus \O(-1)^7 \oplus \O(-2). \\
+    \text{When } p=2, n=5: \\
+    F_*\O_{\P^5} &= \O \oplus \O(-1)^{15} \oplus \O(-2)^{15} \oplus \O(-3). \\
+    F_*^2\O_{\P^5} &= \O \oplus \O(-1)^{120} \oplus \O(-2)^{546} \oplus \O(-3)^{336} \oplus \O(-4)^{21}
   \end{align*}
 \end{exa}
 
-\begin{exa}(Frobenius pushforward on toric varieties).
+\begin{exa}[Frobenius pushforward on toric varieties]
   Let $X$ be a smooth toric variety and consider its Cox ring
-  \[ S = \bigoplus\!{}_{[D]\in\Pic{X}} \; \Gamma(X, \O(D)). \]
-  Similar to the case of the projective space, Bogvad and Thomsen showed that $F_*L$ totally splits as a direct sum of line bundles for any line bundle $L\in\Pic X$ \cite{Bogvad98,Thomsen00}.
+  \[ S = \bigoplus_{[D]\in\Pic{X}} \; \Gamma(X, \O(D)). \]
+  Similar to the case of the projective space, B{\o}gvad and Thomsen
+\cite{Bogvad98,Thomsen00}
+ showed that $F_*L$ totally splits as a direct sum of line bundles for any line bundle $L\in\Pic X$.
 
-  As an example, consider the Hirzebruch surface $X$ of type 3 over a field of characteristic 2.
-  \[ F_*\O_X = \O_X \oplus \O_X(-1,0)^2 \oplus \O_X(0,-1)^2 \oplus \O_X(1,-1)^3 \oplus \O_X(2,-1). \]
-
-  In fact, Achinger \cite{Achinger13} showed that the total splitting of $F_*L$ characterizes smooth projective toric varieties.
+  As an example, consider the third Hirzebruch surface $X=\P(\O_{\P^1}\oplus \O_{\P^1}(3))$ over a field of characteristic 3. We have, for example, that
+\begin{align*}
+F_*\O_X &= \O_X \oplus \O_X(-1,0)^2 \oplus \O_X(0,-1)^2 \oplus \O_X(1,-1)^3 \oplus \O_X(2,-1)\\
+F_*\O_X(1,1) &= \O_X^3 \oplus \O_X(-1,0) \oplus \O_X(1,-1) \oplus \O_X(1,0)^2 \oplus \O_X(2,-1)^2
+\end{align*}
+  In fact, Achinger \cite{Achinger13} showed that the total splitting of $F_*L$ for every line bundle $L$ characterizes smooth projective toric varieties.
 
   % The toric Frobenius is simply multiplication by $p$ on the torus.
   % The $p$ need not be prime, nor even match the characteristic!
 \end{exa}
 
-\begin{exa}(Frobenius pushforward on Grassmannians).
+\begin{exa}[Frobenius pushforward on elliptic curves]\label{algclos}
+  Consider the elliptic curve $X=\Proj (\mathbb F_7[x,y,z]/(x^3+y^3+z^3))$.
+  %%Weierstrauss form is y^2=x^3-432
+  This is an ordinary elliptic curve, hence $F$-split; thus $\O_X$ is a summand of $F_* \O_X$. Over the algebraic closure of $\mathbb F_7$, $F_*\O_X$ will decompose as $\bigoplus_{p=1}^7 \O_X(p_i)$, where $p_1,\dots,p_7$ are the 7-torsion points of $X$.
+
+  However, over $\mathbb F_7$, our algorithm calculates that $F_*\O_X$ decomposes only as 
+  $$ F_* \O_X =\O_X \oplus M_1\oplus M_2\oplus M_3, $$
+  with $M_i$ indecomposable (over $\mathbb F_7$) of rank 2.
+
+  If one extends the ground field to $\mathbb F_{49}$, however, our algorithm calculates the full decomposition 
+  $$ F_* \O_X=\bigoplus_{p=1}^7 \O_X(p_i). $$
+  This reflects the fact that the 7-torsion points $p_i$ of $X$, and thus the sheaves $\O_X(p_i)$, are not defined over $\mathbb F_7$, but they are defined over $\mathbb F_{49}$.
+\end{exa}
+
+\begin{exa}[Frobenius pushforward on Grassmannians]
   Consider the Grassmannian $X = \mathrm{Gr(2,4)}$. We may work over the Cox ring $S$,
   %\[ S = \bigoplus\!{}_{[D]\in\Pic{X}} \; \Gamma(X, \O(D)). \]
   which in this case coincides with the coordinate ring
-  \[ S = \frac{k[p_{0,1},\dots p_{0,2},p_{1,2},p_{0,3},p_{1,3},p_{2,3}]}{p_{1,2}p_{0,3}-p_{0,2}p_{1,3}+p_{0,1}p_{2,3}}. \]
+  \[ S = \frac{k[p_{0,1},p_{0,2},p_{0,3},p_{1,2},p_{1,3},p_{2,3}]}{p_{1,2}p_{0,3}-p_{0,2}p_{1,3}+p_{0,1}p_{2,3}}. \]
   Then in characteristic $p=3$ we have:
   \[ F_*\O_X = \O \oplus \O(-1)^{44} \oplus \O(-2)^{20} \oplus A^4 \oplus B^4, \]
-  where $A$ and $B$ are rank 2 indecomposable bundles (c.f.~\mahrud{cite[Raedschelders--Špenko--Van den Bergh, '17]}).
+  where $A$ and $B$ are rank-2 indecomposable bundles (c.f.~\cite{RSB22}).
 \end{exa}
 
-\begin{exa}(Frobenius pushforward on Mori Dream Spaces).
+\begin{exa}[Frobenius pushforward on Mori Dream Spaces]
   Continuing with the theme of computations over the Cox ring, the natural geometric setting is to consider the class of projective varieties known as Mori dream spaces \cite{HuKeel00}.
 
   For instance, consider $X = \mathrm{Bl}_4\P^2$, the blowup of $\P^2$ at 4 general points. We will working over the $\Z^5$-graded Cox ring
   \[ S = k[x_1,\dots,x_{10}]/\text{(five quadric Pl\"ucker relations)} \]
-  With degrees
+  with degrees
     \[
-    \left(\!\begin{array}{cccccccccc}
+    \left(\!\begin{array}{rrrrrrrrrr}
       0&0&0&0&1&1&1&1&1&1 \\
       1&0&0&0&-1&-1&-1&0&0&0 \\
       0&1&0&0&-1&0&0&-1&-1&0 \\
       0&0&1&0&0&-1&0&-1&0&-1 \\
       0&0&0&1&0&0&-1&0&-1&-1
-    \end{array}\!\right)
+    \end{array}\!\right).
     \]
     Then in characteristic 2 we have:
     \begin{align*}
@@ -287,17 +319,38 @@ In this section, we give examples of the kind of observations the algorithm from
       &\oplus {\O_{X}^{2}\ \left(-1,\,0,\,0,\,1,\,0\right)} \oplus {\O_{X}^{2}\ \left(-1,\,0,\,1,\,0,\,0\right)} \\
       &\oplus {\O_{X}^{2}\ \left(-1,\,1,\,0,\,0,\,0\right)} \oplus B \oplus G,
     \end{align*}
-    where $B, G$ are rank 3 and rank 2 indecomposable modules \cite{Hara15}.
+    where $B, G$ are rank-3 and rank-2 indecomposable modules, as calculated in \cite{Hara15}.
 \end{exa}
 
-\begin{exa}
-Cubic surfaces
+\begin{exa}[Frobenius pushforward on cubic surfaces]
+  Let $X$ be a smooth cubic surface. Aside from a single exception in characteristic 0, $X$ will be globally $F$-split, so that any $F^e_*\O_X $ admits $\O_X$ as a direct summand.
+  The other summands of Frobenius pushforwards of $\O_X$ have yet to be studied, and in particular it is not known whether such rings should have the finite $F$-representation type property.
+
+  The use of our algorithm to compute examples in small $p$ and $e$ suggest the following behavior: 
+  $$ F_* \O_X = \O_X\oplus M, $$
+  with $M$ indecomposable, and furthermore $F^*_e M$ remains indecomposable for all $e\geq 0$. In other words, the indecomposable decomposition of $F^e_* \O_X$ is 
+  $$ F_*^e \O_X \cong \O_X\oplus M\oplus F_* M\oplus\dots\oplus F_*^{e-1}M. $$
+  In particular, $\O_X$ will fail to have the finite $F$-representation type property.
+  In fact, we believe a similar description holds true for quartic del Pezzos, which arise as an intersection of quadrics in $P^4$.
 \end{exa}
 
-\begin{exa}
-Summands of syzyzgies
+\begin{exa}[Syzygies over Artinian rings]
+  Let $R = k[x,y]/(x^3,x^2y^3,y^5)$ and consider the (infinite) minimal free resolution of the residue field, which has rank $2^n$ in homological index $n$. In forthcoming work based in part on examples calculated using our algorithm, Dao, Eisenbud, and Polini study the indecomposable summands of syzygy modules in examples such as this one, showing unexpected periodicity behavior, and in particular proving that the syzygy modules are direct sums of only three indecomposable modules: the residue field $k$, the maximal ideal $m$, and an additional module $M$. 
+
+  For example, the fourth syzygy module decomposes (ignoring the grading) as the direct sum
+  $$ k^3 \oplus m^2 \oplus M^3. $$
+  and the fifth syzygy module as 
+  $$ k^8\oplus m^9 \oplus M^2. $$
+  The use of our algorithm was essential to the observation that only the one additional module $M$ beyond the ``guaranteed'' summands of $k$ and $m$ appealrs.
+  %% nebedsPackage "DirectSummands"
+  %% R = ZZ/101[x,y]/(ideal"x3,x2y3,y5")
+  %% ideal(x^2*y^2,x*y^3)
+  %% F = res (cokernel vars R, LengthLimit => 6)
+  %% netList apply(length F, i -> summands coker F.dd_i)
 \end{exa}
 
+\bibliographystyle{alpha}
+\bibliography{references}
 \end{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
