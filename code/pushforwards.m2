@@ -48,8 +48,9 @@ myPushFwd(RingMap, Module) := (f, M) -> (
 	-- TODO: erases degree map and degree lift
 	g := map(S, newRing(R, Degrees => deg * degrees R), f);
 	N := myPushForward(g, M);
-	-- TODO: not multigraded
-	directSum apply(decomposePushforwardPresentation(deg, f, N), m -> coker sub(m, R)))
+	-- TODO: not multigraded: a // deg won't work if deg is multigraded
+	ginv := map(R, source g, gens R, DegreeMap => a -> a // deg);
+	directSum apply(decomposePushforwardPresentation(deg, f, N), m -> coker ginv m))
 	--tardegs := apply(-flatten degrees cover N, d -> (d % deg) + d // deg);
 	--coker map(R^tardegs, , sub(presentation N, R)))
     else (
@@ -71,7 +72,7 @@ needsPackage "NormalToricVarieties"
 P1 = toricProjectiveSpace 1
 P2 = toricProjectiveSpace 2
 psi = map(P2, P1, matrix{{-2}, {1}})
-psi = map(P2, P1, matrix{{1}, {2}})
+--psi = map(P2, P1, matrix{{1}, {2}})
 assert isWellDefined psi
 ideal psi
 
@@ -80,11 +81,18 @@ S = ring P1
 f = inducedMap psi
 ker f
 
+G = myPushFwd(f, OO_P1^1)
+L = summands myPushFwd(f, S^1)
+assert all(L, isHomogeneous)
+needsPackage "IntegralClosure"
+assert isNormal quotient ideal relations module G
+
 T = coker transpose vars S
 
 M = myPushFwd(f, T)
 assert isHomogeneous M
 L = summands M
+assert all(L, isHomogeneous)
 
 -- FIXME: not isomorphic or map {{1},{1}}
 G = myPushFwd(f, sheaf T)
@@ -107,16 +115,10 @@ decompose fittingIdeal(r, module G ** quotient ann module G)
 rank' module G
 first fitting ideal of M
 
-
+--
 support Module := M -> quotient ann M
 rank' = M -> rank tensor(M, support M)
 rank' \ L
-
-
-G = myPushFwd(f, OO_P1^1)
-summands myPushFwd(f, S^1)
-needsPackage "IntegralClosure"
-assert isNormal quotient ideal relations module G
 
 -----------
 X = weightedProjectiveSpace {1,1,2}
@@ -128,3 +130,21 @@ S = ring X
 f = map(S, R, {S_0^2, S_0*S_1, S_1^2, S_2}, DegreeMap => a -> 2 * a)
 M = myPushFwd(f, S^{-2})
 isHomogeneous M
+
+--
+restart
+needs "pushforwards.m2"
+needsPackage "NormalToricVarieties"
+--needs "ample.m2"
+
+X = (toricProjectiveSpace 1)^**2
+Y = toricProjectiveSpace 3
+R = ring Y
+S = ring X
+f = inducedMap map(Y, X, matrix {{0, 1}, {1, 0}, {1, 1}})
+--f = map(S, R, {x_0*x_2,x_0*x_3,x_1*x_2,x_1*x_3}, DegreeMap => a -> a#0 * {1,1}, DegreeLift => a -> a#0)
+f = map(S, coimage f, f, DegreeMap => f.cache.DegreeMap, DegreeLift => f.cache.DegreeLift);
+M = S^1
+myPushFwd(f, M)
+pushFwd(f, M)
+pushForward(f, M)
