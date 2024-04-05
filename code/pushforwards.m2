@@ -41,9 +41,9 @@ myPushFwd RingMap := f -> myPushFwd(f, module target f)
 myPushFwd(RingMap, Module) := (f, M) -> (
     (S, R) := (target f, source f);
     if ker f == 0 then (
-	degs := apply(gens R, x -> degree f(x));
+	degs := degree \ f \ gens R;
 	-- if the variables are sent to different degrees
-	if length unique degs > 1 then return pushFwd(f);
+	if length unique degs > 1 then return pushFwd(f, M);
 	deg := first degs_0;
 	-- TODO: erases degree map and degree lift
 	g := map(S, newRing(R, Degrees => deg * degrees R), f);
@@ -71,6 +71,7 @@ needsPackage "NormalToricVarieties"
 P1 = toricProjectiveSpace 1
 P2 = toricProjectiveSpace 2
 psi = map(P2, P1, matrix{{-2}, {1}})
+psi = map(P2, P1, matrix{{1}, {2}})
 assert isWellDefined psi
 ideal psi
 
@@ -88,20 +89,15 @@ L = summands M
 -- FIXME: not isomorphic or map {{1},{1}}
 G = myPushFwd(f, sheaf T)
 F = myPushFwd(f, dual cotangentSheaf P1)
-assert first isIsomorphic(module F, module G)
+assert first isIsomorphic(F, G) -- FIXME
 
 X = Proj quotient ann M
 -- X is smooth <=> H is locally free
-H = sheaf(X, module G ** quotient ann M)
+H = sheaf(X, module F ** quotient ann M)
 T' = tangentSheaf X
 
-hilbertPolynomial T'
-hilbertPolynomial F
-hilbertPolynomial G
-hilbertPolynomial H
-
-L = G' ** dual G'
--- H is locally ree <=> L is the trivial line bundle
+L = H ** dual H
+-- H is locally free of rank 1 <=> L is the trivial line bundle
 OO_X^1 == prune L
 1 == rank HH^0(X, L)
 
@@ -116,6 +112,11 @@ support Module := M -> quotient ann M
 rank' = M -> rank tensor(M, support M)
 rank' \ L
 
+
+G = myPushFwd(f, OO_P1^1)
+summands myPushFwd(f, S^1)
+needsPackage "IntegralClosure"
+assert isNormal quotient ideal relations module G
 
 -----------
 X = weightedProjectiveSpace {1,1,2}
