@@ -143,7 +143,9 @@
   \[ F\colon S\to S \quad \text{given by} \quad f \to f^p \]
 
   %\pause
-  - Hartshorne: any $L\in\Pic\PPn$, $F_*L$ splits as a sum of line bundles.
+  - Hartshorne: any $L\in\Pic\PPn$, $F_*L$ splits as a sum of line bundles. \\
+  %\pause
+  - Raczka '24: any v.b.\ on $\PPn$, $F_*^e\cE$ splits as a sum of $\OO$'s and $\Omega$'s.
   %\pause
   \begin{block}{Example: $F_*\o_{\PPn}$}
     \vspace*{-0.2in}
@@ -185,7 +187,7 @@
   %\pause
   - Bogvad '98, Thomsen '00: $F_*L$ totally splits for any $L\in\Pic X$.
   %\pause
-  \begin{block}{Example: $X = $ Hirzebruch surface of type 3, $F_*\o_X, p = 2$}
+  \begin{block}{Example: $X = $ Hirzebruch surface of type 3, $F_*\o_X, p = 3$}
     \vspace*{-0.2in}
     \[ F_*\o_X = \o_X \oplus \o_X(-1,0)^2 \oplus \o_X(0,-1)^2 \oplus \o_X(1,-1)^3 \oplus \o_X(2,-1). \]
   \end{block}
@@ -260,7 +262,7 @@
 \begin{frame}{Frobenius pushforward on Mori Dream Spaces}
   \begin{block}{Example: $X = \mathrm{Bl}_4\PP2, F_*\o_X, p = 2$}
     \vspace*{-0.15in}
-    h\begin{align*}
+    \begin{align*}
       F_*^2\o_X = {\o_{X}^{1}}
       &\oplus {\o_{X}^{2}\ \left(-2,\,1,\,1,\,1,\,1\right)} \oplus {\o_{X}^{2}\ \left(-1,\,0,\,0,\,0,\,1\right)} \\ 
       &\oplus {\o_{X}^{2}\ \left(-1,\,0,\,0,\,1,\,0\right)} \oplus {\o_{X}^{2}\ \left(-1,\,0,\,1,\,0,\,0\right)} \\
@@ -277,12 +279,25 @@
     Input: finitely generated graded module $M$ over an algebra.
     %\pause
     \begin{enumerate}
-    \item compute $\Hom(M, M)$; %\pause
-    \item find element $h$ corresponding to an idempotent; %\pause
-    \item find the image and cokernel of $h$; %\pause
-    \item repeat.
+    \item Compute $\Hom(M, M)$; \\ %\pause
+      Note: the degree zero part only, so \textbf{multigrading helps!} %\pause
+    \item Find element $h$ corresponding to an idempotent; \\ %\pause
+      \begin{itemize}
+      \item Hope that generators of $\Hom$ are idempotents; %\pause
+      \item In finite characteristic, use a general endomorphism. %\pause
+      \end{itemize}
+    \item Find the image and cokernel of $h$;
+    \item Repeat.
     \end{enumerate}
   \end{alertblock}
+
+  \vfill
+  %\pause
+  \begin{lemma}
+    Let $M$ be an $R$-module, and let $A\in\End_R(M)$. If the induced action of $A$ on $M/mM$ is idempotent, then $M$ admits a direct sum decomposition $N\oplus M/N$, where $N\cong \im A$.
+    % Let $A$ be an endomorphism of a $k$-vector space such that all eigenvalues of $A$ are contained in $k$. If $\lambda$ is an eigenvalue of $A$, then some power of $A-\lambda I$ is an idempotent.
+  \end{lemma}
+
 \end{frame}
 
 
