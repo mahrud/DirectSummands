@@ -1,4 +1,4 @@
-\documentclass{article}
+s\documentclass{article}
 
 \let\oldb\b
 \let\oldl\l
@@ -91,7 +91,7 @@ Throughout, $R$ will be an $\Z^r$-graded ring with $R_0 = k$ a field of positive
 
 We begin with the observation that if $A\in\End_R(M)$ is an idempotent, then $M$ decomposes as $\im A \oplus \ker A$; if $A$ is nontrivial (i.e., neither an isomorphism nor the zero morphism), then $M$ is decomposable. The following lemma allows us to check only for idempotents modulo the maximal ideal:
 
-\begin{lem}\label{idem}
+\begin{lem}\label{lem:idemp}
   Let $M$ be an $R$-module, and let $A\in\End_R(M)$. If the induced action of $A$ on $M/mM$ is idempotent, then $M$ admits a direct sum decomposition $N\oplus M/N$, where $N\cong \im A$.
 \end{lem}
 \begin{proof}
@@ -116,7 +116,7 @@ We begin with the observation that if $A\in\End_R(M)$ is an idempotent, then $M$
   \[ n_0=A(n_0-n_1+\dots \pm n_k) \mp n_{k+1}, \]
   with $n_i \in m^i M\cap N$.
 
-  By the Artin--Rees lemma, for there's some positive integer $k$ such that for $n\gg0$ we can write
+  By the Artin--Rees lemma, there's some positive integer $k$ such that for $n\gg0$ we can write
   \[ m^n M\cap N = m^{n-k} ( m^kM\cap N)\subset m^{n-k} N. \]
   That is, the terms of $n_0-n_1+n_2-\dots$ are going to 0 in the $m$-adic topology on $N$. Thus, we can write
   \[ n_0=A(n_0-n_1+n_2-\dots), \]
@@ -128,8 +128,7 @@ We begin with the observation that if $A\in\End_R(M)$ is an idempotent, then $M$
   is split by the map of $R$-modules $M\xra A N\xra{\a\inv} N$.
 \end{proof}
 
-\begin{lem}
-\label{JordanLemma}
+\begin{lem}\label{lem:jordan}
   Let $k$ be a finite field of characteristic $p$, and let $A$ be an endomorphism of a $k$-vector space such that all eigenvalues of $A$ are contained in $k$. If $\l$ is an eigenvalue of $A$, then some power of $A-\l I$ is an idempotent.
 Furthermore, if $\l$ is not the only eigenvalue of $A$, then a power of $A-\l I$ that is nonzero is an idempotent.
 \end{lem}
@@ -157,7 +156,7 @@ Furthermore, if $\l$ is not the only eigenvalue of $A$, then a power of $A-\l I$
     \vdots & & & & \vdots \\
     0 & 0 & 0 & \dots & \mu_i^l
   \end{pmatrix} \]
-  If $l$ is $> r_i$ and divisible by $p$, then all non-diagonal terms will vanish, so all blocks will have the form
+  If $l > r_i$ and $l$ divisible by $p$, then all non-diagonal terms will vanish, so all blocks will have the form
   \[ \begin{pmatrix}
     \mu_i^l & 0 & 0 & \dots & 0 \\
     0 & \mu_i^l & 0 & \dots & 0 \\
@@ -173,7 +172,7 @@ This leads to a probabilistic algorithm to find the indecomposable summands of a
 \begin{enumerate}
 \item \label{1} Take a general element $A_0$ of $[\End M]_0$, the degree-0 part of $\End M$, and consider the resulting endomorphism $A$ of the $k$-vector space $M/mM$.
 \item Find the eigenvalues of $A$.
-\item If $A$ has at least two eigenvalues, choose one eigenvalue $\l$, and compute a sufficiently high power of $A$ (with the power explicitly as in the proof of Lemma~\ref{JordanLemma}). This power will be a nonzero idempotent, and thus produce a splitting of $M$ as $\im A_0 \oplus \coker A_0$ by Lemma~\ref{idem}.
+\item If $A$ has at least two eigenvalues, choose one eigenvalue $\l$, and compute a sufficiently high power of $A$ (with the power explicitly as in the proof of Lemma~\ref{lem:jordan}). This power will be a nonzero idempotent, and thus produce a splitting of $M$ as $\im A_0 \oplus \coker A_0$ by Lemma~\ref{lem:idemp}.
 \item Repeat steps (1)--(3) for both $\im A_0$ and $\coker A_0$.
 \end{enumerate}
 
@@ -245,36 +244,34 @@ In this section, we give examples of the kind of calculations and observations t
 \begin{exa}[Frobenius pushforward on the projective space $\P^n$]
   Let $S = k[x_0,\dots,x_n]$ be a polynomial ring with $\char k = p$ and $\deg x_i = 1$ and consider the Frobenius endomorphism
   \[ F\colon S\to S \quad \text{given by} \quad f \to f^p. \]
-  Hartshorne \cite{Hartshorne70} proved that for any line bundle $L\in\Pic\P^n$, the Frobenius pushforward $F_*L$ splits as a sum of line bundles. While the following calculations are straightforward to do by hand, they are immediately calculated via our algorithm:
+  Hartshorne \cite{Hartshorne1970} proved that for any line bundle $L\in\Pic\P^n$, the Frobenius pushforward $F_*L$ splits as a sum of line bundles. While the following calculations are straightforward to do by hand, they are immediately calculated via our algorithm:
   \begin{align*}
     \text{When }p=3, n=2: \\
     F_*\O_{\P^2} &= \O \oplus \O(-1)^7 \oplus \O(-2). \\
     \text{When } p=2, n=5: \\
-    F_*\O_{\P^5} &= \O \oplus \O(-1)^{15} \oplus \O(-2)^{15} \oplus \O(-3). \\
-    F_*^2\O_{\P^5} &= \O \oplus \O(-1)^{120} \oplus \O(-2)^{546} \oplus \O(-3)^{336} \oplus \O(-4)^{21}
+    F_*\O_{\P^5} &= \O \oplus \O(-1)^{15} \oplus \O(-2)^{15} \oplus \O(-3), \\
+    F_*^2\O_{\P^5} &= \O \oplus \O(-1)^{120} \oplus \O(-2)^{546} \oplus \O(-3)^{336} \oplus \O(-4)^{21}.
   \end{align*}
 \end{exa}
 
 \begin{exa}[Frobenius pushforward on toric varieties]
   Let $X$ be a smooth toric variety and consider its Cox ring
   \[ S = \bigoplus_{[D]\in\Pic{X}} \; \Gamma(X, \O(D)). \]
-  Similar to the case of the projective space, B{\o}gvad and Thomsen
-\cite{Bogvad98,Thomsen00}
- showed that $F_*L$ totally splits as a direct sum of line bundles for any line bundle $L\in\Pic X$.
+  Similar to the case of the projective space, B{\o}gvad and Thomsen \cite{Bogvad98,Thomsen00} showed that $F_*L$ totally splits as a direct sum of line bundles for any line bundle $L\in\Pic X$.
 
   As an example, consider the third Hirzebruch surface $X=\P(\O_{\P^1}\oplus \O_{\P^1}(3))$ over a field of characteristic 3. We have, for example, that
-\begin{align*}
-F_*\O_X &= \O_X \oplus \O_X(-1,0)^2 \oplus \O_X(0,-1)^2 \oplus \O_X(1,-1)^3 \oplus \O_X(2,-1)\\
-F_*\O_X(1,1) &= \O_X^3 \oplus \O_X(-1,0) \oplus \O_X(1,-1) \oplus \O_X(1,0)^2 \oplus \O_X(2,-1)^2
-\end{align*}
-  In fact, Achinger \cite{Achinger13} showed that the total splitting of $F_*L$ for every line bundle $L$ characterizes smooth projective toric varieties.
-
+  \begin{align*}
+    F_*\O_X      &= \O_X   \oplus \O_X(-1,0)^2 \oplus \O_X(0,-1)^2 \oplus \O_X(1,-1)^3 \oplus \O_X(2,-1), \\
+    F_*\O_X(1,1) &= \O_X^3 \oplus \O_X(-1,0)   \oplus \O_X(1,-1)   \oplus \O_X(1, 0)^2 \oplus \O_X(2,-1)^2.
+  \end{align*}
+  In fact, Achinger \cite{Achinger15} showed that the total splitting of $F_*L$ for every line bundle $L$ characterizes smooth projective toric varieties.
   % The toric Frobenius is simply multiplication by $p$ on the torus.
   % The $p$ need not be prime, nor even match the characteristic!
 \end{exa}
 
 \begin{exa}[Frobenius pushforward on elliptic curves]\label{algclos}
-  Consider the elliptic curve $X=\Proj (\mathbb F_7[x,y,z]/(x^3+y^3+z^3))$.
+  Consider the elliptic curve
+  \[ X = \Proj \mathbb F_7[x,y,z]/(x^3+y^3+z^3). \]
   %%Weierstrauss form is y^2=x^3-432
   This is an ordinary elliptic curve, hence $F$-split; thus $\O_X$ is a summand of $F_* \O_X$. Over the algebraic closure of $\mathbb F_7$, $F_*\O_X$ will decompose as $\bigoplus_{p=1}^7 \O_X(p_i)$, where $p_1,\dots,p_7$ are the 7-torsion points of $X$.
 
@@ -294,11 +291,11 @@ F_*\O_X(1,1) &= \O_X^3 \oplus \O_X(-1,0) \oplus \O_X(1,-1) \oplus \O_X(1,0)^2 \o
   \[ S = \frac{k[p_{0,1},p_{0,2},p_{0,3},p_{1,2},p_{1,3},p_{2,3}]}{p_{1,2}p_{0,3}-p_{0,2}p_{1,3}+p_{0,1}p_{2,3}}. \]
   Then in characteristic $p=3$ we have:
   \[ F_*\O_X = \O \oplus \O(-1)^{44} \oplus \O(-2)^{20} \oplus A^4 \oplus B^4, \]
-  where $A$ and $B$ are rank-2 indecomposable bundles (c.f.~\cite{RSB22}).
+  where $A$ and $B$ are rank-2 indecomposable bundles (c.f.~\cite{RSVdB22}).
 \end{exa}
 
 \begin{exa}[Frobenius pushforward on Mori Dream Spaces]
-  Continuing with the theme of computations over the Cox ring, the natural geometric setting is to consider the class of projective varieties known as Mori dream spaces \cite{HuKeel00}.
+  Continuing with the theme of computations over the Cox ring, the natural geometric setting is to consider the class of projective varieties known as Mori dream spaces \cite{HK00}.
 
   For instance, consider $X = \mathrm{Bl}_4\P^2$, the blowup of $\P^2$ at 4 general points. We will working over the $\Z^5$-graded Cox ring
   \[ S = k[x_1,\dots,x_{10}]/\text{(five quadric Pl\"ucker relations)} \]
