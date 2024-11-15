@@ -1,7 +1,7 @@
 %\usepackage{mtpro2}
 \def\makeop#1{\@namedef{#1}{\mathop{\operator@font #1}\nolimits}}
 \let\Bbbk\relax
-\usepackage[top=.5in]{geometry}
+\usepackage[letterpaper,margin=1in]{geometry}
 \usepackage{amsmath,amsthm,microtype,amssymb,tikz,tikz-cd}
 \newtheorem*{thm}{Theorem}
 \newtheorem*{lem}{Lemma}
@@ -219,7 +219,7 @@
 \makeop{GL}
 \makeop{AGL}
 \makeop{PGL}
-\let\sm\setminus
+%\let\sm\setminus
 \usepackage{xparse}
 
 \ExplSyntaxOn
@@ -393,7 +393,7 @@
 %%
 \def\an{{\mathrm{an}}}
 \makeop{pr}
-\let\setminus-
+%\let\setminus-
 \makeop{Mat}
 \def\top{{\mathrm{top}}}
 

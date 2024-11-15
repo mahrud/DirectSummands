@@ -1,9 +1,15 @@
-\begin{thebibliography}{RvVdB22}
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{R{\v{S}}VdB22}
 
-\bibitem[Ach15]{Achinger13}
+\bibitem[Ach15]{Achinger15}
 Piotr Achinger.
 \newblock A characterization of toric varieties in characteristic {$p$}.
 \newblock {\em Int. Math. Res. Not. IMRN}, (16):6879--6892, 2015.
+
+\bibitem[Ati57]{Atiyah}
+Michael~F. Atiyah.
+\newblock Complex analytic connections in fibre bundles.
+\newblock {\em Trans. Am. Math. Soc.}, 85:181--207, 1957.
 
 \bibitem[BCP97]{MAGMA}
 Wieb Bosma, John Cannon, and Catherine Playoust.
@@ -16,11 +22,22 @@ Rikard B{\o}gvad.
 \newblock Splitting of the direct image of sheaves under the {F}robenius.
 \newblock {\em Proc. Amer. Math. Soc.}, 126(12):3447--3454, 1998.
 
+\bibitem[CDE{\etalchar{+}}24]{CDE+24}
+Doan~Trung Cuong, Hailong Dao, David Eisenbud, Toshinori Kobayashi, Claudia
+  Polini, and Bernd Ulrich.
+\newblock Syzygies of the residue field over {{Golod}} rings.
+\newblock 2024.
+
+\bibitem[DE23]{DE23}
+Hailong Dao and David Eisenbud.
+\newblock Burch index, summands of syzygies and linearity in resolutions.
+\newblock {\em Bull. Iranian Math. Soc.}, 49(2):Paper No. 10, 10, 2023.
+
 \bibitem[GAP]{GAP}
 The GAP~Group.
 \newblock {\em {GAP -- Groups, Algorithms, and Programming}}.
 
-\bibitem[Har70]{Hartshorne70}
+\bibitem[Har70]{Hartshorne1970}
 Robin Hartshorne.
 \newblock {\em Ample subvarieties of algebraic varieties}, volume Vol. 156 of
   {\em Lecture Notes in Mathematics}.
@@ -33,7 +50,7 @@ Nobuo Hara.
   {$\mathbb P^2$}.
 \newblock {\em Illinois J. Math.}, 59(1):115--142, 2015.
 
-\bibitem[HK00]{HuKeel00}
+\bibitem[HK00]{HK00}
 Yi~Hu and Sean Keel.
 \newblock Mori dream spaces and {GIT}.
 \newblock volume~48, pages 331--348. 2000.
@@ -57,8 +74,8 @@ R.~A. Parker.
 \newblock In {\em Computational group theory ({D}urham, 1982)}, pages 267--274.
   Academic Press, London, 1984.
 
-\bibitem[RvVdB22]{RSB22}
-Theo Raedschelders, \v{S}pela \v{S}penko, and Michel Van~den Bergh.
+\bibitem[R{\v{S}}VdB22]{RSVdB22}
+Theo Raedschelders, \v{S}pela {\v{S}}penko, and Michel Van~den Bergh.
 \newblock The {F}robenius morphism in invariant theory {II}.
 \newblock {\em Adv. Math.}, 410:Paper No. 108587, 64, 2022.
 
