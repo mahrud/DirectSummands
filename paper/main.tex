@@ -41,7 +41,19 @@
 \newcommand{\devlin}[1]{{\color{red} \sf $\clubsuit$ Devlin: [#1]}}
 
 \title{Computing Direct Sum Decompositions}
+
 \author{Devlin Mallory and Mahrud Sayrafi}
+
+%% \author{Devlin Mallory}
+%% \affiliation{Basque Center for Applied Mathematics, Bilbao, Basque Country, Spain}
+%% \email{\href{mailto:dmallory@bcamath.org}{dmallory@bcamath.org}}
+
+%% \author{Mahrud Sayrafi}
+%% \affiliation{Max Planck Institute for Mathematics in the Sciences, Leipzig, Germany}
+%% \email{\href{mailto:mahrud@mis.mpg.de}{mahrud@mis.mpg.de}}
+
+%% \subjclass[2020]{16D70; 14F06, 13A35}
+
 \begin{document}
 \maketitle
 
@@ -62,7 +74,7 @@ The purpose of this paper is to describe and prove correctness of a practical al
 
 After describing the algorithm and proving its correctness, we present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings. In particular, we highlight the results of \cite{CDE+24}, which shows a recurrence formula for indecomposable summands of high syzygies of the residue field of Golod rings, made possible through experiments and observations using our algorithm.
 
-An accompanying implementation in Macaulay2 is available online via the GitHub repository \\
+An accompanying implementation in Macaulay2 \cite{M2} is available via the GitHub repository \\
 \centerline{
   \href{https://github.com/mahrud/DirectSummands}
   {\texttt{https://github.com/mahrud/DirectSummands}}.}
@@ -225,7 +237,6 @@ then $f$
   has an $n$-fold root exactly when
   $ f,\d f/\d t,\dots, \d^{n-1} f/\d t^{n-1} $
   vanish simultaneously; the resultant of these $n$ polynomials in the $n$ variables $b_i$ gives polynomial conditions in the $b_i$ for this to occur.
-%\devlin{TODO: this is $n+1$ equations, so make sure it's okay}
  In our setting, the $b_i$ are themselves polynomials in the $\l_i$, and thus we have obtained polynomial equations defining the locus where $A_{\l_1,\dots,\l_r}$ fails to have distinct roots, and thus the complement $U$ is open.
 \end{proof}
 
@@ -376,7 +387,7 @@ Take $M= \Gamma_*(E)$; then since the eigenvalues $\l_1\neq \l_2$ are also irrel
 \end{proof}
 
 \begin{rem}
-We note that it is known already by \cite[Proposition~15]{Atiyah} that an endomorphism of an indecomposable vector $E$ cannot have two distinct eigenvalues. The utility of the preceding lemma is in producing an explicit direct sum decomposition of $E$.
+We note that it is known already by \cite[Proposition~15]{Atiyah57} that an endomorphism of an indecomposable vector $E$ cannot have two distinct eigenvalues. The utility of the preceding lemma is in producing an explicit direct sum decomposition of $E$.
 \end{rem}
 
 
@@ -432,6 +443,7 @@ In this section, we give examples of the kind of calculations and observations t
 \end{exa}
 
 \begin{exa}[Frobenius pushforward on Grassmannians]
+  % https://arxiv.org/abs/1901.10956
   Consider the Grassmannian $X = \mathrm{Gr(2,4)}$. We may work over the Cox ring $S$,
   %\[ S = \bigoplus\!{}_{[D]\in\Pic{X}} \; \Gamma(X, \O(D)). \]
   which in this case coincides with the coordinate ring
@@ -478,7 +490,13 @@ In this section, we give examples of the kind of calculations and observations t
   In fact, we believe a similar description holds true for quartic del Pezzos.
 \end{exa}
 
+%\begin{exa}[Frobenius pushforward on invariant rings of finite groups]
+  % https://arxiv.org/abs/2312.11786
+%  \mahrud{TODO: add an invariant ring example from \cite{HS24}}
+%\end{exa}
+
 \begin{exa}[Syzygies over Artinian rings]
+  % https://arxiv.org/abs/2208.05427
   In recent work suggested by examples calculated using our algorithm, \cite{CDE+24} studies the indecomposable summands of syzygy modules over a Golod ring $(R,m,k)$. In particular, they find previously unexpected recurring behavior, specifically that the syzygy modules of the residue field are direct sums of only three indecomposable modules: the residue field $k$, the maximal ideal $m$, and an additional module $N = \Hom_R(m, R)$.
 
   Here, we give a concrete example of one such ring:
