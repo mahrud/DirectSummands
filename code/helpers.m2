@@ -3,6 +3,7 @@ debug needsPackage "VirtualResolutions"
 needsPackage "FourierMotzkin"
 needsPackage "LinearTruncations"
 debug needsPackage "Truncations"
+needsPackage "Isomorphism" -- because TateOnProducts overwrites isIsomorphic
 
 kk = ZZ/101
 
@@ -10,9 +11,6 @@ importFrom_Core {"nonnull"}
 
 -- erase the symbols first
 importFrom(Package, List) := (P, x) -> apply(nonnull x, s -> if not currentPackage#"private dictionary"#?s then currentPackage#"private dictionary"#s = P#"private dictionary"#s)
-
--- remove boxes from netList
---(first frames netList)#0 = (first frames netList)#0 ++ { Boxes => false }
 
 importFrom_"SpectralSequences" {"spots"}
 spots GradedModule := lookup(spots, ChainComplex)
@@ -34,6 +32,10 @@ cols = m -> apply(numcols m, j -> m_{j})
 vecs = m -> entries transpose m
 -- pads columns of M with n columns
 pad(Matrix, ZZ) := (M, n) -> M | map(target M, (ring M)^(max(n - numcols M, 0)), 0)
+
+ceiling Matrix := m -> matrix table(numrows m, numcols m, (i, j) -> ceiling m_(i,j))
+floor   Matrix := m -> matrix table(numrows m, numcols m, (i, j) -> floor   m_(i,j))
+graph = (L, f) -> apply(L, x -> (x, f(x)))
 
 -- TODO: is this the best way?
 -- TODO: move to Chambers?
@@ -126,6 +128,11 @@ Module ^ ZZ := Module => (M,i) -> if i > 0 then directSum (i:M) else 0*M
 
 importFrom_Core {"printerr"}
 
+-- remove boxes from netList
+--(first frames netList)#0 = (first frames netList)#0 ++ { Boxes => false }
+-- list c entries per row instead of 1
+netList(ZZ, VisibleList) := o -> (c, L) -> netList(o, pack_c L)
+
 --plotRegion = method()
 plotRegion(Function, List, List) := (func, low, high) -> printerr netList(Boxes => false,
     table(last(high - low) + 1, first(high - low) + 1,
@@ -165,6 +172,7 @@ coneMax = (C, L) -> first entries transpose sub(vertices intersection apply(uniq
 --coneMax = memoize coneMax
 coneMin = (C, L) -> coneMax(-C, L)
 --coneMin = memoize coneMin
+if instance(coneComp, Symbol) then
 coneComp = (C, u, v) -> (
     --if u == v                            then symbol== else
     if contains(C, matrix vector(v - u)) then symbol <= else
@@ -203,11 +211,11 @@ show NormalToricVariety := X -> (
     if dim X > 3 then error "cannot visualize fans in dimensions higher than 3";
     name = temporaryFileName() | ".pm";
     name << concatenate(///
-  	use application "fulton";
-  	declare $F = new PolyhedralFan(
-      	    INPUT_RAYS => ///, toString apply(new Array from rays X, rho -> new Array from rho), ///,
-      	    INPUT_CONES => ///, toString apply(new Array from max X, sigma -> new Array from sigma), ///);
-  	declare $X = new NormalToricVariety($F);
-  	$X->VISUAL;
+	use application "fulton";
+	declare $F = new PolyhedralFan(
+	    INPUT_RAYS => ///, toString apply(new Array from rays X, rho -> new Array from rho), ///,
+	    INPUT_CONES => ///, toString apply(new Array from max X, sigma -> new Array from sigma), ///);
+	declare $X = new NormalToricVariety($F);
+	$X->VISUAL;
 	///) << close;
     run("polymake --script " | name))

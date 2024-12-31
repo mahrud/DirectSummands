@@ -44,10 +44,12 @@ myPushFwd(RingMap, Module) := (f, M) -> (
 	degs := degree \ f \ gens R;
 	-- if the variables are sent to different degrees
 	if length unique degs > 1 then return pushFwd(f, M);
-	deg := first degs_0;
+	deg := sum degs_0;
 	-- TODO: erases degree map and degree lift
-	g := map(S, newRing(R, Degrees => deg * degrees R), f);
-	N := myPushForward(g, M);
+	S' := newRing(S, Degrees => sum \ degrees S);
+	R' := newRing(R, Degrees => deg * degrees R);
+	g := map(S', R', sub(matrix f, S'));
+	N := pushForward(g, M ** S');
 	-- TODO: not multigraded: a // deg won't work if deg is multigraded
 	ginv := map(R, source g, gens R, DegreeMap => a -> a // deg);
 	directSum apply(decomposePushforwardPresentation(deg, f, N), m -> coker ginv m))
@@ -67,6 +69,7 @@ end--
 
 restart
 needs "pushforwards.m2"
+needs "finite.m2"
 
 needsPackage "NormalToricVarieties"
 P1 = toricProjectiveSpace 1
@@ -80,6 +83,9 @@ R = ring P2
 S = ring P1 
 f = inducedMap psi
 ker f
+
+toricFinitePushforward psi
+psi
 
 G = myPushFwd(f, OO_P1^1)
 L = summands myPushFwd(f, S^1)
@@ -148,3 +154,16 @@ M = S^1
 myPushFwd(f, M)
 pushFwd(f, M)
 pushForward(f, M)
+
+
+
+restart
+needs "pushforwards.m2"
+needsPackage "NormalToricVarieties"
+
+X = toricProjectiveSpace(2, CoefficientRing => ZZ/3)
+S = ring X
+
+frobeniusPushforward(1, S)
+frobeniusPushforward(1, OO_X^{1})
+components oo

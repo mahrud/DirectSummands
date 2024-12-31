@@ -45,11 +45,11 @@
 \author{Devlin Mallory and Mahrud Sayrafi}
 
 %% \author{Devlin Mallory}
-%% \affiliation{Basque Center for Applied Mathematics, Bilbao, Basque Country, Spain}
+%% \address{Basque Center for Applied Mathematics, Bilbao, Basque Country, Spain}
 %% \email{\href{mailto:dmallory@bcamath.org}{dmallory@bcamath.org}}
 
 %% \author{Mahrud Sayrafi}
-%% \affiliation{Max Planck Institute for Mathematics in the Sciences, Leipzig, Germany}
+%% \address{Max Planck Institute for Mathematics in the Sciences, Leipzig, Germany}
 %% \email{\href{mailto:mahrud@mis.mpg.de}{mahrud@mis.mpg.de}}
 
 %% \subjclass[2020]{16D70; 14F06, 13A35}
@@ -72,7 +72,7 @@ Currently there are no efficient algorithms available for checking indecomposabi
 
 The purpose of this paper is to describe and prove correctness of a practical algorithm for computing indecomposable summands of finitely generated modules over a finitely generated local or graded $k$-algebra, for $k$ a field of positive characteristic. We also describe applications of our algorithm for computations in characteristic 0. Further, our algorithm works over multigraded rings, which enables the computation of indecomposable summands of coherent sheaves on subvarieties of toric varieties (in particular, for varieties embedded in projective space).
 
-After describing the algorithm and proving its correctness, we present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings. In particular, we highlight the results of \cite{CDE+24}, which shows a recurrence formula for indecomposable summands of high syzygies of the residue field of Golod rings, made possible through experiments and observations using our algorithm.
+After describing the algorithm and proving its correctness, we present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings. In particular, we highlight the results of \cite{CDE24}, which shows a recurrence formula for indecomposable summands of high syzygies of the residue field of Golod rings, made possible through experiments and observations using our algorithm.
 
 An accompanying implementation in Macaulay2 \cite{M2} is available via the GitHub repository \\
 \centerline{
@@ -497,7 +497,7 @@ In this section, we give examples of the kind of calculations and observations t
 
 \begin{exa}[Syzygies over Artinian rings]
   % https://arxiv.org/abs/2208.05427
-  In recent work suggested by examples calculated using our algorithm, \cite{CDE+24} studies the indecomposable summands of syzygy modules over a Golod ring $(R,m,k)$. In particular, they find previously unexpected recurring behavior, specifically that the syzygy modules of the residue field are direct sums of only three indecomposable modules: the residue field $k$, the maximal ideal $m$, and an additional module $N = \Hom_R(m, R)$.
+  In recent work suggested by examples calculated using our algorithm, \cite{CDE24} studies the indecomposable summands of syzygy modules over a Golod ring $(R,m,k)$. In particular, they find previously unexpected recurring behavior, specifically that the syzygy modules of the residue field are direct sums of only three indecomposable modules: the residue field $k$, the maximal ideal $m$, and an additional module $N = \Hom_R(m, R)$.
 
   Here, we give a concrete example of one such ring:
   Let $R = k[x,y]/(x^3,x^2y^3,y^5)$ and consider the (infinite) minimal free resolution of the residue field, which has rank $2^n$ in homological index $n$.

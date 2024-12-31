@@ -13,12 +13,9 @@ newPackage(
 	{ Name => "David Eisenbud", Email => "de@berkeley.edu",       HomePage => "https://math.berkeley.edu/~de" },
 	{ Name => "Mike Stillman",  Email => "mike@math.cornell.edu", HomePage => "https://pi.math.cornell.edu/~mike" }
 	},
-    Headline => "push forwards of finite ring maps",
-    Keywords => { "Commutative Algebra" }
+    Headline => "push forwards of ring maps",
+    Keywords => { "Commutative Algebra", "Algebraic Geometry" }
     )
-
--- note, this version has a slight change added by Karl Schwede.  It has an option to turn off the prune calls.
--- Recently, David Eisenbud and Mike Stillman have extended it, fixing some bugs too.
 
 export {
     "isModuleFinite",
@@ -208,7 +205,7 @@ pushAuxHgs(RingMap):=(f)-> (
      if isInclusionOfCoefficientRing f then (
      --case when the source of f is the coefficient ring of the target:
 	 if not isModuleFinite target f then error "expected a finite map";
-	 matB = basis B;
+	 matB = basis B(B, Variables => B_*);
          mapf = if isHomogeneous f
            then (b) -> (
              (mons,cfs) := coefficients(b,Monomials=>matB);
