@@ -17,6 +17,12 @@ Wieb Bosma, John Cannon, and Catherine Playoust.
 \newblock {\em J. Symbolic Comput.}, 24(3-4):235--265, 1997.
 \newblock Computational algebra and number theory (London, 1993).
 
+\bibitem[BL23]{BL23}
+Magnus~Bakke Botnan and Michael Lesnick.
+\newblock An introduction to multiparameter persistence.
+\newblock In {\em Representations of Algebras and Related Structures}, {{EMS
+  Ser}}. {{Congr}}. {{Rep}}., pages 77--150. EMS Press, Berlin, 2023.
+
 \bibitem[B{\o}g98]{Bogvad98}
 Rikard B{\o}gvad.
 \newblock Splitting of the direct image of sheaves under the {F}robenius.
@@ -33,11 +39,18 @@ Hailong Dao and David Eisenbud.
 \newblock Burch index, summands of syzygies and linearity in resolutions.
 \newblock {\em Bull. Iranian Math. Soc.}, 49(2):Paper No. 10, 10, 2023.
 
+\bibitem[DX22]{DX22}
+Tamal~K. Dey and Cheng Xin.
+\newblock Generalized persistence algorithm for decomposing multiparameter
+  persistence modules.
+\newblock {\em Journal of Applied and Computational Topology}, 6(3):271--322,
+  2022.
+
 \bibitem[GAP]{GAP}
 The GAP~Group.
 \newblock {\em {GAP -- Groups, Algorithms, and Programming}}.
 
-\bibitem[GS93]{M2}
+\bibitem[M2]{M2}
 Daniel~R. Grayson and Michael~E. Stillman.
 \newblock Macaulay2, a software system for research in algebraic geometry,
   1993.

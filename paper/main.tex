@@ -68,9 +68,11 @@
 
 The problems of finding isomorphism classes of indecomposable modules with certain properties, or determining the indecomposable summands of a module, are ubiquitous in commutative algebra, group theory, representation theory, and other fields. Within commutative algebra, for instance, the classification of rings $R$ for which there are only finitely many isomorphism classes of indecomposable maximal Cohen--Macaulay $R$-modules (the \emph{finite CM-type} property), or determining whether iterated Frobenius pushforwards of a Noetherian ring in positive characteristic have finitely many isomorphism classes of indecomposable summands (the \emph{finite F-representation type} property) are two well-established research problems. For both these problems, and many others, making and testing conjectures depends on computing summands of modules and verifying their indecomposability.
 
-Currently there are no efficient algorithms available for checking indecomposability or finding summands of modules over commutative rings. In contrast, variants of the ``Meat-Axe'' algorithm for determining irreducibility of finite-dimensional modules over a group algebra have wide ranging applications in computational group theory \cite{Parker84,HR94,Holt98} and are available through symbolic algebra software such as Magma and GAP \cite{MAGMA,GAP}.
+Currently there are no efficient algorithms available for checking indecomposability or finding summands of arbitrary modules over commutative rings. In contrast, variants of the ``Meat-Axe'' algorithm for determining irreducibility of finite-dimensional modules over a group algebra have wide ranging applications in computational group theory \cite{Parker84,HR94,Holt98} and are available through symbolic algebra software such as Magma and GAP \cite{MAGMA,GAP}.
 
-The purpose of this paper is to describe and prove correctness of a practical algorithm for computing indecomposable summands of finitely generated modules over a finitely generated local or graded $k$-algebra, for $k$ a field of positive characteristic. We also describe applications of our algorithm for computations in characteristic 0. Further, our algorithm works over multigraded rings, which enables the computation of indecomposable summands of coherent sheaves on subvarieties of toric varieties (in particular, for varieties embedded in projective space).
+Meanwhile, effective computation of indecomposable components of multiparameter persistence modules is essential in topological data analysis, which has been applied to computational chemistry, materials science, neuroscience, and many other areas \cite{BL23}.
+
+The purpose of this paper is to describe and prove correctness of a practical algorithm for computing indecomposable summands of finitely generated modules over a finitely generated local or graded $k$-algebra, for $k$ a field of positive characteristic. We also describe applications of our algorithm for computations in characteristic 0. Further, our algorithm takes advantage of multigradings, which enables the computation of indecomposable summands of coherent sheaves on subvarieties of toric varieties (in particular, for varieties embedded in $\P^n$).
 
 After describing the algorithm and proving its correctness, we present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings. In particular, we highlight the results of \cite{CDE24}, which shows a recurrence formula for indecomposable summands of high syzygies of the residue field of Golod rings, made possible through experiments and observations using our algorithm.
 
@@ -90,7 +92,7 @@ Although the algorithm described below is only proved to result (probabilistical
 
 
 \subsection*{Acknowledgements}
-The authors would like to thank David Eisenbud for several very useful conversations and ideas.
+The authors would like to thank David Eisenbud for several very useful conversations and ideas, and Ezra Miller for pointing out the relevance of this algorithm in topological data analysis.
 We also thank the American Institute of Mathematics for hosting the ``Macaulay2: expanded functionality and improved efficiency'' workshop, during which some of this work took place.
 The work of the first author was supported in by the National Science Foundation under Grant No.~1840190.
 The second author was supported in part by the Doctoral Dissertation Fellowship at the University of Minnesota and the National Science Foundation under Grant No.~2001101.
@@ -191,7 +193,7 @@ This leads to a probabilistic algorithm to find the indecomposable summands of a
 
 \begin{alg} Given a finitely generated graded $R$-module $M$, the indecomposable summands of $M$ are computed as follows.
   \begin{enumerate}
-  \item \label{1} In the graded case, take a general element $A_0$ of $[\End_R(M)]_0$, the degree-0 part of $\End_R(M)$; in the local case, take a general element $A_0$ of $\End_R(M) \setminus m \End_R(M)$.
+  \item\label{item:End0} In the graded case, take a general element $A_0$ of $[\End_R(M)]_0$, the degree-0 part of $\End_R(M)$; in the local case, take a general element $A_0$ of $\End_R(M) \setminus m \End_R(M)$.
   \item Consider the resulting endomorphism $A$ of the $k$-vector space $M/mM$ and find the eigenvalues of $A$.
   \item If $A$ has at least two eigenvalues, choose one eigenvalue $\l$, and compute a sufficiently high power $B=A^{p^e(p^{e}-1)}$ of $A$ (with the power explicitly as in the proof of Lemma~\ref{lem:jordan}). This power will be a nonzero idempotent, and thus produce a splitting of $M$ as $\im B \oplus \coker B$ by Lemma~\ref{lem:idemp}.
   \item Repeat steps (1)--(3) for both $\im B$ and $\coker B$.
@@ -212,9 +214,8 @@ Retain the notation above.
 \end{lem}
 
 \begin{rem}
-  By ``general'' we mean that a general linear combination of a basis for $\End_R(M)$ over the algebraic closure of $k$, or equivalently over a sufficiently large algebraic extension of $k$.
+  By ``general'' we mean that a general linear combination of a basis for $[\End_R(M)]_0$ over the algebraic closure of $k$, or equivalently over a sufficiently large algebraic extension of $k$.
 \end{rem}
-
 
 \begin{proof}
   We may assume that the base field $k$ is algebraically closed.
@@ -242,7 +243,7 @@ then $f$
 
 
 \begin{rem}
-  Note that the above algorithm is quite sensitive to the ground field $k$, because it needs all the eigenvalues of the endomorphism $A$ of $M/mM$ to be contained in $k$. While theoretically the issue can be avoided by working over an algebraically closed ground field $\bar k$, for practical use on a computer algebra system it is better to extend $k$ to some larger finite field. However, the general linear combinations we take in Step \ref{1} should be taken with respect to the prime subfield (otherwise, as we increase the size of the finite field $k$, the eigenvalues of a general linear combination will live in higher and higher field extensions).
+  Note that the above algorithm is quite sensitive to the ground field $k$, because it needs all the eigenvalues of the endomorphism $A$ of $M/mM$ to be contained in $k$. While theoretically the issue can be avoided by working over an algebraically closed ground field $\bar k$, for practical use on a computer algebra system it is better to extend $k$ to some larger finite field. However, the general linear combinations we take in Step \ref{item:End0} should be taken with respect to the prime subfield (otherwise, as we increase the size of the finite field $k$, the eigenvalues of a general linear combination will live in higher and higher field extensions).
 See Example~\ref{algclos} for a demonstration of the necessity of extending the base field.
 \end{rem}
 
@@ -253,7 +254,7 @@ The following sufficiency condition is immediate, but can be quite useful in pra
   Suppose $R$ is graded, and let $M$ be a finitely generated $R$-module and let $[\End_R(M)]_0$ be the $k$-vector space of degree-0 endomorphisms. Suppose that either:
   \begin{enumerate}
   \item $[\End_R(M)]_0$ is 1-dimensional and thus spanned by the identity endomorphism, or
-  \item every non-identity element of $[\End_R(M)]_0$, viewed as a matrix, has all entries contained in $m$;
+  \item every non-identity element of $[\End_R(M)]_0$, viewed as a matrix, has entries in $m$;
   \end{enumerate}
   then $M$ is indecomposable.
 \end{lem}
@@ -262,7 +263,7 @@ The following sufficiency condition is immediate, but can be quite useful in pra
   If $M$ decomposes non-trivially as $M_1\oplus M_2$, then the projections onto each factor are nontrivial degree-0 endomorphisms not equal to the identity, and which do not have entries contained in~$m$.
 \end{proof}
 
-This is the algebraic analog of the following fact about indecomposability of coherent sheaves:
+This is the algebraic analog of the following fact about coherent sheaves:
 
 \begin{cor}
   Let $X$ be a projective variety over a field $k$, and $\F$ a coherent sheaf on $X$.
@@ -282,6 +283,9 @@ We also point out that it is possible to ``guess'' an idempotent for $M$, even w
 See Examples~\ref{example:QQ} for such a case.
 \end{rem}
 
+\begin{rem}
+  We omit a computational complexity analysis here because without any assumptions about the module there are too many parameters that in any given application may become prominent. We note, however, that $[\End_R(M)]_0$ can be computed using degree limited syzygy algorithms without computing all of $\End_R(M)$. While in many applications this significantly reduces the computational complexity, in general the complexity of the algorithm presented here is at least bounded by the complexity of computing syzygies. Compare with \cite{DX22}, which provides a complexity analysis for a decomposition algorithm with the additional assumption that the generators of $R$ as well as generators and relations of $M$ have distinct degrees. This assumption is exceedingly rare in commutative algebra and algebraic geometry applications, but it is relevant, though not guaranteed, in the context of multiparameter persistence in topological data analysis.
+\end{rem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \section{Decomposing coherent sheaves}
@@ -537,10 +541,11 @@ In this section, we give examples of the kind of calculations and observations t
     0&0&0&a-i\,b-c+i\,d
   \end{pmatrix}.
   \]
-
-
 \end{exa}
 
+%\begin{exa}[Multiparameter persistence modules]
+%  \mahrud{TODO: add an invariant ring example from \cite{BL23} or \cite{DX22}}
+%\end{exa}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
