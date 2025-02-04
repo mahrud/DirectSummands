@@ -3,6 +3,7 @@
 random Module := Vector => o -> M -> (
     K := try coefficientRing ring M else ring M;
     v := random(cover M ** K, module K, o);
+    -- FIXME: this isn't inhomogeneous sometimes
     vector inducedMap(M, , generators M * v))
 
 generalEndomorphism = method()

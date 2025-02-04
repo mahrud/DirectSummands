@@ -258,6 +258,15 @@ directSummands Module := List => opts -> (cacheValue (symbol summands => opts.Ex
 	DegreeLimit       => if opts.Strategy & 2 == 2 then zdeg,
 	MinimalGenerators => if opts.Strategy & 4 == 4 then false);
     elapsedTime B := smartBasis(zdeg, A);
+    --error 0;
+    ///
+      T := R(monoid[]);
+      use source psi
+      A=sub(cover sum for i to numcols B - 1 list a_i * homomorphism B_(i-1), Ra)
+      J=trim ideal cover(A^2-A)
+      degree eliminate(apply(gens R,i->sub(i,ambient Ra)),  sub(J,ambient Ra)+ideal(Ra))
+      decompose J
+    ///;
     -- FIXME: this currently does not find _all_ idempotents
     flag := true; -- whether all non-identity homomorphisms are zero mod m
     -- TODO: 10k columns for F_*(OO_X) on Gr(2,4) over ZZ/3 take a long time
