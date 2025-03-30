@@ -274,7 +274,7 @@ directSummands Module := List => opts -> (cacheValue (symbol summands => opts.Ex
     if 0 < debugLevel then printerr("splitting module of rank: ", toString rank M);
     --TODO: is there an easy way to check if rank = 1 and M torsionfree?
     if 1 < #components M then return flatten apply(components M, directSummands_opts); -- TODO: parallelize
-    if isFreeModule M then return apply(pairs(-degrees M), (i, d) -> (
+    if isFreeModule M then return apply(toList pairs(-degrees M), (i, d) -> (
 	    M.cache#(symbol ^, [i]) = transpose (M.cache#(symbol _, [i]) = matrix M_i); R^{d}));
     if opts.ExtendGroundField =!= null then (
 	L := opts.ExtendGroundField;
