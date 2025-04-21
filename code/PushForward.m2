@@ -12,10 +12,13 @@ newPackage(
 	{ Name => "Claudiu Raicu",  Email => "craicu@nd.edu",         HomePage => "https://www3.nd.edu/~craicu" },
 	{ Name => "David Eisenbud", Email => "de@berkeley.edu",       HomePage => "https://math.berkeley.edu/~de" },
 	{ Name => "Mike Stillman",  Email => "mike@math.cornell.edu", HomePage => "https://pi.math.cornell.edu/~mike" }
-	},
+    },
     Headline => "push forwards of ring maps",
     Keywords => { "Commutative Algebra", "Algebraic Geometry" }
-    )
+)
+
+-- note, this version has a slight change added by Karl Schwede.  It has an option to turn off the prune calls.
+-- Recently, David Eisenbud and Mike Stillman have extended it, fixing some bugs too.
 
 export {
     "isModuleFinite",
@@ -205,7 +208,7 @@ pushAuxHgs(RingMap):=(f)-> (
      if isInclusionOfCoefficientRing f then (
      --case when the source of f is the coefficient ring of the target:
 	 if not isModuleFinite target f then error "expected a finite map";
-	 matB = basis B(B, Variables => B_*);
+	 matB = basis(B, Variables => 0 .. numgens B - 1);
          mapf = if isHomogeneous f
            then (b) -> (
              (mons,cfs) := coefficients(b,Monomials=>matB);
@@ -766,7 +769,7 @@ TEST///
   L = A[symbol b, symbol c, Join => false]/(b*c-s*t, t*b^2-s*c^2, b^3-s*c^2, c^3 - t*b^2)
   isHomogeneous L
   describe L
-  basis L
+  basis(L, Variables => L_*)
   inc = map(L, A)
   assert isInclusionOfCoefficientRing inc
   assert isModuleFinite L
@@ -787,7 +790,7 @@ TEST///
   L = A[symbol b, symbol c, Join => false]/(b*c-s*t,c^3-b*t^2,s*c^2-b^2*t,b^3-s^2*c)
   isHomogeneous L
   describe L
-  basis L
+  basis(L, Variables => L_*)
   inc = map(L, A)
   assert isInclusionOfCoefficientRing inc
   assert isModuleFinite L
@@ -828,7 +831,7 @@ TEST///
   assert((M1,B1) == (M,B))
   assert(pushFwd matrix{{y}} == pushFwd(map(R,A),matrix{{y}}))
   assert(isFreeModule M and rank M == 7)
-  assert(B == basis R)
+  assert(B == basis(R, Variables => R_*))
   assert( pf(y+x)- matrix {{x}, {1}, {0}, {0}, {0}, {0}, {0}} == 0)
   R' = integralClosure R
   (M,B,pf) = pushFwd map(R',R)
