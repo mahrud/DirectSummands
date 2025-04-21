@@ -4,6 +4,7 @@
 \let\oldl\l
 \usepackage[dvipsnames]{xcolor}
 \usepackage{notes,hyperref}
+\usepackage{mathtools}
 \usepackage{cleveref}
 \let\b\beta
 \let\l\lambda
@@ -16,8 +17,8 @@
 \def\FF{\mathbb F}
 \def\PP{\mathbb P}
 \def\ZZ{\mathbb Z}
-\def\Gr{\mathrm Gr}
-\def\Bl{\mathrm Bl}
+\makeop{Gr}
+\makeop{Bl}
 \makeop{Eff}
 
 \let\inc\hookrightarrow
@@ -44,6 +45,7 @@
 
 \newcommand{\mahrud}[1]{{\color{ForestGreen} \sf $\blacklozenge$ Mahrud: [#1]}}
 \newcommand{\devlin}[1]{{\color{red} \sf $\clubsuit$ Devlin: [#1]}}
+\def\n{\mathfrak n}
 
 \title{Computing Direct Sum Decompositions}
 
@@ -63,36 +65,46 @@
 \maketitle
 
 \begin{abstract}
-  The problems of finding isomorphism classes of indecomposable modules with certain properties, or determining the indecomposable summands of a module, are ubiquitous in commutative algebra, representation theory, topological data analysis, and other fields.\linebreak The purpose of this work is to describe and prove correctness of two practical algorithms for computing indecomposable summands of finitely generated modules over a finitely generated $k$-algebra $R$: the first algorithm applies in the (multi)graded case, which enables the computation of indecomposable summands of coherent sheaves on subvarieties of toric varieties (in particular, for varieties embedded in projective space); the second algorithm applies when $R$ is local and $k$ is a finite field, which opens the door to computing decompositions in singularity theory. We also present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings.
+  %The problems of finding isomorphism classes of indecomposable modules with certain properties, or determining the indecomposable summands of a module, are ubiquitous in commutative algebra, representation theory, topological data analysis, and other fields.
+  \devlin{We had the commented-out sentence in both the abstract and intro; I think we can just remove it from the abstract? If not, at least rephrase}
+  The purpose of this work is to describe and prove correctness of two practical algorithms for computing indecomposable summands of finitely generated modules over a finitely generated $k$-algebra $R$: the first algorithm applies in the (multi)graded case, which enables the computation of indecomposable summands of coherent sheaves on subvarieties of toric varieties (in particular, for varieties embedded in projective space); the second algorithm applies when $R$ is local and $k$ is a finite field, which opens the door to computing decompositions in singularity theory. We also present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards (including in the non-graded case) and syzygies over Artinian rings.
 \end{abstract}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
+\label{sec:intro}
 
-The problems of finding isomorphism classes of indecomposable modules with certain properties, or determining the indecomposable summands of a module, are ubiquitous in commutative algebra, group theory, representation theory, and other fields. Within commutative algebra, for instance, the classification of rings $R$ for which there are only finitely many isomorphism classes of indecomposable maximal Cohen--Macaulay $R$-modules (the \emph{finite CM-type} property), or determining whether iterated Frobenius pushforwards of a Noetherian ring in positive characteristic have finitely many isomorphism classes of indecomposable summands (the \emph{finite F-representation type} property) are two well-established research problems. For both these problems, and many others, making and testing conjectures depends on computing summands of modules and verifying their indecomposability.
-\devlin{Reference 15.10.9 of \cite{Eisenbud95}}
+The problems of finding isomorphism classes of indecomposable modules with certain properties, or determining the indecomposable summands of a module, are ubiquitous in commutative algebra, group theory, representation theory, and other fields. Within commutative algebra, for instance, the classification of rings $R$ for which there are only finitely many isomorphism classes of indecomposable maximal Cohen--Macaulay $R$-modules (the \emph{finite CM-type} property), or determining whether iterated Frobenius pushforwards of a Noetherian ring in positive characteristic have finitely many isomorphism classes of indecomposable summands (the \emph{finite F-representation type} property) are two well-established research problems (see, for example, \cite{Yoshino90,LW12} for the former and \cite{SVdB97,Hara15,TT08}, among many others, for the latter). For both these problems, and many others, making and testing conjectures depends on computing summands of modules and verifying their indecomposability.
+The need for, and absence of, an algorithm to do so is noted, for example, in
+\cite[15.10.9]{Eisenbud95}.
 
-Currently there are no efficient algorithms available for checking indecomposability or finding summands of arbitrary modules over commutative rings. In contrast, variants of the ``Meat-Axe'' algorithm for determining irreducibility of finite-dimensional modules over a group algebra have wide ranging applications in computational group theory \cite{Parker84,HR94,Holt98} and are available through symbolic algebra software such as Magma and GAP \cite{MAGMA,GAP}.
+Currently there are no efficient \devlin{would it be too bold to remove ``efficient''?} algorithms available for checking indecomposability or finding summands of arbitrary modules over commutative rings. In contrast, variants of the ``Meat-Axe'' algorithm for determining irreducibility of finite-dimensional modules over a group algebra have wide ranging applications in computational group theory \cite{Parker84,HR94,Holt98} and are available through symbolic algebra software such as Magma and GAP \cite{MAGMA,GAP}.
 
 Meanwhile, effective computation of indecomposable components of multiparameter persistence modules is essential in topological data analysis, which has been applied to computational chemistry, materials science, neuroscience, and many other areas \cite{BL23}.
 
-The purpose of this paper is to describe and prove correctness of a practical algorithm for computing indecomposable summands of finitely generated modules over a finitely generated local or graded $k$-algebra, for $k$ a field of positive characteristic. We also describe applications of our algorithm for computations in characteristic 0. Further, our algorithm takes advantage of multigradings, which enables the computation of indecomposable summands of coherent sheaves on subvarieties of toric varieties (in particular, for varieties embedded in $\PP^n$).
+The purpose of this paper is to describe and prove correctness of two practical algorithms for computing indecomposable summands of finitely generated modules over a finitely generated $k$-algebra $R$, when either $R$ is (multi)graded and $k$ an arbitrary field, or $R$ local and $k$ a field of positive characteristic.
+In the graded case, our algorithm is often capable of completely decomposing a module in a single pass, while in the local case it proceeds by recursively finding summands and then reapplying the algorithm to each summand.
+%We also describe applications of our algorithm for computations in characteristic 0.
+The multigraded case of our algorithm enables the computation of indecomposable summands of coherent \emph{sheaves} on subvarieties of toric varieties (in particular, for varieties embedded in $\PP^n$).
 
-After describing the algorithm and proving its correctness, we present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings. In particular, we highlight the results of \cite{CDE24}, which shows a recurrence formula for indecomposable summands of high syzygies of the residue field of Golod rings, made possible through experiments and observations using our algorithm.
+After describing the algorithms and proving their correctness, we present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings. In particular, we highlight the results of \cite{CDE24}, which shows a recurrence formula for indecomposable summands of high syzygies of the residue field of Golod rings, made possible through experiments and observations using our algorithm.
 
-An accompanying implementation in Macaulay2 \cite{M2} is available via the GitHub repository \\
+An implementation in Macaulay2 \cite{M2} is available via the GitHub repository \\
 \centerline{
   \href{https://github.com/mahrud/DirectSummands}
-  {\texttt{https://github.com/mahrud/DirectSummands}}.}
+       {\texttt{https://github.com/mahrud/DirectSummands}}.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{rem}
-Although the algorithm described below is only proved to result (probabilistically) in a decomposition into indecomposable summands in positive characteristic, in practice it often does produce nontrivial indecomposable decompositions even in characteristic 0. Moreover, if a module over a ring of characteristic 0 is decomposable, its reductions modulo $p$ will be as well; thus, our algorithm provides a heuristic for verifying decomposability in characteristic 0.
+  There is a ``missing'' case of our algorithm: when $R$ is only local, not graded, and $k$ has characteristic 0.
+  If a module over a ring of characteristic 0 is decomposable, its reductions modulo $p$ will be as well; thus, our algorithm at least provides a heuristic for verifying decomposability in characteristic 0. See \Cref{rem:char}.
+  %Although the local algorithm described below is only proved to result (probabilistically) in a decomposition into indecomposable summands in positive characteristic, in practice it often does produce nontrivial indecomposable decompositions even in characteristic 0.
+  %Although the algorithm described below is only proved to result (probabilistically) in a decomposition into indecomposable summands in positive characteristic, in practice it often does produce nontrivial indecomposable decompositions even in characteristic 0. Moreover, if a module over a ring of characteristic 0 is decomposable, its reductions modulo $p$ will be as well; thus, our algorithm provides a heuristic for verifying decomposability in characteristic 0.
 
-  We note that while the discussion below, and our implementation in Macaulay2, concerns the case where $R$ is a \emph{commutative} ring, the basic techniques extend beyond this case. We plan to extend the results and algorithms to non-commutative rings, such as Weyl algebras, in future work.
+  We note also that while the discussion below, and our implementation in Macaulay2, concerns the case where $R$ is a \emph{commutative} ring, the basic techniques extend beyond this case. We plan to extend the results and algorithms to non-commutative rings, such as Weyl algebras, in future work.
 \end{rem}
 
 
@@ -100,117 +112,108 @@ Although the algorithm described below is only proved to result (probabilistical
 \subsection*{Acknowledgements}
 The authors would like to thank David Eisenbud for several very useful conversations and ideas, and Ezra Miller for pointing out the relevance of this algorithm in topological data analysis.
 We also thank the American Institute of Mathematics for hosting the ``Macaulay2: expanded functionality and improved efficiency'' workshop, during which some of this work took place.
-The work of the first author was supported in by the National Science Foundation under Grant No.~1840190.
+The work of the first author was supported in by the National Science Foundation RTG Grant No.~1840190.
 The second author was supported in part by the Doctoral Dissertation Fellowship at the University of Minnesota and the National Science Foundation under Grant No.~2001101.
-
 We also thank the referees for their careful reading and suggestions, which significantly improved the exposition of the paper.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Notation}
+\label{sec:notation}
 
-\section{Notations}
+Throughout we will work over a field $k$ and write $\overline k$ for a choice of algebraic closure of $k$. \linebreak In particular, $\overline{\FF_p}$ is the algebraic closure of the finite field $\ZZ/p\ZZ$.
 
-\begin{itemize}
-\item For a field $k$, we will write $\overline k$ for a choice of algebraic closure of $k$. In particular, $\overline{\FF_p}$ is the algebraic closure of the finite field $\FF_p$.
-\item For an algebraic variety $X$ and a point $x\in X$, we write $k(x)=\OO_{X,x}/m_x$ for the residue field of $X$ at $x$.
-\item We write $k(X)$ for the function field of $X$.
-\item If $X$ is a projective variety, and $\OO_X(1)$ a fixed very ample line bundle on $X$, then for any coherent $\OO_X$-module $\cF$ we write
-$\Gamma_* \cF = \bigoplus_{n\geq 0} H(X,\cF(n))$. This is a module over the graded ring $S=\bigoplus_{n\geq 0} H^0(X,\OO_X(n))$.
-\item Conversely, if $S$ is a graded ring defining a projective variety $X$, and $M$ is a finitely generated $S$-module, we write $\wtilde M$ for the coherent sheaf on $X$ associated to $M$.
-\item For a graded or local ring $(R,m)$ and an $R$-module $M$, we write $\mu(M):=\dim_{R/m} M/mM$ for the minimal number of generators of $M$ as an $R$-module.
-\end{itemize}
+For a graded or local ring $R$ with maximal ideal $\m$ and an $R$-module $M$, we write $\mu(M):=\dim_{R/\m}(M/\m M)$ for the minimal number of generators of $M$ as an $R$-module.
+
+% TODO: \mahrud{k(x) and k(X) are used only in one place, move there?}
+For an algebraic variety $X$ and a point $x\in X$, we write $k(x)=\OO_{X,x}/\m_x$ for the residue field of $X$ at $x$ and $k(X)$ for the function field of $X$.
+%
+When $X$ is a projective variety and $\OO_X(1)$ is a fixed very ample line bundle on $X$, the twisted global sections functor $\Gamma_*$ is the functor given by $\cF \mapsto \bigoplus_{n\in \Z} H^0(X, \cF(n))$, sending coherent sheaves to modules over the graded ring $S = \Gamma_*(\OO_X)$. Conversely, if $M$ is a finitely generated, graded $S$-module, we write $\wtilde M$ for the coherent sheaf associated to $M$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The main algorithms}
-Here, we describe the main algorithms for finding the indecomposable summands of a finitely generated $R$-module $M$, when $R$ is either a graded ring or a local ring with residue field contained in $\overline{\FF_p}$.
+\label{sec:main-algs}
+
+We begin by describing the main algorithms for finding the indecomposable summands of a finitely generated module over a graded ring or a local ring with residue field contained in $\overline{\FF_p}$.
 
 \subsection{The graded algorithm}\label{sec:main-alg-new}
-Let $R$ be a $\N$-graded ring, with $R_0=k$ an algebraically closed field.
+
+Let $R$ be a $\N$-graded ring, with $R_0 = k$, an algebraically closed field.
 %Assume furthermore that the degree support of $R$ is strongly convex, i.e., that
 %%the effective cone
 %$\Eff R = \{ \deg r : r\in R\}$ is a strongly convex cone in $\ZZ^n$.
-Let $M$ be a finitely generated graded $R$-module, and let $\phi \in \End M$ be a degree-0 endomorphism.
+Let $M$ be a finitely generated, graded $R$-module and consider a degree zero endomorphism $\phi \in [\End M]_0$.
 
 %Let $P\subset \ZZ^n$ be the degrees of a set of minimal generators of $M$;
 %this is a poset with respect to the partial order $\a\leq \b$ if and only if $\b-\a\in \Eff R$.
 %Because $P$ is finite, we can order the elements of $P$ such that
 %$\deg m_1\not\leq \deg m_2\not \leq \dots\not\leq \deg m_r$.
 
-
-
-
-
-\begin{lem}
-\label{graded_algorithm}
-Let $n=\mu(M)$ and set $\psi=\phi^N$. Then $M=\im \psi \oplus \coker \psi$.
+\begin{lem}\label{graded_algorithm}
+  Let $N = \mu(M)$ and set $\psi = \phi^N$. Then $M = \im\psi \oplus \coker\psi$.
 \end{lem}
-
 \begin{proof}
-Fix homogeneous generators $m_1,\dots,m_n$ of $M$, with $\deg m_i$ nonincreasing.
-The matrix for $\phi$ is then ``block upper triangular'' with diagonal blocks with entries in $k$, i.e., of the form
-$$
-\phi=
-\begin{pmatrix}
-  B_1 & * & \dots& * \\
-  0 & B_2 & \dots &* \\
-\vdots &\vdots & \ddots &\vdots \\
-0 & 0 & \dots &B_l
-\end{pmatrix},
-$$
-where all blocks labeled $B_i$ are arbitrary matrices \emph{with entries in $k$} and the $*$ are arbitrary.
-To see this, just note that since $\phi$ has degree 0, $\phi(m_i)$ is a $k$-linear combination of the $m_j$ with $\deg m_j=\deg m_i$ plus an $R$-linear combination of the $m_j$ with $\deg m_j<\deg m_i$.
+  Fix homogeneous generators $m_1,\dots, m_n$ of $M$, with $\deg m_i$ nonincreasing.
+  The matrix for $\phi$ is then ``block upper triangular'' with diagonal blocks with entries in $k$, i.e., of the form
+  \[ \phi = \begin{pmatrix}
+    B_1    & *      & \dots  & *      \\
+    0      & B_2    & \dots  & *      \\
+    \vdots & \vdots & \ddots & \vdots \\
+    0      & 0      & \dots  & B_l
+  \end{pmatrix}, \]
+  where the blocks $B_i$ are square matrices \emph{with entries in $k$}, and the remaining entries are in $R$. To see this, note that since $\phi$ has degree zero, $\phi(m_i)$ is a $k$-linear combination of the $m_j$ with $\deg m_j = \deg m_i$ plus an $R$-linear combination of the $m_j$ with $\deg m_j < \deg m_i$.
 
-Thus, since each matrix $B_i$ has entries in the algebraically closed field $k$, by performing row and column operations over $k$ (which correspond to replacing each $m_i$ with a $k$-linear combination of $m_j$ with $\deg m_i = \deg m_j$, which is an endomorphism of $M$) we can put each $B_i$ into Jordan canonical form $J_i$, with each Jordan block having entries in $k$. By doing so starting with $B_1$ and proceeding to $B_l$, the resulting matrix has the form
-\begin{equation}
-\label{eq:Jordan}
-\phi
-=
-\begin{pmatrix}
-  J_1 & ** & \dots& ** \\
-  0 & J_2 & \dots &** \\
-\vdots &\vdots & \ddots &\vdots \\
-0 & 0 & \dots & J_l
-\end{pmatrix},
-\end{equation}
-with each $J_i$ a Jordan block with entries in $k$ and eigenvalue $\l_i$, and $**$ arbitrary.
-Relabeling, we may assume that $\l_i\neq 0$ for $i=1,\dots,l_0$ and $\l_i=0$ for $i=l_0+1,\dots,l$.
+  Thus, since each matrix $B_i$ has entries in the algebraically closed field $k$, by performing row and column operations over $k$ we can put each $B_i$ into Jordan canonical form $J_i$, with each Jordan block having entries in $k$. This corresponds to replacing each generator $m_i$ with a $k$-linear combination of generators $m_j$ with $\deg m_i = \deg m_j$, which is an endomorphism of $M$. By doing so starting with $B_1$ and proceeding to $B_l$, the resulting matrix has the form
+  \begin{equation}
+    \label{eq:Jordan}
+    \phi
+    =
+    \begin{pmatrix}
+      J_1    & *      & \dots  & *      \\
+      0      & J_2    & \dots  & *      \\
+      \vdots & \vdots & \ddots & \vdots \\
+      0      & 0      & \dots  & J_l
+    \end{pmatrix},
+  \end{equation}
+  where each $J_i$ is a Jordan block over $k$ with eigenvalue $\l_i$, and the remaining entries are arbitrary.
+  Relabeling, we may assume that $\l_i\neq 0$ for $i=1,\dots,l_0$ and $\l_i=0$ for $i=l_0+1,\dots,l$.
 
-If we take $N_0  $ to be at least the sum of the sizes of the nilpotent Jordan blocks $J_{l_0+1},\dots,J_l$, then for $N\geq N_0$ we have
-$$
-\phi^N =
-\begin{pmatrix}
-  J_1^N & *** &\dots & \dots& \dots  &\dots & *** \\
-  0 & J_2^N & \dots &\dots&\dots & \dots& *** \\
-\vdots &\vdots & \ddots &\vdots \\
-0 & 0 & \dots & J_{l_0}^N & *** & \dots & ***\\
-0 & 0 & \dots & 0 & 0 & \dots & 0\\
-\vdots &\vdots & \ddots &\vdots \\
-0 & 0 & \dots & 0 & 0 & \dots & 0
-\end{pmatrix},
-$$
-where each nonzero $J_i^N$ has the units $\l_i^N$ on the diagonal.
-($\mu(M)$ is an upper bound on the sum of the sizes of the nilpotent Jordan blocks, so the above holds for $N\geq \mu(M)$.)
+  If we take $N_0  $ to be at least the sum of the sizes of the nilpotent Jordan blocks $J_{l_0+1},\dots,J_l$, then for $N\geq N_0$ we have
+  $$
+  \phi^N =
+  \begin{pmatrix}
+    J_1^N & *** &\dots & \dots& \dots  &\dots & *** \\
+    0 & J_2^N & \dots &\dots&\dots & \dots& *** \\
+    \vdots &\vdots & \ddots &\vdots \\
+    0 & 0 & \dots & J_{l_0}^N & *** & \dots & ***\\
+    0 & 0 & \dots & 0 & 0 & \dots & 0\\
+    \vdots &\vdots & \ddots &\vdots \\
+    0 & 0 & \dots & 0 & 0 & \dots & 0
+  \end{pmatrix},
+  $$
+  where each nonzero $J_i^N$ has the units $\l_i^N$ on the diagonal.
+  ($\mu(M)$ is an upper bound on the sum of the sizes of the nilpotent Jordan blocks, so the above holds for $N\geq \mu(M)$.)
 
-Fix $N$ as above.
-Now, consider the map $ \phi^N: \im(\phi^N) \to \im(\phi^N)$. If this map is surjective, then $\im(\phi^N)$ is a direct summand of $M$, with complementary summand $\coker \phi^N$: to see this, observe that the injection $\im(\phi^N) \inc M$ would then  compose with $\phi^N$ to be a surjection, and since $\im(\phi^N)$ is a finitely generated module, a surjection must be an isomorphism $\a:\im \phi^N \to \im \phi^N$. Thus, we obtain a splitting of the inclusion $\im \phi^N \inc M$ via $\a\inv\circ \phi^N$; since $\a\inv$ is an isomorphism, we have that $\im \phi^N$ is (isomorphic to) a direct summand of $M$, with complementary summand $\coker \phi^N$.
+  Fix $N$ as above.
+  Now, consider the map $ \phi^N: \im(\phi^N) \to \im(\phi^N)$. If this map is surjective, then $\im(\phi^N)$ is a direct summand of $M$, with complementary summand $\coker \phi^N$: to see this, observe that the injection $\im(\phi^N) \inc M$ would then  compose with $\phi^N$ to be a surjection, and since $\im(\phi^N)$ is a finitely generated module, a surjection must be an isomorphism $\a:\im \phi^N \to \im \phi^N$ by \cite[Corollary~4.4]{Eisenbud95}. Thus, we obtain a splitting of the inclusion $\im \phi^N \inc M$ via $\a\inv\circ \phi^N$; since $\a\inv$ is an isomorphism, we have that $\im \phi^N$ is (isomorphic to) a direct summand of $M$, with complementary summand $\coker \phi^N$.
 
-So, all that needs to be seen is that $\psi:=\psi^N$ is surjective.
-To see this, note that after replacing the original generators for $M$ by the generators that put $\psi$ into the form above,  a generating set for $\im(\phi^N)$ is given by $f_i = \psi(m_i) = u_i\cdot e_i + \sum_{j<i } a_{ij} e_j$ for $i = 1,\dots,n-N_0$, where $u_i$ is a unit (explicitly, $u_i$ is a power of some nonzero $\l_{i'}\in k$).
-That is, a generating set is given by
-$$u_1 e_1,\quad  u_2 e_2+a_{21}e_1,\quad \dots ,\quad u_{n-n_0}e_{n-N_0}+a_{n-N_0,n-1}e_{n-N_0-1}+\dots + a_{N-n_0,1}e_1.$$
-Since the $u_i$ are units, the $R$-span of these generators is clearly the same as the $R$-span of $e_1,\dots,e_{n-N_0}$, and thus after applying $\psi$ we get back the $R$-span of $f_1,\dots,f_{n-N_0} $, which is $\im \psi^N$. Thus, $\phi: \im \psi^N \to \im \psi^N$ is surjective, and the result follows.
+  So, all that needs to be seen is that $\psi:=\psi^N$ is surjective.
+  To see this, note that after replacing the original generators for $M$ by the generators that put $\psi$ into the form above,  a generating set for $\im(\phi^N)$ is given by $f_i = \psi(m_i) = u_i\cdot e_i + \sum_{j<i } a_{ij} e_j$ for $i = 1,\dots,n-N_0$, where $u_i$ is a unit (explicitly, $u_i$ is a power of some nonzero $\l_{i'}\in k$).
+  That is, a generating set is given by
+  $$u_1 e_1,\quad  u_2 e_2+a_{21}e_1,\quad \dots ,\quad u_{n-n_0}e_{n-N_0}+a_{n-N_0,n-1}e_{n-N_0-1}+\dots + a_{N-n_0,1}e_1.$$
+  Since the $u_i$ are units, the $R$-span of these generators is clearly the same as the $R$-span of $e_1,\dots,e_{n-N_0}$, and thus after applying $\psi$ we get back the $R$-span of $f_1,\dots,f_{n-N_0} $, which is $\im \psi^N$. Thus, $\phi: \im \psi^N \to \im \psi^N$ is surjective, and the result follows.
 \end{proof}
 
 \begin{rem}[how to do it in multigraded case]
-Let $R$ be an $\ZZ^n$-graded ring, with $R_0=k$ an algebraically closed field.
-Assume furthermore that the degree support of $R$ is strongly convex, i.e., that
-the effective cone
-$\Eff R = \{ \deg r : r\in R\}$ is a strongly convex cone in $\ZZ^n$.
-Let $M$ be a finitely generated graded $R$-module, and let $\phi \in \End M$ be a degree-0 endomorphism.
+  Let $R$ be an $\ZZ^n$-graded ring, with $R_0=k$ an algebraically closed field.
+  Assume furthermore that the degree support of $R$ is strongly convex, i.e., that
+  the effective cone
+  $\Eff R = \{ \deg r : r\in R\}$ is a strongly convex cone in $\ZZ^n$.
+  Let $M$ be a finitely generated graded $R$-module, and let $\phi \in \End M$ be a degree zero endomorphism.
 
-Let $P\subset \ZZ^n$ be the degrees of a set of minimal generators of $M$;
-this is a poset with respect to the partial order $\a\leq \b$ if and only if $\b-\a\in \Eff R$.
-Because $P$ is finite, we can order the elements of $P$ such that
-$\deg m_1\not\leq \deg m_2\not \leq \dots\not\leq \deg m_r$.
+  Let $P\subset \ZZ^n$ be the degrees of a set of minimal generators of $M$;
+  this is a poset with respect to the partial order $\a\leq \b$ if and only if $\b-\a\in \Eff R$.
+  Because $P$ is finite, we can order the elements of $P$ such that
+  $\deg m_1\not\leq \deg m_2\not \leq \dots\not\leq \deg m_r$.
 
 
 \end{rem}
@@ -218,27 +221,29 @@ $\deg m_1\not\leq \deg m_2\not \leq \dots\not\leq \deg m_r$.
 The above can of course produce the trivial direct sum decomposition: if the eigenvalues of $\phi$ are all nonzero, the proof yields that $\im \psi = M$ and $\coker \psi = 0$. The following corollary of the proof of \cref{graded_algorithm} ensures that we can always assume $\phi$ has zero as an eigenvalue:
 
 \begin{lem}
-The eigenvalues of $\phi$ lie in $k$.
-In particular,
-for any  $\phi \in \End M$, there is $\l \in k$ such that $\phi - \l \id_M \in \End M$ has zero as an eigenvalue.
+  The eigenvalues of $\phi$ lie in $k$.
+  In particular,
+  for any  $\phi \in \End M$, there is $\l \in k$ such that $\phi - \l \id_M \in \End M$ has zero as an eigenvalue.
 \end{lem}
 
 
 Note that by ``eigenvalues of $\phi$'' we mean the roots of the characteristic polynomial $\det(\phi - t \id_M)$, which is a univariate polynomial with coefficients in $R$ and thus a priori has solutions in $t$ only in the algebraic closure of the total ring of fractions of $R$.
 
 \begin{proof}
-Note that the expression of $\psi$ obtained in \cref{eq:Jordan} shows that the determinant of $\phi - t \id_M$ is just the product of $\mu_i -t$, and thus the eigenvalues are just the $\mu_i$, which lie in~$k$.
+  Note that the expression of $\psi$ obtained in \cref{eq:Jordan} shows that the determinant of $\phi - t \id_M$ is just the product of $\mu_i -t$, and thus the eigenvalues are just the $\mu_i$, which lie in~$k$.
 \end{proof}
 
-\begin{algm} Given a finitely generated graded $R$-module $M$, the indecomposable summands of $M$ are computed as follows.
+\begin{algm}
+  \label{alg:graded}
+  Given a finitely generated graded $R$-module $M$, the indecomposable summands of $M$ are computed as follows.
   \begin{enumerate}
-  \item\label{item:End0} Take a random element $\phi_0$ of $[\End_R(M)]_0$, the degree-0 part of $\End_R(M)$.
+  \item\label{item:End0} Take a random element $\phi_0$ of $[\End_R(M)]_0$, the degree zero part of $\End_R(M)$.
   \item For an eigenvalue $\mu $ of $\phi_0$, let $\phi=\phi_0-\mu \id_M$.
   \item If $\phi$ has at least two eigenvalues, let $\psi=\phi^{\mu(M)}$. By \Cref{graded_algorithm}, $M\cong \im \psi \oplus \coker \psi$.  \item Repeat steps (1)--(3) for both $\im \psi$ and $\coker \psi$.
   \end{enumerate}
 \end{algm}
 
-We will see via \Cref{lemma_term} that this will result in an indecomposable decomposition of $M$.
+We will see via \Cref{lem:term} that this will result in an indecomposable decomposition of $M$.
 
 
 
@@ -247,18 +252,18 @@ We will see via \Cref{lemma_term} that this will result in an indecomposable dec
 
 \subsection{The local algorithm}\label{sec:main-alg}
 
-Throughout this section, $(R,m)$ will be either local with maximal ideal $m$, or a (multi)graded ring with $R_0 = k \subset \overline{\FF_p}$ a field of positive characteristic and homogeneous maximal ideal $m$.
+Throughout this section, $(R,\m)$ will be either local with maximal ideal $\m$, or a (multi)graded ring with $R_0 = k \subset \overline{\FF_p}$ a field of positive characteristic and homogeneous maximal ideal $\m$.
 
-We begin with the observation that if $M$ is a finitely generated $R$-module and $A\in\End_R(M)$ is an idempotent, then $M$ decomposes as $\im A \oplus \coker A$. If $A$ is neither an isomorphism nor the zero morphism, then both factors are nonzero and $M$ is decomposable. Note that $A$ also acts on the $k$-vector space $M/mM$.
+We begin with the observation that if $M$ is a finitely generated $R$-module and $A\in\End_R(M)$ is an idempotent, then $M$ decomposes as $\im A \oplus \coker A$. If $A$ is neither an isomorphism nor the zero morphism, then both factors are nonzero and $M$ is decomposable. Note that $A$ also acts on the $k$-vector space $M/\m M$.
 
 The following lemma allows us to check only for idempotents modulo the maximal ideal.
 
 \begin{lem}\label{lem:idemp}
-  Let $M$ be a finitely generated $R$-module, and let $A\in\End_R(M)$. If the induced action of $A$ on $M/mM$ is idempotent, then $M$ admits a direct sum decomposition $\im A \oplus \coker A$.
+  Let $M$ be a finitely generated $R$-module, and let $A\in\End_R(M)$. If the induced action of $A$ on $M/\m M$ is idempotent, then $M$ admits a direct sum decomposition $\im A \oplus \coker A$.
 \end{lem}
 \begin{proof}
-  By assumption, we can write $A^2 = A + B$, where $B\in\End_R(M)$ with $B(M)\subset mM$.
-  Note that if $n \in m^kM$, then $A^2(n) - A(n) = B(n)$ lies in $m^{k+1}M$.
+  By assumption, we can write $A^2 = A + B$, where $B\in\End_R(M)$ with $B(M)\subset \m M$.
+  Note that if $x \in \m^kM$, then $A^2(x) - A(x) = B(x)$ lies in $\m^{k+1}M$.
 
   Let $N = \im A$. We want to show that $0 \to N\inc M$ splits. Consider the composition
   \[ N\inc M \xra{A} \im A = N.\]
@@ -269,33 +274,33 @@ The following lemma allows us to check only for idempotents modulo the maximal i
   \[ A(n_0) = A^2(m_1) = A(m_1) + n_1 = n_0 + n_1, \]
   or equivalently
   \[ n_0 = A(n_0) - n_1 \]
-  for some $n_1\in mM$. In fact, since $n_0$ and $A(n_0)$ are both in $N$, we have $n_1\in N$ also, so $n_1\in mM\cap N$.
+  for some $n_1\in \m M$. In fact, since $n_0$ and $A(n_0)$ are both in $N$, we have $n_1\in N$ also, so $n_1\in \m M\cap N$.
 
   Thus, we can write $n_1 = A(m_2)$ for $m_2\in M$.
-  Now, apply $A$ to both sides: by the assumption that $A$ is idempotent modulo $m$, we have
+  Now, apply $A$ to both sides: by the assumption that $A$ is idempotent modulo $\m$, we have
   \[ A(n_1)=A^2(m_2) = A(m_2) + n_2 = n_1+n_2, \]
-  Thus, $n_2=A(n_1)-n_1$, so $n_2\in m^2M$; clearly also $n_2\in N$ as well.
+  Thus, $n_2=A(n_1)-n_1$, so $n_2\in \m^2M$; clearly also $n_2\in N$ as well.
   Combining the previous equations, we can write
   \[ n_0 = A(n_0) - n_1 = A(n_0) - A(n_1) + n_2 = A(n_0 - n_1) + n_2, \]
-  with $n_1\in mM\cap N$ and $n_2\in m^2M\cap N$.
+  with $n_1\in \m M\cap N$ and $n_2\in \m^2M\cap N$.
 
   Continuing in this fashion, for any $k$ we can write
   \[ n_0=A(n_0-n_1+\dots \pm n_k) \mp n_{k+1}, \]
-  with $n_i \in m^i M\cap N$.
+  with $n_i \in \m^i M\cap N$.
 
-  By the Artin--Rees lemma, there's some positive integer $k$ such that for $n\gg0$ we can write
-  \[ m^n M\cap N = m^{n-k} ( m^kM\cap N)\subset m^{n-k} N. \]
-  That is, the terms of $n_0-n_1+n_2-\cdots$ are going to 0 in the $m$-adic topology on $N$. Hence we can write
+  By the Artin--Rees lemma \cite[Lemma~5.1]{Eisenbud95}, there's some positive integer $k$ such that for $n\gg0$ we can write
+  \[ \m^n M\cap N = \m^{n-k} ( \m^kM\cap N)\subset \m^{n-k} N. \]
+  That is, the terms of $n_0-n_1+n_2-\cdots$ are going to 0 in the $\m$-adic topology on $N$. Hence we can write
   \[ n_0=A(n_0-n_1+n_2-\cdots), \]
   with $n_0-n_1+n_2-\cdots\in N$. We conclude that $A$ is surjective as a map $N\to N$.
 \end{proof}
 
-Thus, if we produce an element $A\in \End_R(M)$ that is an idempotent modulo $m$, we obtain a splitting of $M$.
-The following lemma allows us to produce idempotents modulo $m$.
+Thus, if we produce an element $A\in \End_R(M)$ that is an idempotent modulo $\m$, we obtain a splitting of $M$.
+The following lemma allows us to produce idempotents modulo $\m$.
 
 \begin{lem}\label{lem:jordan}
   Let $k$ be a finite field of characteristic $p$, and let $A$ be an endomorphism of a $k$-vector space such that all eigenvalues of $A$ are contained in $k$. If $\l$ is an eigenvalue of $A$, then some power of $A-\l I$ is idempotent.
-Furthermore, if $\l$ is not the only eigenvalue of $A$, then a  nonzero power of $A-\l I$ is idempotent.
+  Furthermore, if $\l$ is not the only eigenvalue of $A$, then a  nonzero power of $A-\l I$ is idempotent.
 \end{lem}
 \begin{proof}
   Since all eigenvalues of $A$ are contained in $k$, we can without loss of generality put $A$ in Jordan canonical form, with each Jordan block having the form
@@ -321,99 +326,106 @@ Furthermore, if $\l$ is not the only eigenvalue of $A$, then a  nonzero power of
     \vdots & & & & \vdots \\
     0 & 0 & 0 & \dots & \mu_i^l
   \end{pmatrix}. \]
-  If we choose $l > r_i$ and $l$ a power of $p$, then all non-diagonal terms will vanish, so all blocks will have the form
+  If we choose $l > r_i$ and $l$ a power of $p$, say $p^{e_0}$, then all non-diagonal terms will vanish, so all blocks will have the form
   \[ \begin{pmatrix}
     \mu_i^l & 0 & 0 & \dots & 0 \\
     0 & \mu_i^l & 0 & \dots & 0 \\
     \vdots & & & & \vdots \\
     0 & 0 & 0 & \dots & \mu_i^l
   \end{pmatrix}. \]
-  Finally, since $k=\FF_{p^e}$ for some $e$, if we choose $l$ to be divisible also by $p^e-1$, we have that $$\mu_i^{l-1} = (\mu_i^{p^{e}-1})^{l/(p^{e}-1)} =1.$$
-  Thus, $(A-\l I)^l$ is a diagonal matrix with diagonal entries 1 or 0, hence idempotent. Note moreover that if some $\l_i\neq \l$, then $(A-\l I)^l$ is not the zero matrix.
+  Finally, since $k\subset \FF_{p^e}$ for some $e$, if we choose $l$ to be divisible also by $p^e-1$, we have that $$\mu_i^{l-1} = (\mu_i^{p^{e}-1})^{l/(p^{e}-1)} =1.$$
+  In particular, taking $l=p^{e_0}(p^e-1)$,
+  $(A-\l I)^{p^{e_0}(p^e-1)}$ is a diagonal matrix with diagonal entries 1 or 0, hence idempotent. Note moreover that if some $\l_i\neq \l$, then $(A-\l I)^l$ is not the zero matrix.
 \end{proof}
 
 
 This leads to a probabilistic algorithm to find the indecomposable summands of a finitely generated $R$-module $M$ in our setting, as follows:
 
-\begin{algm}\label{local_algorithm}
-Given a finitely generated graded $R$-module $M$, the indecomposable summands of $M$ are computed as follows.
+\begin{algm}\label{alg:local}
+  Given a finitely generated graded $R$-module $M$, the indecomposable summands of $M$ are computed as follows.
   \begin{enumerate}
-%In the graded case, take a general element $A_0$ of $[\End_R(M)]_0$, the degree-0 part of $\End_R(M)$; in the local case,
-\item Take a general element $A_0$ of $\End_R(M) \setminus m \End_R(M)$.
-  \item Consider the resulting endomorphism $A$ of the $k$-vector space $M/mM$ and find the eigenvalues of $A$.
-  \item If $A$ has at least two eigenvalues, choose one eigenvalue $\l$, and compute a sufficiently high power $B=A^{p^e(p^{e}-1)}$ of $A$ (with the power explicitly as in the proof of \Cref{lem:jordan}). This power will be a nonzero idempotent, and thus produce a splitting of $M$ as $\im B \oplus \coker B$ by \Cref{lem:idemp}.
+    %In the graded case, take a general element $A_0$ of $[\End_R(M)]_0$, the degree zero part of $\End_R(M)$; in the local case,
+  \item Take a general element $A_0$ of $\End_R(M) \setminus \m \End_R(M)$.
+  \item Consider the resulting endomorphism $A$ of the $k$-vector space $M/\m M$ and find the eigenvalues of $A$.
+  \item If $A$ has at least two eigenvalues, choose one eigenvalue $\l$, and compute a sufficiently high power $B=A^{p^{e_0}(p^{e}-1)}$ of $A$ (with the power explicitly as in the proof of \Cref{lem:jordan}). This power will be a nonzero idempotent, and thus produce a splitting of $M$ as $\im B \oplus \coker B$ by \Cref{lem:idemp}.
   \item Repeat steps (1)--(3) for both $\im B$ and $\coker B$.
   \end{enumerate}
 \end{algm}
 
 \subsection{Termination of the algorithms}
 
-As a consequence of \Cref{graded_algorithm} and \Cref{local_algorithm} above, we have:
+As a consequence of \Cref{alg:graded} and \Cref{alg:local} above, we have:
 
 \begin{lem}
-Assume that either $(R,\m)$ is a graded ring with $R_0=k$, or $(R,m)$ is a local ring with $k=R/m$ a field of positive characteristic, and that $M$ is a finitely generated $R$-module (homogeneous in the graded case).
-If $M$ has an endomorphism with at least two distinct eigenvalues modulo $m$, then $M$ is not indecomposable.
+  \label{lem:term}
+  Assume that either $(R,\m)$ is a graded ring with $R_0=k$, or $(R,\m)$ is a local ring with $k=R/\m$ a field of positive characteristic, and that $M$ is a finitely generated $R$-module (homogeneous in the graded case).
+  If $M$ has an endomorphism with at least two distinct eigenvalues modulo $\m$, then $M$ is not indecomposable.
 \end{lem}
 
 The converse observation implies that if $M$ is not indecomposable, then these algorithms will find the direct sum decomposition of $M$:
 
 \begin{lem}
-\label{lemma_term}
-Retain the notation above.
-  If $M$ is not indecomposable, then a general endomorphism of $M$ (of degree 0 in the graded case) reduces to an endomorphism of $M/mM$ with at least two distinct eigenvalues.
-\devlin{need to separate into graded and local cases maybe}
+  \label{lem:distinct}
+  Retain the notation of \Cref{lem:term}.
+  \begin{itemize}
+  \item If $R$ is graded and $M$ is not indecomposable, then a general endomorphism of $M$ of degree zero has at least two distinct eigenvalues (necessarily in $k$)
+  \item If $R$ is local and $M$ is not indecomposable, then a general endomorphism of $M$ of degree zero reduces to an endomorphism of $M/\m M$ with at least two distinct eigenvalues.
+  \end{itemize}
 \end{lem}
 
-In particular, if $M$ is not indecomposable, then \Cref{graded_algorithm} and \Cref{local_algorithm} produce a nontrivial direct sum decomposition of $M$, because a general element of $\End M$ will have distinct eigenvalues.
-
 \begin{rem}
-  By ``general'' we mean that a general linear combination of a basis for $[\End_R(M)]_0$ over the algebraic closure of $k$, or equivalently over a sufficiently large algebraic extension of $k$.
+  By ``general'' we mean that a general linear combination of a basis for $[\End_R(M)]_0$ (in the graded case) or of minimal generators of $\End_R(M)$ (in the local case) over the algebraic closure of $k$, or equivalently over a sufficiently large algebraic extension of~$k$.
 \end{rem}
+
+
+
+In particular, if $M$ is not indecomposable, then \Cref{alg:graded} and \Cref{alg:local} produce a nontrivial direct sum decomposition of $M$, because a general element of $\End M$ will have distinct eigenvalues and thus the algorithms will produce a nontrivial decomposition.
 
 \begin{proof}
   We may assume that the base field $k$ is algebraically closed.
-  Let $\Phi_1,\dots,\Phi_r$ be a basis for $\End_R(M)$, and $\phi_1,\dots,\phi_r$ their images modulo $m$, which we view as matrices with entries in $k$.
-  Let $U\subset \A^r$ be the subset of $r$-tuples $(\l_1,\dots,\l_r)$ such that $\l_1\phi_1+\dots+\l_r\phi_r$ has at least two distinct eigenvalues, i.e., such that $\l_1\Phi_1+\dots+\l_r\Phi_r$ reduces to an endomorphism of $M/mM$ with at least two distinct eigenvalues.
+  Let $\Phi_1,\dots,\Phi_r$ be a basis for $[\End_R(M)]_0$ in the graded case, or minimal generators of $\End_R(M)$ in the local case, and $\phi_1,\dots,\phi_r$ their images modulo $\m$, which we view as matrices with entries in $k$.
+  Note that if $M$ is decomposable, say $M=M_1\oplus M_2$, then we may always take $\Phi_1,\Phi_2$ to be projectors onto each summand.
+  Let $U\subset \A^r$ be the subset of $r$-tuples $(\l_1,\dots,\l_r)$ such that $\l_1\phi_1+\dots+\l_r\phi_r$ has at least two distinct eigenvalues, i.e., such that $\l_1\Phi_1+\dots+\l_r\Phi_r$ reduces to an endomorphism of $M/\m M$ with at least two distinct eigenvalues. (Note that in the graded case the eigenvalues of the reduction of an endomorphism modulo $\m$ are the same as the eigenvalues of endomorphism, so there is no harm in looking only at $M/\m M$.)
 
   It suffices to show that $U$ is a nonempty open subset of $\A^r$. First, we show $U$ is nonempty:
-  Say $M=M_1\oplus M_2$ with $M_1,M_2$  nonzero  summands. Choose $\Phi_1$ to be the projection to $M_1$, and $\Phi_2$ the projection to $M_2$. Then for any $\l_1,\l_2\in k$, $\l_1\phi_1 + \l_2\phi_2$ has eigenvalues $\l_1,\l_2$; thus in particular there is \emph{an} element of $[\End_R(M)]_0$ reducing to an endomorphism of $M/mM$ with distinct eigenvalues, so $U$ is nonempty.
+  Say $M=M_1\oplus M_2$ with $M_1,M_2$  nonzero  summands. Choose $\Phi_1$ to be the projection to $M_1$, and $\Phi_2$ the projection to $M_2$. Then for any $\l_1,\l_2\in k$, $\l_1\phi_1 + \l_2\phi_2$ has eigenvalues $\l_1,\l_2$; thus in particular there is \emph{an} element of $\End_R(M)$ reducing to an endomorphism of $M/\m M$ with distinct eigenvalues, so $U$ is nonempty.
 
   Now, we show that $U$ is open. This is a purely linear algebraic statement: we claim that given a matrix $\phi$ with at least two distinct eigenvalues, and any $r$ matrices $\phi_1,\dots,\phi_r$, that
   $$ A_{\l_1,\dots,\l_r}:=\phi+\l_1\phi_1+\dots+\l_r\phi_r $$
   has at least two distinct eigenvalues for $\l_1,\dots,\l_r$ outside a Zariski-closed subset of $\A^r$.
   The eigenvalues of $A_{\l_1,\dots,\l_r}$ are the roots of $\det(A_{\l_1,\dots,\l_r}-t I)$, which is a polynomial in $t$ with coefficients in $\l_1,\dots,\l_r$.
-$A_{\l_1,\dots,\l_r}$ fails to have at least two distinct eigenvalues exactly when this polynomial factors as a power of a linear term.
+  $A_{\l_1,\dots,\l_r}$ fails to have at least two distinct eigenvalues exactly when this polynomial factors as a power of a linear term.
 
-This condition is polynomial in the coefficients of powers of $t$ in $\det(A_{\l_1,\dots,\l_r}-t I)$ and thus in the $\l_i$; to see this, note that
-if we write
+  This condition is polynomial in the coefficients of powers of $t$ in $\det(A_{\l_1,\dots,\l_r}-t I)$ and thus in the $\l_i$; to see this, note that
+  if we write
   $$ f:=\det(A_{\l_1,\dots,\l_r}-t I)=t^n  +t^{n-1}b_{n-1}+\dots +t b_1 +b_0, $$
-then $f$
+  then $f$
   has an $n$-fold root exactly when
   $ f,\d f/\d t,\dots, \d^{n-1} f/\d t^{n-1} $
   vanish simultaneously; the resultant of these $n$ polynomials in the $n$ variables $b_i$ gives polynomial conditions in the $b_i$ for this to occur.
- In our setting, the $b_i$ are themselves polynomials in the $\l_i$, and thus we have obtained polynomial equations defining the locus where $A_{\l_1,\dots,\l_r}$ fails to have distinct roots, and thus the complement $U$ is open.
+  In our setting, the $b_i$ are themselves polynomials in the $\l_i$, and thus we have obtained polynomial equations defining the locus where $A_{\l_1,\dots,\l_r}$ fails to have distinct roots, and thus the complement $U$ is open.
 \end{proof}
 
 
 \begin{rem}
-  Note that the above algorithm is quite sensitive to the ground field $k$, because it needs all the eigenvalues of the endomorphism $A$ of $M/mM$ to be contained in $k$. While theoretically the issue can be avoided by working over an algebraically closed ground field $\bar k$, for practical use on a computer algebra system it is better to extend $k$ to some larger finite field. However, the general linear combinations we take in \Cref{item:End0} should be taken with respect to the prime subfield (otherwise, as we increase the size of the finite field $k$, the eigenvalues of a general linear combination will live in higher and higher field extensions).
-See \Cref{algclos} for a demonstration of the necessity of extending the base field.
+  Note that the above algorithm is quite sensitive to the ground field $k$, because it needs all the eigenvalues of the endomorphism $A$ of $M/\m M$ to be contained in $k$. While theoretically the issue can be avoided by working over an algebraically closed ground field $\bar k$, for practical use on a computer algebra system it is better to extend $k$ to some larger finite field. However, the general linear combinations we take in \Cref{item:End0} should be taken with respect to the prime subfield (otherwise, as we increase the size of the finite field $k$, the eigenvalues of a general linear combination will live in higher and higher field extensions).
+  See \Cref{algclos} for a demonstration of the necessity of extending the base field.
 \end{rem}
 
 If the above algorithm fails to produce a nontrivial idempotent, it does not certify that $M$ is indecomposable. However, there are a few sufficient conditions to be indecomposable, which in practice often (but not always) produce such a certification.
 The following sufficiency condition is immediate, but can be quite useful in practice for verifying indecomposability:
 
 \begin{lem}
-  Suppose $R$ is graded, and let $M$ be a finitely generated $R$-module and let $[\End_R(M)]_0$ be the $k$-vector space of degree-0 endomorphisms. Suppose that either:
+  Suppose $R$ is graded, and let $M$ be a finitely generated $R$-module and let $[\End_R(M)]_0$ be the $k$-vector space of degree zero endomorphisms. Suppose that either:
   \begin{enumerate}
   \item $[\End_R(M)]_0$ is 1-dimensional and thus spanned by the identity endomorphism, or
-  \item every non-identity element of $[\End_R(M)]_0$, viewed as a matrix, has entries in $m$;
+  \item every non-identity element of $[\End_R(M)]_0$, viewed as a matrix, has entries in $\m$;
   \end{enumerate}
   then $M$ is indecomposable.
 \end{lem}
 
 \begin{proof}
-  If $M$ decomposes non-trivially as $M_1\oplus M_2$, then the projections onto each factor are nontrivial degree-0 endomorphisms not equal to the identity, and which do not have entries contained in~$m$.
+  If $M$ decomposes non-trivially as $M_1\oplus M_2$, then the projections onto each factor are nontrivial degree zero endomorphisms not equal to the identity, and which do not have entries contained in~$\m$.
 \end{proof}
 
 The following lemma is the algebraic analogue of the following fact about coherent sheaves:
@@ -424,41 +436,40 @@ The following lemma is the algebraic analogue of the following fact about cohere
 \end{cor}
 
 \begin{proof}
-If there is a nontrivial direct sum decomposition $\cF = \cF_1\oplus \cF_2$, then the composing the projection and inclusions we obtain $\cF\to \cF_1\inc \cF$ yields a nonzero endomorphism of $\cF$ that is a scalar multiple of $\id_\cF$, and thus $H^0(\End \cF) \neq k$.
+  If there is a nontrivial direct sum decomposition $\cF = \cF_1\oplus \cF_2$, then the composing the projection and inclusions we obtain $\cF\to \cF_1\inc \cF$ yields a nonzero endomorphism of $\cF$ that is a scalar multiple of $\id_\cF$, and thus $H^0(\End \cF) \neq k$.
 \end{proof}
 
-\begin{rem}[Characteristic zero]
-If $R$ is a local ring over a field $k\subset \C$ of characteristic 0, and $M$ a finitely generated $R$-module, it would be useful to have an algorithm to find a direct sum decomposition of $M$.
-At the moment, we do not have such an algorithm outside the graded case.
-However, we note that the algorithm above can be used to test indecomposability of $M$ via reduction modulo $p$, as follows:
-One can choose a finitely generated $\Z$-algebra $A$ and an $A$-algebra $R_A$ such that $R_A\otimes _A k=R$, and likewise an $R_A$-module $M_A$ such that $M_A\otimes _A k = R$ and such that $M_A$ is flat over $A$. If $n$ is a maximal ideal of $A$, one can check that $A/n \cong \FF_{p^e}$ for some prime $p$ and $e$.
-The key point is that if $M$ is decomposable, then $M_A$ also can be taken to be decomposable. Thus, the various reductions  $M\otimes A/n$ will also be decomposable for all $n$.
-If our algorithm does not detect an indecomposable summand of $M\otimes A/n$ for an appropriate choice of $n$, then, the original module $M$ must have been indecomposable.
-However, if $M$ is \emph{decomposable}, we do not have a way of patching the decompositions of various $M_A\otimes_A A/n$ into a decomposition of $M$.
+\begin{rem}
+  \label{rem:char}
+  If $R$ is a local ring over a field $k\subset \C$ of characteristic 0, and $M$ a finitely generated $R$-module, it would be useful to have an algorithm to find a direct sum decomposition of $M$.
+  At the moment, we do not have such an algorithm outside the graded case.
+  However, we note that the algorithm above can be used to test indecomposability of $M$ via reduction modulo $p$, as follows:
+  One can choose a finitely generated $\Z$-algebra $A$ and an $A$-algebra $R_A$ such that $R_A\otimes _A k=R$, and likewise an $R_A$-module $M_A$ such that $M_A\otimes _A k = R$ and such that $M_A$ is flat over $A$. If $\n$ is a maximal ideal of $A$, one can check that $A/\n \cong \FF_{p^e}$ for some prime $p$ and $e$.
+  The key point is that if $M$ is decomposable, then $M_A$ also can be taken to be decomposable. Thus, the various reductions  $M\otimes A/\n$ will also be decomposable for all $\n$.
+  If our algorithm does not detect an indecomposable summand of $M\otimes A/\n$ for an appropriate choice of $\n$, then, the original module $M$ must have been indecomposable.
+  However, if $M$ is \emph{decomposable}, we do not have a way of patching the decompositions of various $M_A\otimes_A A/\n$ into a decomposition of $M$.
 
-We also point out that it is possible to ``guess'' an idempotent for $M$, even when there is no algorithm to produce one. In practice, if $M$ does have nontrivial idempotents, Macaulay2 often chooses them as some of the generators of $\End_R(M)$. By checking if the generators of $\End_R(M)$ are idempotent, and trying to construct idempotents by subtracting eigenvalues off of general endomorphisms and checking idempotency, we can often produce nontrivial direct sum decompositions in characteristic 0.
-%See \Cref{example:QQ} for such a case.
-
-\devlin{example of this?}
+  We also point out that it is possible to ``guess'' an idempotent for $M$, even when there is no algorithm to produce one. In practice, if $M$ does have nontrivial idempotents, Macaulay2 often chooses them as some of the generators of $\End_R(M)$. By checking if the generators of $\End_R(M)$ are idempotent, and trying to construct idempotents by subtracting eigenvalues off of general endomorphisms and checking idempotency, we can often produce nontrivial direct sum decompositions in characteristic 0.
 \end{rem}
 
 \begin{rem}
-  We omit a computational complexity analysis here because without any assumptions about the module there are too many parameters that in any given application may become prominent. We note, however, that $[\End_R(M)]_0$ can be computed using degree limited syzygy algorithms without computing all of $\End_R(M)$. While in many applications this significantly reduces the computational complexity, in general the complexity of the algorithm presented here is at least bounded by the complexity of computing syzygies. Compare with \cite{DX22}, which provides a complexity analysis for a decomposition algorithm with the additional assumption that the generators of $R$ as well as generators and relations of $M$ have distinct degrees. This assumption is exceedingly rare in commutative algebra and algebraic geometry applications, but it is relevant, though not guaranteed, in the context of multiparameter persistence in topological data analysis.
+  We omit a computational complexity analysis here because without any assumptions about the module there are too many parameters that in any given application may become prominent. We note, however, that $[\End_R(M)]_0$ can be computed using degree-limited syzygy algorithms without computing all of $\End_R(M)$. While in many applications this significantly reduces the computational complexity, in general the complexity of the algorithm presented here is at least bounded by the complexity of computing syzygies. Compare with \cite{DX22}, which provides a complexity analysis for a decomposition algorithm with the additional assumption that the generators of $R$ as well as generators and relations of $M$ have distinct degrees. This assumption is exceedingly rare in commutative algebra and algebraic geometry applications, but it is relevant, though not guaranteed, in the context of multiparameter persistence in topological data analysis.
 \end{rem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \section{Decomposing coherent sheaves}
+\label{sec:coherent}
 
 While the preceding section was written in the language of modules, by the standard translation to global (multi)projective varieties, the algorithm works equally well to find indecomposable decompositions of coherent sheaves on (multi)projective varieties.
-In this section, we make a few notes regarding the relation between the eigenvalues discussed in the preceding section (in this section, called \emph{irrelevant eigenvalues}) with the notion of eigenvalue of an endomorphism of a vector bundle.
+In this section, we make a few notes in the single-graded case regarding the relation between the eigenvalues discussed in the preceding section (in this section, called \emph{module-theoretic eigenvalues}) with the notion of eigenvalue of an endomorphism of a vector bundle.
 
 Let $X\subset \P^n$ be a projective variety, with ample line bundle $\OO_X(1)$.
 Throughout, let $E$ be a vector bundle (i.e., a locally free coherent sheaf) on $X$.
 
 The following is well-known:
 
-\begin{lem}{{\cite[Exercise~4.1]{Friedman}}}
-A morphism $f:E\to E$ is injective if and only if it is an isomorphism.
+\begin{lem}{{\cite[Exercise~4.1]{Friedman98}}}
+  A morphism $f:E\to E$ is injective if and only if it is an isomorphism.
 \end{lem}
 
 %(It is also true that $f$ is surjective if and only if it's an isomorphism, but this is more well-known.)
@@ -473,94 +484,108 @@ A morphism $f:E\to E$ is injective if and only if it is an isomorphism.
 %\end{proof}
 
 \begin{dfn}
-For $f\in \End_{\OO_X}(E)$, taking top exterior powers yields the map
-$$ \bigwedge^{\rank E} f: \det E  \to \det E, $$
-where $\det E := \bigwedge^{\rank E} E$.
-Since $\End_{\OO_X}(\det E) = H^0(\OO_X)=k$, $\bigwedge^{\rank E} f$ is multiplication by $\l\in k$; we write $\det f$ for this scalar $\l$.
+  For $f\in \End_{\OO_X}(E)$, taking top exterior powers yields the map
+  $$ \bigwedge^{\rank E} f: \det E  \to \det E, $$
+  where $\det E := \bigwedge^{\rank E} E$.
+  Since $\End_{\OO_X}(\det E) = H^0(\OO_X)=k$, $\bigwedge^{\rank E} f$ is multiplication by $\l\in k$; we write $\det f$ for this scalar $\l$.
 \end{dfn}
 
 \begin{lem}
-Let $x \in X$ be any point (not necessarily closed), with residue field $k(x) = \OO_{X,x}/m_x$. Then $\det(f\otimes k(x)) =\det f$.
-%In other words, if we restrict $f$ to the fiber $E_x$, the determinant is the same as $\det f$.
+  Let $x \in X$ be any point (not necessarily closed), with residue field $k(x) = \OO_{X,x}/\m_x$. Then $\det(f\otimes k(x)) =\det f$.
+  %In other words, if we restrict $f$ to the fiber $E_x$, the determinant is the same as $\det f$.
 \end{lem}
 
 \begin{proof}
-Since $(\bigwedge^{\rank E} f)\otimes k(x) = \bigwedge^{\rank( E\otimes k(x))}( f\otimes k(x))$ as $k(x)$-linear maps on $E\otimes k(x)$,
- we have $\det(f\otimes k(x)) =\det(f)\otimes k(x)$, but $\det(f)\in k$ and so is unaffected by going modulo $m_x$.
+  Since $(\bigwedge^{\rank E} f)\otimes k(x) = \bigwedge^{\rank( E\otimes k(x))}( f\otimes k(x))$ as $k(x)$-linear maps on $E\otimes k(x)$,
+  we have $\det(f\otimes k(x)) =\det(f)\otimes k(x)$, but $\det(f)\in k$ and so is unaffected by going modulo $\m_x$.
 \end{proof}
 
 
 
 \begin{lem}
-$\det f \neq 0 $ if and only if $f$ is injective (if and only $f$ is an isomorphism).
+  $\det f \neq 0 $ if and only if $f$ is injective (if and only $f$ is an isomorphism).
 \end{lem}
 
 \begin{proof}
-  Let $\ker f \neq 0$. %Then we have $0\to K\to E \to \im f\to0$;
- Then $\det(f\otimes k(X))= 0$ (since $\ker f$ is torsion-free), and in particular  $\det f = 0$ as well.
-If $\ker f = 0$, then
-$f$ is an isomorphism, hence an isomorphism on fibers, and hence
-$\det(f\otimes k(x)) \neq 0$ for any $x$. Thus $\det f\neq 0$.
+  Let $\ker f \neq 0$. Since localization is exact
+  we have
+  $\ker(f\otimes k(X)) = (\ker f)\otimes k(X)$.
+  Since $\ker f \subset E$ is torsionfree, the localization map $\ker f \to (\ker f)\otimes k(X)$ is injective and thus $(\ker f) \otimes k(X)\neq 0$.
+  Since the $k(X)$-vector space map $f\otimes k(X)$ is not injective, $\det(f\otimes k(X))= 0$.
+  In particular  $\det f = 0$ as well.
+  Conversely,
+  if $\ker f = 0$, then
+  $f$ is an isomorphism, hence an isomorphism on fibers, and hence
+  $\det(f\otimes k(x)) \neq 0$ for any $x$. Thus $\det f\neq 0$.
 \end{proof}
 
 \begin{dfn}
-$\l \in k$ is an \defn{eigenvalue} of $f \in \End_{\OO_X}(E)$ if $\det(f-\l \id_E)= 0$. In other words, the eigenvalues of $f$ are the zeroes of the univariate polynomial $\det(f-t\id _E)$ with coefficients in $k$.
+  $\l \in k$ is an \defn{eigenvalue} of $f \in \End_{\OO_X}(E)$ if $\det(f-\l \id_E)= 0$. In other words, the eigenvalues of $f$ are the zeroes of the univariate polynomial $\det(f-t\id _E)$ with coefficients in $k$.
 \end{dfn}
 
 Note that $f$ is an isomorphism if and only if $\l=0$ is not an eigenvalue of $f$, just as for ordinary linear operators on vector spaces.
 
 \begin{dfn}
-Let $M$ be a homogeneous module over a graded ring $R$ with $R_0=k$.
-Let $g \in \End_R(M)$. The \defn{irrelevant eigenvalues} of $g$ are defined to be the eigenvalues of the map of vector spaces $g\otimes R/m:M/mM \to M/mM$.
+  Let $M$ be a homogeneous module over a graded ring $R$ with $R_0=k$.
+  Let $g \in \End_R(M)$. The \defn{module-theoretic eigenvalues} of $g$ are defined to be the eigenvalues of the map of vector spaces $g\otimes R/\m:M/\m M \to M/\m M$.
 \end{dfn}
 
-In other words, the irrelevant eigenvalues are the eigenvalues modulo the maximal ideal discussed in the previous section.
+In other words, the module-theoretic eigenvalues are the eigenvalues modulo the maximal ideal discussed in the previous section.
 
 
 Now, let $R$ be the homogeneous coordinate ring of $X\subset \P^n$, and let $M$ be a graded $R$-module such that $\wtilde M=E$.
 
 \begin{lem}
-Let $f:E\to E$ arise from a map $g:M\to M$ (i.e., $\wtilde M = E$ and $\wtilde g = f$).
-The eigenvalues of $f$ are a subset of the irrelevant eigenvalues of $g$.
+  Let $f:E\to E$ arise from a map $g:M\to M$ (i.e., $\wtilde M = E$ and $\wtilde g = f$).
+  The eigenvalues of $f$ are a subset of the module-theoretic eigenvalues of $g$.
 \end{lem}
 
-Note that any endomorphism of $E$ corresponds to an endomorphism of $M=\Gamma_*(E)$; we may want the freedom to work with other module representatives of $E$ though.
+Note that any endomorphism of $E$ corresponds to an endomorphism of $\Gamma_*(E)$; we may want the freedom to work with other module representatives of $E$ though.
 
 \begin{proof}
-  All that needs to be shown is that if $\det(f-\l \id_E) =0$, then $\det((g-\l \id_M)\otimes R/m)=0$.
-Replacing $f$ by $f-\l \id_E$ and likewise $g$ by $g-\l\id_M$, we just need to show that $\det(f)=0$ implies $\det(g\otimes R/m)=0$.
+  All that needs to be shown is that if $\det(f-\l \id_E) =0$, then $\det((g-\l \id_M)\otimes R/\m)=0$.
+  Replacing
+  $f-\l \id_E$
+  by
+  $f$
+  and likewise
+  $g-\l\id_M$
+  by
+  $g$,
+  we just need to show that $\det(f)=0$ implies $\det(g\otimes R/\m)=0$.
 
-Say $\det(f)=0$.
-If $\det(g\otimes R/m)\neq 0$, then $g$ induces a surjection $M/mM\to M/mM$, and thus $g$ induces a surjection $M\to M$ by Nakayama's lemma. This then forces $f$ to be a surjection, hence an isomorphism, and thus $\det(f)\neq 0$.
+  Say $\det(f)=0$.
+  If $\det(g\otimes R/\m)\neq 0$, then $g$ induces a surjection $M/\m M\to M/\m M$, and thus $g$ induces a surjection $M\to M$ by Nakayama's lemma. The endomorphism $f$ is thus an isomorphism \cite[Corollary~4.4]{Eisenbud95}, and so $\det(f)\neq 0$.
 \end{proof}
 
 \begin{exa}
-By giving $M$ irrelevant summands, one can always add ``extraneous'' irrelevant eigenvalues, so the containment of eigenvalues may be proper.
-%However, if $M=\Gamma_*(E)$, set of values will be the same: in this case, if $g\otimes R/m$ is not an isomorphism, then $g$ cannot be surjective.
-Note that in general the multiplicities will never be equal, even if one takes $M=\Gamma_*(E)$: if $f$ is multiplication by $\l$, then $f$ will have $\rank E$ many eigenvalues, while $g$ will have $\mu(M)$ irrelevant eigenvalues.
+  By adding  irrelevant summands to $M$, one can always add extraneous module-theoretic eigenvalues, so the containment of eigenvalues may be proper.
+  %However, if $M=\Gamma_*(E)$, set of values will be the same: in this case, if $g\otimes R/m$ is not an isomorphism, then $g$ cannot be surjective.
+  Note that in general the multiplicities will never be equal, even if one takes $M=\Gamma_*(E)$: if $f$ is multiplication by $\l$, then $f$ will have $\rank E$ many eigenvalues, while $g$ will have $\mu(M)$ module-theoretic eigenvalues.
 \end{exa}
 
-By combining the discussion above with the results of the preceding section, we thus have:
+By combining the discussion above with the results of \Cref{sec:main-alg-new}, we thus have:
 
 \begin{prop}
-If $X$ is a variety over a field $k\subset \overline{\FF_{p}}$,
-$E$ a vector bundle on $X$, and $f:E\to E$ has two distinct eigenvalues $\l_1,\l_2$, then $E$ is a nontrivial direct sum, with one summand given by $(f-\l_1)^{p^e(p^e-1)}$ for some $e\geq 1$.
+  If $X$ is a variety over a field $k$,
+  $E$ a vector bundle on $X$, and $f:E\to E$ has two distinct eigenvalues $\l_1,\l_2$, then $E$ is a nontrivial direct sum, with one summand given by $(f-\l_1)^{N}$ for some $N$.
 \end{prop}
 
 \begin{proof}
-Take $M= \Gamma_*(E)$; then since the eigenvalues $\l_1\neq \l_2$ are also irrelevant eigenvalues of $M$, our algorithm produces a nontrivial direct sum decomposition $M_1\oplus M_2$, and since $M$ is torsion-free we know that $\widetilde M_i\neq 0$, and thus $E=\widetilde M_1\oplus \widetilde M_2$ is a nontrivial direct summand of sheaves.
+  Take $M= \Gamma_*(E)$; then since the eigenvalues $\l_1\neq \l_2$ are also module-theoretic eigenvalues of $M$, \Cref{alg:graded} produces a nontrivial direct sum decomposition $M_1\oplus M_2$, and since $M$ is torsion-free we know that $\widetilde M_i\neq 0$, and thus $E=\widetilde M_1\oplus \widetilde M_2$ is a nontrivial direct summand of sheaves.
 \end{proof}
 
 \begin{rem}
-We note that it is known already by \cite[Proposition~15]{Atiyah57} that an endomorphism of an indecomposable vector bundle $E$ cannot have two distinct eigenvalues. The utility of the preceding lemma is in producing an explicit direct sum decomposition of $E$.
+  We note that it is known already by \cite[Proposition~15]{Atiyah57} that an endomorphism of an indecomposable vector bundle $E$ cannot have two distinct eigenvalues. The utility of the preceding lemma is in producing an explicit direct sum decomposition of $E$.
 \end{rem}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Examples}
+\label{sec:examples}
 
-In this section, we give examples of the kind of calculations and observations the algorithm from the previous section allows us to make.
+In this section, we give examples of the kind of calculations and observations \Cref{alg:graded} and \Cref{alg:local} allow us to make.
 
 \renewcommand{\char}{\operatorname{char}}
 
@@ -621,26 +646,26 @@ In this section, we give examples of the kind of calculations and observations t
 \begin{exa}[Frobenius pushforward on Mori Dream Spaces]
   Continuing with the theme of computations over the Cox ring, the natural geometric setting is to consider the class of projective varieties known as Mori dream spaces \cite{HK00}.
 
-  For instance, consider $X = \Bl_4\P^2$, the blowup of $\P^2$ at 4 general points. We will be working over the $\ZZ^5$-graded Cox ring
+  For instance, consider $X = \Bl_4\P^2$, the blowup of $\P^2$ at 4 general points. We work over the $\ZZ^5$-graded Cox ring
   \[ S = k[x_1,\dots,x_{10}]/\text{(five quadric Pl\"ucker relations)} \]
   with degrees
-    \[
-    \left(\!\begin{array}{rrrrrrrrrr}
-      0&0&0&0&1&1&1&1&1&1 \\
-      1&0&0&0&-1&-1&-1&0&0&0 \\
-      0&1&0&0&-1&0&0&-1&-1&0 \\
-      0&0&1&0&0&-1&0&-1&0&-1 \\
-      0&0&0&1&0&0&-1&0&-1&-1
-    \end{array}\!\right).
-    \]
-    Then in characteristic 2 we have:
-    \begin{align*}
-      F_*^2\OO_X = {\OO_{X}^{1}}
-      &\oplus {\OO_{X}^{2}\ \left(-2,\,1,\,1,\,1,\,1\right)} \oplus {\OO_{X}^{2}\ \left(-1,\,0,\,0,\,0,\,1\right)} \\
-      &\oplus {\OO_{X}^{2}\ \left(-1,\,0,\,0,\,1,\,0\right)} \oplus {\OO_{X}^{2}\ \left(-1,\,0,\,1,\,0,\,0\right)} \\
-      &\oplus {\OO_{X}^{2}\ \left(-1,\,1,\,0,\,0,\,0\right)} \oplus B \oplus G,
-    \end{align*}
-    where $B, G$ are rank-3 and rank-2 indecomposable modules, as calculated in \cite{Hara15}.
+  \[
+  \left(\!\begin{array}{rrrrrrrrrr}
+  0&0&0&0&1&1&1&1&1&1 \\
+  1&0&0&0&-1&-1&-1&0&0&0 \\
+  0&1&0&0&-1&0&0&-1&-1&0 \\
+  0&0&1&0&0&-1&0&-1&0&-1 \\
+  0&0&0&1&0&0&-1&0&-1&-1
+  \end{array}\!\right).
+  \]
+  Then in characteristic 2 we have:
+  \begin{align*}
+    F_*^2\OO_X = {\OO_{X}^{1}}
+    &\oplus {\OO_{X}^{2}\ \left(-2,\,1,\,1,\,1,\,1\right)} \oplus {\OO_{X}^{2}\ \left(-1,\,0,\,0,\,0,\,1\right)} \\
+    &\oplus {\OO_{X}^{2}\ \left(-1,\,0,\,0,\,1,\,0\right)} \oplus {\OO_{X}^{2}\ \left(-1,\,0,\,1,\,0,\,0\right)} \\
+    &\oplus {\OO_{X}^{2}\ \left(-1,\,1,\,0,\,0,\,0\right)} \oplus B \oplus G,
+  \end{align*}
+  where $B, G$ are rank-3 and rank-2 indecomposable modules, as calculated in \cite{Hara15}.
 \end{exa}
 
 \begin{exa}[Frobenius pushforward on cubic surfaces]
@@ -656,22 +681,54 @@ In this section, we give examples of the kind of calculations and observations t
 \end{exa}
 
 %\begin{exa}[Frobenius pushforward on invariant rings of finite groups]
-  % https://arxiv.org/abs/2312.11786
+% https://arxiv.org/abs/2312.11786
 %  \mahrud{TODO: add an invariant ring example from \cite{HS24}}
 %\end{exa}
 
+\begin{exa}[The local algorithm]
+  Let $R=\F_2[x,y,z]_{(x,y,z)}/(x^2y+xy^2+xyz+z^2)$. In the notation of \cite{Artin77}, this is the $D_4^1$ singularity, which is an exceptional version of the usual rational double point/Du Val singularities appearing in characteristic 2.  In particular, note that $R$ is not homogeneous. If $F_* R$ denotes the Frobenius pushforward of $R$, then the algorithm of \Cref{sec:main-alg} computes the following indecomposable summands:
+  $$
+  F_*R = R\oplus
+  \coker
+  \begin{pmatrix}
+    x+y+z&z\\
+    z&xy
+  \end{pmatrix}\oplus\coker \begin{pmatrix}
+    y&z\\
+    z&x^{2}+xy+xz
+  \end{pmatrix}\oplus \coker\begin{pmatrix}
+  x&z\\
+  z&xy+y^{2}+yz
+  \end{pmatrix};
+  $$
+  there is one free summand and three reflexive modules of rank 1.
+\end{exa}
+
+
 \begin{exa}[Syzygies over Artinian rings]
   % https://arxiv.org/abs/2208.05427
-  In recent work suggested by examples calculated using our algorithm, \cite{CDE24} studies the indecomposable summands of syzygy modules over a Golod ring $(R,m,k)$. In particular, they find previously unexpected recurring behavior, specifically that the syzygy modules of the residue field are direct sums of only three indecomposable modules: the residue field $k$, the maximal ideal $m$, and an additional module $N = \Hom_R(m, R)$.
+  In recent work suggested by examples calculated using our algorithm, \cite{CDE24} studies the indecomposable summands of syzygy modules over a Golod ring $(R,\m,k)$. In particular, they find previously unexpected recurring behavior, specifically that the syzygy modules of the residue field are direct sums of only three indecomposable modules: the residue field $k$, the maximal ideal $\m$, and an additional module $N = \Hom_R(\m, R)$.
 
   Here, we give a concrete example of one such ring:
-  Let $R = k[x,y]/(x^3,x^2y^3,y^5)$ and consider the (infinite) minimal free resolution of the residue field, which has rank $2^n$ in homological index $n$.
+  Let $k$ be any field and let
+  $R = k[x,y]/(x^3,x^2y^3,y^5)$ and consider the (infinite) minimal free resolution of the residue field, which has rank $2^n$ in homological index $n$.
 
   The fourth syzygy module of the residue field decomposes (ignoring the grading) as the direct sum
-  $$ k^3 \oplus m^2 \oplus N^3. $$
+  $$ k^3 \oplus \m^2 \oplus N^3. $$
   and the fifth syzygy module as
-  $$ k^8\oplus m^9 \oplus N^2. $$
-  The use of our algorithm was essential to the observation that beyond the ``guaranteed'' summands of $k$ and $m$ (which were known to appear by work of \cite{DE23}) only the one additional indecomposable module $N$ appears in the summands of syzygies of $k$.
+  $$ k^8\oplus \m^9 \oplus N^2. $$
+  The use of our algorithm was essential to the observation that beyond the ``guaranteed'' summands of $k$ and $\m$ (which were known to appear by work of \cite{DE23}) only the one additional indecomposable module $N$ appears in the summands of syzygies of $k$.
+
+  In this example, the module $N$ can be explicitly presented as
+  $$N=\coker
+  \begin{pmatrix}
+    x^{2}&0&0&0&y^{4}&xy^{3}&0&0\\
+    -y&x&y^{3}&0&0&0&0&0\\
+    0&0&0&y&-x&0&0&0\\
+    0&0&0&0&0&-y&x&y^{2}
+  \end{pmatrix}
+  $$
+
   %% needsPackage "DirectSummands"
   %% R = ZZ/101[x,y]/(ideal"x3,x2y3,y5")
   %% ideal(x^2*y^2,x*y^3)
@@ -698,7 +755,7 @@ In this section, we give examples of the kind of calculations and observations t
     0&0&a-c&b-d\\
     0&0&b-d&c-a
   \end{pmatrix},
-\quad
+  \quad
   \begin{pmatrix}
     a+b+c+d&0&0&0\\
     0&a-b+c-d&0&0\\
@@ -718,27 +775,6 @@ In this section, we give examples of the kind of calculations and observations t
 \bibliography{references}
 \end{document}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{lem}
-  Let $A\in \End_R M$ be idempotent. Then $M = \im A\oplus \ker A$.
-\end{lem}
-
-\begin{proof}
-  Consider the short exact sequence
-  $$ 0\to \ker A \to M \to \im A\to 0. $$
-  The map $M\to M$ given by $-A+\id_M$ sends $M\to \ker A$, since $-A(A-\id_M)(m) = -(A^2-A)(m)=0$. In fact, this map $M\to \ker A$ is a splitting of $\ker A\to M$, since if $m\in \ker A$ we have $-(A-\id_M)(m) = -A(m)+\id_M(m)=m$.
-\end{proof}
-
-\begin{lem}
-  Let $A\in \End_R M$ satisfy $A^d=A$. Then $M=\im  A\oplus \ker A$.
-\end{lem}
-
-\begin{proof}
-  Consider the short exact sequence
-  $$ 0\to \ker A \to M \to \im A\to 0. $$
-  The map $M\to M$ given by $-A^{d-1}+\id_M$ sends $M\to \ker A$, since $-A(A^{d-1}-\id_M)(m) = -(A^d-A)(m)=0$. In fact, this map $M\to \ker A$ is a splitting of $\ker A\to M$, since if $m\in \ker A$ then also $m\in \ker A^{d-1}$ and thus we have $-(A^{d-1}-\id_M)(m) = -A^d(m)+\id_M(m)=m$.
-\end{proof}
 
 % Local Variables:
 % tab-width: 2

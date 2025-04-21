@@ -6,6 +6,12 @@ Piotr Achinger.
 \newblock A characterization of toric varieties in characteristic {$p$}.
 \newblock {\em Int. Math. Res. Not. IMRN}, (16):6879--6892, 2015.
 
+\bibitem[Art77]{Artin77}
+M.~Artin.
+\newblock Coverings of the rational double points in characteristic p.
+\newblock Complex {Anal}. algebr. {Geom}., {Collect}. {Pap}. dedic. {K}.
+  {Kodaira}, 11-22 (1977)., 1977.
+
 \bibitem[Ati57]{Atiyah57}
 Michael~F. Atiyah.
 \newblock Complex analytic connections in fibre bundles.
@@ -46,6 +52,17 @@ Tamal~K. Dey and Cheng Xin.
 \newblock {\em Journal of Applied and Computational Topology}, 6(3):271--322,
   2022.
 
+\bibitem[Eis95]{Eisenbud95}
+David Eisenbud.
+\newblock {\em Commutative Algebra with a View Toward Algebraic Geometry},
+  volume 150 of {\em Graduate Texts in Mathematics}.
+\newblock Springer-Verlag, Berlin, 1995.
+
+\bibitem[Fri98]{Friedman98}
+Robert Friedman.
+\newblock {\em Algebraic surfaces and holomorphic vector bundles}.
+\newblock Universitext. Springer-Verlag, New York, 1998.
+
 \bibitem[GAP]{GAP}
 The GAP~Group.
 \newblock {\em {GAP -- Groups, Algorithms, and Programming}}.
@@ -71,7 +88,7 @@ Nobuo Hara.
 \bibitem[HK00]{HK00}
 Yi~Hu and Sean Keel.
 \newblock Mori dream spaces and {GIT}.
-\newblock volume~48, pages 331--348. 2000.
+\newblock {\em Michigan Math. J.}, 48:331--348, 2000.
 \newblock Dedicated to William Fulton on the occasion of his 60th birthday.
 
 \bibitem[Hol98]{Holt98}
@@ -86,6 +103,12 @@ Derek~F. Holt and Sarah Rees.
 \newblock Testing modules for irreducibility.
 \newblock {\em J. Austral. Math. Soc. Ser. A}, 57(1):1--16, 1994.
 
+\bibitem[LW12]{LW12}
+Graham~J. Leuschke and Roger Wiegand.
+\newblock {\em Cohen-{Macaulay} representations}, volume 181 of {\em Math.
+  Surv. Monogr.}
+\newblock Providence, RI: American Mathematical Society (AMS), 2012.
+
 \bibitem[Par84]{Parker84}
 R.~A. Parker.
 \newblock The computer calculation of modular characters (the meat-axe).
@@ -97,9 +120,26 @@ Theo Raedschelders, \v{S}pela {\v{S}}penko, and Michel Van~den Bergh.
 \newblock The {F}robenius morphism in invariant theory {II}.
 \newblock {\em Adv. Math.}, 410:Paper No. 108587, 64, 2022.
 
+\bibitem[SVdB97]{SVdB97}
+Karen~E. Smith and Michel Van~den Bergh.
+\newblock Simplicity of rings of differential operators in prime
+  characteristic.
+\newblock {\em Proc. London Math. Soc. (3)}, 75(1):32--62, 1997.
+
 \bibitem[Tho00]{Thomsen00}
 Jesper~Funch Thomsen.
 \newblock Frobenius direct images of line bundles on toric varieties.
 \newblock {\em J. Algebra}, 226(2):865--874, 2000.
+
+\bibitem[TT08]{TT08}
+Shunsuke Takagi and Ryo Takahashi.
+\newblock {$D$}-modules over rings with finite {$F$}-representation type.
+\newblock {\em Math. Res. Lett.}, 15(3):563--581, 2008.
+
+\bibitem[Yos90]{Yoshino90}
+Yuji Yoshino.
+\newblock {\em Cohen-{Macaulay} modules over {Cohen}-{Macaulay} rings}, volume
+  146 of {\em Lond. Math. Soc. Lect. Note Ser.}
+\newblock Cambridge (UK): Cambridge University Press, 1990.
 
 \end{thebibliography}
