@@ -5,7 +5,20 @@
 \usepackage{notes,hyperref}
 \usepackage{mathtools}
 \usepackage{cleveref}
+\crefformat{equation}{(#2#1#3)} % omit eq.
 \let\b\beta
+
+%algorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algdef{SE}[SUBALG]{Indent}{EndIndent}{}{\algorithmicend\ }%
+\algtext*{Indent}
+\algtext*{EndIndent}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}} % Changing "Require" to "Input"
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Changing "Ensure" to "Output"
+
+%\crefname{algocf}{alg.}{algs.}
+%\Crefname{algocf}{Algorithm}{Algorithms}
 
 \let\wtilde\widetilde
 \let\bar\overline
@@ -205,33 +218,43 @@ Suppose $M = \bigoplus M_d$ is a finitely generated, graded $R$-module and consi
   this is a poset with respect to the partial order $\a\leq \b$ if and only if $\b-\a\in \Eff R$.
   Because $P$ is finite, we can order the elements of $P$ such that
   $\deg m_1\not\leq \deg m_2\not \leq \dots\not\leq \deg m_r$.
-
-
+  \mahrud{finish}
 \end{rem}
 
 The above can of course produce the trivial direct sum decomposition: if the eigenvalues of $\phi$ are all nonzero, the proof yields that $\im \psi = M$ and $\coker \psi = 0$. The following corollary of the proof of \cref{lem:graded_algorithm} ensures that we can always assume $\phi$ has zero as an eigenvalue:
 
 \begin{lem}
-  The eigenvalues of $\phi$ lie in $k$.
-  In particular,
-  for any  $\phi \in \End M$, there is $\lambda \in k$ such that $\phi - \lambda \id_M \in \End M$ has zero as an eigenvalue.
+  The eigenvalues of $\phi$ lie in $k$. In particular, for any $\phi \in [\End M]_0$, there is $\lambda \in k$ such that $\phi - \lambda \id_M \in [\End M]_0$ has zero as an eigenvalue.
 \end{lem}
 
-
-Note that by ``eigenvalues of $\phi$'' we mean the roots of the characteristic polynomial $\det(\phi - t \id_M)$, which is a univariate polynomial with coefficients in $R$ and thus a priori has solutions in $t$ only in the algebraic closure of the total ring of fractions of $R$.
+\mahrud{move this above?}
+By ``eigenvalues of $\phi$'' we mean the roots of the characteristic polynomial $\det(\phi - \lambda \id_M)$\mahrud{define determinant over a module, or say determinant of its cover?}, which is a univariate polynomial in $\lambda$ with coefficients in $R$ and thus a priori has solutions only in the algebraic closure of the total ring of fractions of $R$.
 
 \begin{proof}
-  Note that the expression of $\psi$ obtained in \cref{eq:Jordan} shows that the determinant of $\phi - t \id_M$ is just the product of $\mu_i -t$, and thus the eigenvalues are just the $\mu_i$, which lie in~$k$.
+  The expression of $\phi$ obtained in \cref{eq:Jordan} shows that the determinant of $\phi - \lambda \id_M$ is the product of $\lambda_i - \lambda$, thus the eigenvalues are the $\lambda_i$, which all lie in $k$.
 \end{proof}
 
-\begin{algm}\label{alg:graded}
-  Given a finitely generated graded $R$-module $M$, the indecomposable summands of $M$ are computed as follows.
-  \begin{enumerate}
-  \item\label{item:End0} Take a random element $\phi_0$ of $[\End_R(M)]_0$, the degree zero part of $\End_R(M)$.
-  \item For an eigenvalue $\mu $ of $\phi_0$, let $\phi=\phi_0-\mu \id_M$.
-  \item If $\phi$ has at least two eigenvalues, let $\psi=\phi^{\mu(M)}$. By \Cref{lem:graded_algorithm}, $M\cong \im \psi \oplus \coker \psi$.  \item Repeat steps (1)--(3) for both $\im \psi$ and $\coker \psi$.
-  \end{enumerate}
-\end{algm}
+\begin{algorithm}[H]
+  \caption{(Indecomposable summands of a graded module over a commutative ring)}\label{alg:graded}
+  \begin{algorithmic}[1]
+    \smallskip
+    \Require graded module $M$ over a positively graded commutative ring $R$.
+    \Ensure  list $\textproc{Summands}(M)$ of indecomposable summands of $M$.
+    \State Initialize a list $L$.
+    \State Take a general element $\phi$ in $[\End_R(M)]_0$,
+           the degree zero part of $\End_R(M)$. \label{item:End0}
+    \ForAll { eigenvalues $\lambda_i$ of $\phi$ }
+      \State Let $\mu_i$ be the multiplicity of $\lambda_i$.
+      \State Let $\psi_i = (\phi - \lambda_i \id_M)^{\mu_i}$.
+      \State Append \Call{Summands}{$\coker\psi_i$} to $L$.
+    \EndFor
+    \State Let $\psi$ be the composition of all $\psi_i$ above.
+    \If {$\psi$ is nonzero}
+      \State Append \Call{Summands}{$\im\psi$} to $L$.
+    \EndIf
+    \State \Return $L$.
+  \end{algorithmic}
+\end{algorithm}
 
 We will see via \Cref{lem:term} that this will result in an indecomposable decomposition of $M$.
 
@@ -327,16 +350,30 @@ The following lemma allows us to produce idempotents modulo $\m$.
 
 This leads to a probabilistic algorithm to find the indecomposable summands of a finitely generated $R$-module $M$ in our setting, as follows:
 
-\begin{algm}\label{alg:local}
-  Given a finitely generated graded $R$-module $M$, the indecomposable summands of $M$ are computed as follows.
-  \begin{enumerate}
-    %In the graded case, take a general element $A_0$ of $[\End_R(M)]_0$, the degree zero part of $\End_R(M)$; in the local case,
-  \item Take a general element $A_0$ of $\End_R(M) \setminus \m \End_R(M)$.
-  \item Consider the resulting endomorphism $A$ of the $k$-vector space $M/\m M$ and find the eigenvalues of $A$.
-  \item If $A$ has at least two eigenvalues, choose one eigenvalue $\lambda$, and compute a sufficiently high power $B=A^{p^{e_0}(p^{e}-1)}$ of $A$ (with the power explicitly as in the proof of \Cref{lem:jordan}). This power will be a nonzero idempotent, and thus produce a splitting of $M$ as $\im B \oplus \coker B$ by \Cref{lem:idemp}.
-  \item Repeat steps (1)--(3) for both $\im B$ and $\coker B$.
-  \end{enumerate}
-\end{algm}
+\begin{algorithm}[H]
+  \caption{(Indecomposable summands of a module over a commutative local ring)}\label{alg:local}
+  \begin{algorithmic}[1]
+    \smallskip
+    % TODO: finitely generated M? noetherian R?
+    \Require module $M$ over a commutative local ring $R$.
+    \Ensure  list $\textproc{Summands}(M)$ of indecomposable summands of $M$.
+    \State Initialize a list $L$.
+    \State Take a general element $\phi$ in $\End_R(M) \setminus \m \End_R(M)$.
+    \State Let $\phi_0$ be the induced endomorphism of the $k$-vector space $M/\m M$.
+    % TODO: Why did we need to assume $A$ has at least two eigenvalues?
+    \State Let $\lambda$ be any eigenvalue of $\phi_0$.
+    \State Let $\psi = (\phi - \lambda \id_M)^{p^{e_0} (p^{e} - 1)}$
+    (with the power explicitly as in the proof of \Cref{lem:jordan}).
+    \State By \Cref{lem:idemp}, $\psi$ is an idempotent, hence producing a splitting of $M$.
+    \If { both $\coker\psi$ and $\im\psi$ are nonzero }
+      \State Append \Call{Summands}{$\coker\psi$} to $L$.
+      \State Append \Call{Summands}{$\im\psi$} to $L$.
+    \Else
+      \State Append $M$ to $L$.
+    \EndIf
+    \State \Return $L$.
+  \end{algorithmic}
+\end{algorithm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Termination of the algorithms}
@@ -393,7 +430,7 @@ In particular, if $M$ is not indecomposable, then \Cref{alg:graded} and \Cref{al
 
 
 \begin{rem}
-  Note that the above algorithm is quite sensitive to the ground field $k$, because it needs all the eigenvalues of the endomorphism $A$ of $M/\m M$ to be contained in $k$. While theoretically the issue can be avoided by working over an algebraically closed ground field $\bar k$, for practical use on a computer algebra system it is better to extend $k$ to some larger finite field. However, the general linear combinations we take in \Cref{item:End0} should be taken with respect to the prime subfield (otherwise, as we increase the size of the finite field $k$, the eigenvalues of a general linear combination will live in higher and higher field extensions).
+  Note that the above algorithm is quite sensitive to the ground field $k$, because it needs all the eigenvalues of the endomorphism $A$ of $M/\m M$ to be contained in $k$. While theoretically the issue can be avoided by working over an algebraically closed ground field $\bar k$, for practical use on a computer algebra system it is better to extend $k$ to some larger finite field. However, the general linear combinations we take in Step~\ref{item:End0} of \Cref{alg:graded} should be taken with respect to the prime subfield (otherwise, as we increase the size of the finite field $k$, the eigenvalues of a general linear combination will live in higher and higher field extensions).
   See \Cref{ex:elliptic} for a demonstration of the necessity of extending the base field.
 \end{rem}
 
