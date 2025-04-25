@@ -84,7 +84,7 @@
 \section{Introduction}
 
 The problems of finding isomorphism classes of indecomposable modules with certain properties, or determining the indecomposable summands of a module, are ubiquitous in commutative algebra, representation theory, topological data analysis, and other fields. Within commutative algebra, for instance, the classification of rings $R$ for which there are only finitely many isomorphism classes of indecomposable maximal Cohen--Macaulay $R$-modules (the \emph{finite CM-type} property), or determining whether iterated Frobenius pushforwards of a Noetherian ring in positive characteristic have finitely many isomorphism classes of indecomposable summands (the \emph{finite F-representation type} property) are two well-established research problems (see, for example, \cite{Yoshino90,LW12} for the former and \cite{SVdB97,Hara15,TT08}, among many others, for the latter). For both these problems, and many others, making and testing conjectures depends on computing summands of modules and verifying their indecomposability.
-The need for, and absence of, an algorithm to do so is noted, for example, in
+The need for and absence of an algorithm to do so is noted, for example, in
 \cite[15.10.9]{Eisenbud95}.
 
 Currently there are no algorithms available for checking indecomposability or finding summands of arbitrary modules over commutative rings. In contrast, variants of the ``Meat-Axe'' algorithm for determining irreducibility of finite-dimensional modules over a group algebra have wide ranging applications in computational group theory \cite{Parker84,HR94,Holt98} and are available through symbolic algebra software such as Magma and GAP \cite{MAGMA,GAP}.
@@ -96,7 +96,7 @@ In the graded case, our algorithm is often capable of completely decomposing a m
 %We also describe applications of our algorithm for computations in characteristic 0.
 The multigraded case of our algorithm enables the computation of indecomposable summands of coherent \emph{sheaves} on subvarieties of toric varieties (in particular, for varieties embedded in $\PP^n$).
 
-Finally, we present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings. In particular, we highlight the results of \cite{CDE24}, which shows a recurrence formula for indecomposable summands of high syzygies of the residue field of Golod rings, made possible through experiments and observations using our algorithm.
+Finally, we present multiple examples, including  previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings. In particular, we highlight the results of \cite{CDE24}, which shows a recurrence formula for indecomposable summands of high syzygies of the residue field of Golod rings, made possible through experiments and observations using our algorithm.
 
 An implementation in Macaulay2 \cite{M2} is available via the GitHub repository \\
 \centerline{
@@ -128,6 +128,7 @@ We also thank the referees for their careful reading and suggestions, which sign
 Throughout we will work over a field $k$ and write $\overline k$ for a choice of algebraic closure of $k$. \linebreak In particular, $\overline{\FF_p}$ is the algebraic closure of the finite field $\ZZ/p\ZZ$.
 
 For a graded or local ring $R$ with maximal ideal $\m$ and an $R$-module $M$, we write $\mu(M):=\dim_{R/\m}(M/\m M)$ for the minimal number of generators of $M$ as an $R$-module.
+If $R$ is graded and $M$ is homogeneous, we write $[M]_d$ for the $k$-vector space of degree-$d$ elements of $M$.
 
 % TODO: \mahrud{k(x) and k(X) are used only in one place, move there?}
 For an algebraic variety $X$ and a point $x\in X$, we write $k(x)=\OO_{X,x}/\m_x$ for the residue field of $X$ at $x$ and $k(X)$ for the function field of $X$.
@@ -142,22 +143,13 @@ We begin by describing the main algorithms for finding the indecomposable summan
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{The graded case}\label{sec:graded-alg}
 
-Let $R$ be a $\N$-graded ring, with $R_0 = k$ a field.
-%Assume furthermore that the degree support of $R$ is strongly convex, i.e., that
-%%the effective cone
-%$\Eff R = \{ \deg r : r\in R\}$ is a strongly convex cone in $\ZZ^n$.
-Suppose $M = \bigoplus M_d$ is a finitely generated, graded $R$-module and consider a general degree zero endomorphism $\phi \in [\End M]_0$.
+Let $R$ be a $\N$-graded ring with $R_0 = k$ a field. Suppose $M = \bigoplus M_d$ is a finitely generated, graded $R$-module and consider a general degree-zero endomorphism $\phi \in [\End M]_0$. Fix a set of minimal homogeneous generators $m_1,\dots,m_{\mu(M)}$ of $M$ so that $\phi$ may be presented as an $\mu(M)\times\mu(M)$ matrix with entries in $R$. We will refer to $\chi(\phi) = \det(\phi-\lambda\id_M)$ as the ``characteristic polynomial of $\phi$'', which is a univariate polynomial with coefficients in $R$ and thus a priori has solutions in $\lambda$ only in the algebraic closure of the total ring of fractions of $R$.
 
-%Let $P\subset \ZZ^n$ be the degrees of a set of minimal generators of $M$;
-%this is a poset with respect to the partial order $\a\leq \b$ if and only if $\b-\a\in \Eff R$.
-%Because $P$ is finite, we can order the elements of $P$ such that
-%$\deg m_1\not\leq \deg m_2\not \leq \dots\not\leq \deg m_r$.
-
-\begin{lem}\label{lem:graded}
-  \mahrud{rewrite statement} Let $N = \mu(M)$ and set $\psi = \phi^N$. Then $M = \im\psi \oplus \coker\psi$.
-\end{lem}
+\begin{prop}\label{prop:eigenvalues}
+  The solutions of the characteristic polynomial $\chi(\phi)$ are in $\bar k$.
+\end{prop}
 \begin{proof}
-  Fix homogeneous generators $m_1,\dots,m_N$ of $M$, with $\deg m_i$ nonincreasing, and let $d_1,\dots,d_n$ be the decreasing list of unique degrees of generators of $M$. The matrix for $\phi$ is then ``block upper triangular'' with $n$ diagonal blocks with entries in $k$, i.e., of the form
+  Since $M$ is $\N$-graded, assume its generators are ordered with $\deg m_i$ nonincreasing, and let $d_1,\dots,d_n$ be the decreasing list of unique degrees of generators of $M$. The matrix for $\phi$ is then ``block upper triangular'' with $n$ diagonal blocks with entries in $k$, i.e., of the form
   \begin{equation}\label{eq:blocks}
     \phi = \begin{pmatrix}
     B_1    & *      & \dots  & *      \\
@@ -166,32 +158,68 @@ Suppose $M = \bigoplus M_d$ is a finitely generated, graded $R$-module and consi
     0      & 0      & \dots  & B_n
     \end{pmatrix},
   \end{equation}
-  where the blocks $B_i$ are square matrices \emph{with entries in $k$}, and the remaining entries are in $R$. To see this, note that since $\phi$ has degree zero, $\phi(m_i)$ is a $k$-linear combination of the $m_j$ with $\deg m_j = \deg m_i$ plus an $R$-linear combination of the $m_j$ with $\deg m_j < \deg m_i$. In particular, $B_i$ is the induced endomorphism on the submodule generated by all generators of degree $d_i$.
+  where the blocks $B_i$ are square matrices \emph{with entries in $k$}, and the remaining entries are in $R$. To see this, note that since $\phi$ has degree zero, $\phi(m_i)$ is a $k$-linear combination of the $m_j$ with $\deg m_j = \deg m_i$ plus an $R$-linear combination of the $m_j$ with $\deg m_j < \deg m_i$. %In particular, $B_i$ is an $k$-endomorphism on the $k$-vector space spanned by all generators of degree $d_i$.
 
-  Note that the characteristic polynomial $\det(\phi - \lambda \id_M) = \prod \det(B_i - \lambda \id)$ is a univariate polynomial in $\lambda$ with coefficients in $k$ which may have solutions in the algebraic closure of $k$. We will refer to the collection of $k$-eigenvalues of $B_i$ as the ``eigenvalues of $\phi$''.
-
-  By generality of $\phi$ suppose it has eigenvalues $\lambda_1,\dots,\lambda_r$ in $k$. Let $\mu(\lambda_j)$ be the maximum multiplicity of $\lambda$ in each diagonal block and set $\psi_j = (\phi - \lambda_j \id_M)^{\mu(\lambda_j)}$. We will show that $\psi_j$ is a split surjection, hence $M = \im\psi_j \oplus \coker\psi_j$. Furthermore, note that if $\phi_j$ and $\phi_k$ are different then $M = \coker\psi_j \oplus \coker\psi_k \oplus \im(\psi_j\circ\psi_k)$, thus we have a decomposition
-  \begin{equation}\label{eq:decomposition}
-    M = \coker\psi_1 \oplus \cdots \oplus \coker\psi_r \oplus \im\psi.
-  \end{equation}
-
-  To see that each $\psi_j$ is a split surjection, note that the set of generators of $M$ with degree $d_i$ are linearly independent and we can view each $B_i$ as a $k$-linear transformation of the $k$-vector space spanned by these generators. Thus, performing $k$-linear row and column operations on $(B_i - \lambda_j \id)^{\mu(\lambda_j)}$, we may write it as a diagonal matrix with ones and zeros on the diagonal. In particular, this is a $k$-linear change of basis on the degree $d_i$ generators of $M$ and induces an automorphism $\alpha_{i,j}$ of $M$.
-
-  Let $\alpha$ be the composition of these automorphisms for each $B_i$ and $\lambda_j$, then $\alpha^{-1}\circ\psi_j\circ\alpha$ corresponds to performing $k$-linear row and column operations and has ones and zeros on the diagonal. Finally, performing $R$-linear row and column operations, we may clear the rows and columns with a one on the diagonal to get $\psi'_j$, whose image and cokernel are summands and are isomorphic to the image and cokernel of $\psi_j$.
+  Then the characteristic polynomial $\det(\phi - \lambda \id_M) = \prod \det(B_i - \lambda \id)$ is a univariate polynomial in $\lambda$ with coefficients in $k$, thus has solutions in the algebraic closure of $k$.
 \end{proof}
 
-\begin{rem}
-  The hypotheses that $R$ is $\N$-graded and $k$ is an algebraically closed field may both be weakened.
-  In the proof of \Cref{lem:graded}, we only need a partial order on the degrees of the generators of $M$ in order to present $\phi$ in a block upper triangular form. Suppose $R$ is $\ZZ^r$-graded, then the effective cone $\Eff(R)\subset\Q^n$ generated by the elements $\deg m$ for each monomial $m \in R$ induces a partial order on the degrees of generators of $M$ if it is strongly convex (contains no positive dimensional subspace of $\Q^n$) and $R_0 = k$. % TODO: can R_0 be finite dimensional?
+We will refer to the collection of $k$-eigenvalues of $B_i$ as the ``eigenvalues of $\phi$''. Further, let $\mu(\lambda_j)$ be the sum of the multiplicities of $\lambda_j$ in each $B_i$.
 
-  Similarly, suppose $k$ is not algebraically closed, then there may be blocks $B_i$ which cannot be written in Jordan canonical form. Nevertheless, as long as $\phi$ has at least one eigenvalue $\lambda$ in $k$, the corresponding block may be written in Jordan canonical form, and thus the image and cokernel of $(\phi - \lambda_i\id_M)^{\mu_i}$ form summands of $M$.
+\begin{rem}\label{rem:grading}
+  The hypotheses that $R$ is $\N$-graded may be weakened. In the proof of \Cref{prop:eigenvalues}, we only need a partial order on the degrees of the generators of $M$ in order to present $\phi$ in a block upper triangular form \eqref{eq:blocks}. Suppose $R$ is $\ZZ^r$-graded, then the effective cone $\Eff(R)\subset\Q^n$ generated by the elements $\deg m$ for each monomial $m \in R$ induces a partial order on the degrees of generators of $M$ if it is strongly convex (contains no positive dimensional subspace of $\Q^n$) and $R_0 = k$. We will call such rings \emph{positively graded}. % TODO: can R_0 be finite dimensional?
+  This is satisfied, for instance, in the setting of multiparameter persistence modules or when $R$ is the Cox ring of a toric variety or Mori dream space graded by the class group of the variety.
 \end{rem}
+
+We will use nonzero eigenvalues of $\phi$ to get nontrivial splittings of $M$. As the following lemma shows, this approach allows for decomposing multiple summands at once.
+
+\begin{lem}\label{lem:decomposition}
+  Suppose $\psi_1,\dots,\psi_r$ are endomorphisms of $M$ such that $M\to\im\psi_i$ is a split surjection for all $i$ and set $\psi = \psi_r\circ\dots\circ\psi_1$.
+  %If $\ker\psi_i\cap\ker(\psi_{i-1}\circ\dots\circ\psi_1) = 0$ for all $i$ then $M$ has a direct sum decomposition \( M = \ker\psi_r \oplus \cdots \oplus \ker\psi_1 \oplus \im\psi. \)
+  If $\ker\psi_i\cap\ker \psi_j = 0$ for all $i\neq j$ then $M$ has a direct sum decomposition \( M = \ker\psi_r \oplus \cdots \oplus \ker\psi_1 \oplus \im\psi. \)
+\end{lem}
+\begin{proof}
+  Since each $\psi_i$ is a split surjection, there are direct sum decompositions $M=\im \psi_i \oplus \ker \psi_i$, and thus idempotents $e_i$ with $\im e_i = \im \psi_i$ and $\ker e_i = \ker \psi_i$.
+
+  The $e_i$ must commute: let $f_i = 1- e_i$ be the complementary idempotent (projection onto $\ker \psi_i$). Since $\ker \psi_i \cap \ker \psi_j=0$, $f_if_j=0$. In particular,
+  \[ e_ie_j =(1-f_i)(1-f_j) = 1-f_i-f_j= 1-f_j-f_i = e_j e_i. \]
+
+  Since the $e_i$ are commuting idempotents, $e_r\cdots e_1$ is also an idempotent. It's clear that $\im(e_r\cdots e_1) = \im (\psi_r\circ \dots\circ \psi_1) = \im \psi$. Moreover, we claim that $\ker(e_r\cdots e_1) = \ker \psi_r \oplus \cdots \oplus \ker \psi_1$. To see this, note that since $f_if_j=0$ we get
+  \[ 1-e_r\cdots e_1 = 1-(1-f_r)\cdots (1-f_1) = \sum f_i. \]
+  In other words, the kernel of $e_r\cdots e_1$ is exactly $\bigoplus \ker e_i =\bigoplus \ker \psi_i$.
+
+  Thus, the idempotent $e_r\cdots e_1$ corresponds to a direct sum decomposition
+  \[ M = \ker(e_r\cdots e_1) \oplus \im(e_r\cdots e_1) = \ker\psi_r \oplus \cdots \oplus \ker\psi_1 \oplus \im\psi, \]
+  as desired.
+\end{proof}
+
+Note that as long as each $\psi_i$ in \Cref{lem:decomposition} is nontrivial (not zero or identity endomorphisms), the kernel summands will be nontrivial, however, they may not necessarily be indecomposable. Also note that if the $\psi_i$ are complementary surjections, $\im\psi$ will be zero.
+
+\begin{prop}\label{prop:split-surj}
+  Let $\lambda_1,\dots,\lambda_r\in k$ be the eigenvalues of $\phi$ and set $\psi_j = (\phi - \lambda_j\id_M)^{\mu(\lambda_j)}$ and $\psi = \psi_1\circ\cdots\circ\psi_r$. Then $M$ has a direct sum decomposition
+  \( M = \ker\psi_1 \oplus \cdots \oplus \ker\psi_r \oplus \im\psi. \)
+\end{prop}
+\begin{proof}
+  First we show that each $\psi_j$ is a split surjection $M\to\im\psi_j$, hence $M = \ker\psi_j \oplus \im\psi_j$. To see this, note that $R$-linear row and column operations on endomorphisms of $M$ correspond to pre- and post-composition by $R$-linear maps on $M$. In particular, performing row and column operations only involving elements of $R_0 = k$ on $\phi$ we may transform each $B_i$ into Jordan canonical form
+  \begin{equation}
+    J_i = \begin{pmatrix}
+      J_{i,1} & 0       & \dots  & 0      \\
+      0       & J_{i,2} & \dots  & 0      \\
+      \vdots  & \vdots  & \ddots & \vdots \\
+      0       & 0       & \dots  & J_{i,t},
+    \end{pmatrix}
+  \end{equation}
+  where each Jordan block has entries over $k$ and a fixed eigenvalue. Suppose $J_{i,j}$ is the block with eigenvalue $\lambda_j$, then $N_i = J_{i,j} - \lambda_j$ is a nilpotent matrix whose size is the multiplicity of $\lambda-\lambda_j$ in $\chi(B_i)$. Since $\mu(\lambda_j)$ is the sum of the multiplicities of $\lambda_j$ in each $B_i$, the matrix $N_i^{\mu(\lambda_j)}$ vanishes, hence $(J_i-\lambda_j)^{\mu(\lambda_j)}$ is a matrix with some 1s along the diagonal and 0s elsewhere. This implies that there are auto morphisms $\alpha$ and $\beta$ of $M$ (corresponding to column operations clearing the entries above and to the right of each nonzero diagonal) such that $\alpha \circ (\phi - \lambda_j\id_M)^{\mu(\lambda_j)} \circ \beta: M\to M$ is represented by a diagonal matrix $\psi'_j$ with 1s and 0s along the diagonal, which is a split surjection.
+
+  Finally, if $\lambda_j$ and $\lambda_k$ are different then the nilpotent blocks in $J_i-\lambda_j$ and $J_i-\lambda_k$ are distinct, therefore $\ker\psi_j \cap \ker\psi_k = 0$, thus by \Cref{lem:decomposition} we have the desired decomposition.
+\end{proof}
+
+We are ready to state the algorithm for decomposition of a graded module. Recall from \Cref{rem:grading} that we only need the ring $R$ to be positively graded over an arbitrary field.
 
 \begin{algorithm}[H]
   \caption{(Indecomposable summands of a graded module over a commutative ring)}\label{alg:graded}
   \begin{algorithmic}[1]
     \smallskip
-    \Require graded module $M$ over a positively graded commutative ring $R$.
+    \Require graded module $M$ over a positively graded commutative $k$-algebra $R$.
     \Ensure  list $\textproc{Summands}(M)$ of indecomposable summands of $M$.
     \State Initialize a list $L$.
     \State Take a general element $\phi$ in $[\End_R(M)]_0$,
@@ -199,7 +227,7 @@ Suppose $M = \bigoplus M_d$ is a finitely generated, graded $R$-module and consi
     \ForAll { eigenvalues $\lambda_i$ of $\phi$ }
       \State Let $\mu_i$ be the multiplicity of $\lambda_i$.
       \State Let $\psi_i = (\phi - \lambda_i \id_M)^{\mu_i}$.
-      \State Append \Call{Summands}{$\coker\psi_i$} to $L$.
+      \State Append \Call{Summands}{$\ker\psi_i$} to $L$.
     \EndFor
     \State Let $\psi$ be the composition of all $\psi_i$ above.
     \If {$\psi$ is nonzero}
@@ -209,7 +237,7 @@ Suppose $M = \bigoplus M_d$ is a finitely generated, graded $R$-module and consi
   \end{algorithmic}
 \end{algorithm}
 
-We will see via \Cref{lem:term} that this will result in an indecomposable decomposition of $M$.
+Note that \Cref{alg:graded} is characteristic independent. In particular, since over a large enough field the eigenvalues of a general endomorphism $\phi$ are distinct, the summands $\ker\psi_i$ and $\im\psi$ will be indecomposable, thus \Cref{alg:graded} will produce indecomposable summands in one non-recursive iteration. We will see via \Cref{lem:term}\mahrud{or lem:distinct?} that this will result in an indecomposable decomposition of $M$ over any field.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{The local case}\label{sec:local-alg}
@@ -678,28 +706,22 @@ In this section, we give examples of the kind of calculations and observations \
 
 \begin{exa}[Syzygies over Artinian rings]
   % https://arxiv.org/abs/2208.05427
-  In recent work suggested by examples calculated using our algorithm, \cite{CDE24} studies the indecomposable summands of syzygy modules over a Golod ring $(R,\m,k)$. In particular, they find previously unexpected recurring behavior, specifically that the syzygy modules of the residue field are direct sums of only three indecomposable modules: the residue field $k$, the maximal ideal $\m$, and an additional module $N = \Hom_R(\m, R)$.
+  In recent work suggested by examples calculated using our algorithm, \cite{CDE24} studied the indecomposable summands of syzygy modules over a Golod ring $(R,\m,k)$ and found previously unexpected recurring behavior. Specifically, the syzygy modules of the residue field are direct sums of only three indecomposable modules: the residue field $k$, the maximal ideal $\m$, and an additional module $N = \Hom_R(\m, R)$.
 
-  Here, we give a concrete example of one such ring:
-  Let $k$ be any field and let
-  $R = k[x,y]/(x^3,x^2y^3,y^5)$ and consider the (infinite) minimal free resolution of the residue field, which has rank $2^n$ in homological index $n$.
-
-  The fourth syzygy module of the residue field decomposes (ignoring the grading) as the direct sum
-  $$ k^3 \oplus \m^2 \oplus N^3. $$
+  Here, we give a concrete example of one such ring. Let $k$ be any field and let $R = k[x,y]/(x^3,x^2y^3,y^5)$ and consider the (infinite) minimal free resolution of the residue field, which has rank $2^n$ in homological index $n$.   The fourth syzygy module of the residue field decomposes (ignoring the grading) as the direct sum
+  $$ k^3 \oplus \m^2 \oplus N^3, $$
   and the fifth syzygy module as
-  $$ k^8\oplus \m^9 \oplus N^2. $$
-  The use of our algorithm was essential to the observation that beyond the ``guaranteed'' summands of $k$ and $\m$ (which were known to appear by work of \cite{DE23}) only the one additional indecomposable module $N$ appears in the summands of syzygies of $k$.
-
-  In this example, the module $N$ can be explicitly presented as
-  $$N=\coker
+  $$ k^8\oplus \m^9 \oplus N^2, $$
+  where the module $N$ can be explicitly presented as
+  \[ N = \coker
   \begin{pmatrix}
     x^{2}&0&0&0&y^{4}&xy^{3}&0&0\\
     -y&x&y^{3}&0&0&0&0&0\\
     0&0&0&y&-x&0&0&0\\
     0&0&0&0&0&-y&x&y^{2}
-  \end{pmatrix}
-  $$
+  \end{pmatrix} \]
 
+  The use of our algorithm was essential to the observation that beyond the ``guaranteed'' summands of $k$ and $\m$ (which were known to appear by work of \cite{DE23}) only the one additional indecomposable module $N$ appears in the summands of syzygies of $k$.
   %% needsPackage "DirectSummands"
   %% R = ZZ/101[x,y]/(ideal"x3,x2y3,y5")
   %% ideal(x^2*y^2,x*y^3)
