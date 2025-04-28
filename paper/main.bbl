@@ -67,7 +67,7 @@ Robert Friedman.
 The GAP~Group.
 \newblock {\em {GAP -- Groups, Algorithms, and Programming}}.
 
-\bibitem[M2]{M2}
+\bibitem[GS93]{M2}
 Daniel~R. Grayson and Michael~E. Stillman.
 \newblock Macaulay2, a software system for research in algebraic geometry,
   1993.
@@ -102,6 +102,11 @@ D.~F. Holt.
 Derek~F. Holt and Sarah Rees.
 \newblock Testing modules for irreducibility.
 \newblock {\em J. Austral. Math. Soc. Ser. A}, 57(1):1--16, 1994.
+
+\bibitem[IL00]{IL00}
+G\'abor Ivanyos and Klaus Lux.
+\newblock Treating the exceptional cases of the {M}eat{A}xe.
+\newblock {\em Experiment. Math.}, 9(3):373--381, 2000.
 
 \bibitem[LW12]{LW12}
 Graham~J. Leuschke and Roger Wiegand.
