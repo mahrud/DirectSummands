@@ -364,28 +364,28 @@ generalEndomorphism Module := Matrix => o -> M0 -> (
 generalEndomorphism CoherentSheaf := SheafMap => o -> F -> (
     sheaf generalEndomorphism(module prune F, o))
 
--- overwrite two existing hooks, to be updated in Core
-addHook((quotient, Matrix, Matrix), Strategy => Default,
-    -- Note: this strategy only works if the remainder is zero, i.e.:
-    -- homomorphism' f % image Hom(source f, g) == 0
-    (opts, f, g) -> (
-	opts = new OptionTable from {
-	    DegreeLimit       => opts.DegreeLimit,
-	    MinimalGenerators => opts.MinimalGenerators };
-	map(source g, source f, homomorphism(homomorphism'(f, opts) // Hom(source f, g, opts)))))
+-- -- overwrite two existing hooks, to be updated in Core
+-- addHook((quotient, Matrix, Matrix), Strategy => Default,
+--     -- Note: this strategy only works if the remainder is zero, i.e.:
+--     -- homomorphism' f % image Hom(source f, g) == 0
+--     (opts, f, g) -> (
+-- 	opts = new OptionTable from {
+-- 	    DegreeLimit       => opts.DegreeLimit,
+-- 	    MinimalGenerators => opts.MinimalGenerators };
+-- 	map(source g, source f, homomorphism(homomorphism'(f, opts) // Hom(source f, g, opts)))))
 
-addHook((quotient', Matrix, Matrix), Strategy => Default,
-    -- Note: this strategy only works if the remainder is zero, i.e.:
-    -- homomorphism' f % image Hom(g, target f) == 0
-    (opts, f, g) -> (
-	opts = new OptionTable from {
-	    DegreeLimit       => opts.DegreeLimit,
-	    MinimalGenerators => opts.MinimalGenerators };
-	map(target f, target g, homomorphism(homomorphism'(f, opts) // Hom(g, target f, opts)))))
+-- addHook((quotient', Matrix, Matrix), Strategy => Default,
+--     -- Note: this strategy only works if the remainder is zero, i.e.:
+--     -- homomorphism' f % image Hom(g, target f) == 0
+--     (opts, f, g) -> (
+-- 	opts = new OptionTable from {
+-- 	    DegreeLimit       => opts.DegreeLimit,
+-- 	    MinimalGenerators => opts.MinimalGenerators };
+-- 	map(target f, target g, homomorphism(homomorphism'(f, opts) // Hom(g, target f, opts)))))
 
-importFrom_Core {"Hooks", "HookPriority"}
-Matrix.Hooks#(quotient,  Matrix, Matrix).HookPriority = drop(Matrix.Hooks#(quotient,  Matrix, Matrix).HookPriority, -1)
-Matrix.Hooks#(quotient', Matrix, Matrix).HookPriority = drop(Matrix.Hooks#(quotient', Matrix, Matrix).HookPriority, -1)
+-- importFrom_Core {"Hooks", "HookPriority"}
+-- Matrix.Hooks#(quotient,  Matrix, Matrix).HookPriority = drop(Matrix.Hooks#(quotient,  Matrix, Matrix).HookPriority, -1)
+-- Matrix.Hooks#(quotient', Matrix, Matrix).HookPriority = drop(Matrix.Hooks#(quotient', Matrix, Matrix).HookPriority, -1)
 
 -- left inverse of a split injection
 -- TODO: figure out if we can ever do this without computing End source g
@@ -415,6 +415,7 @@ generalEndomorphism(Matrix, Nothing, Matrix) := Matrix => o -> (N, null, inc) ->
 -- we use precomputed endomorphisms of M
 -- to produce a general endomorphism of N
 generalEndomorphism(Module, Matrix) := Matrix => o -> (N, pr) -> (
+    return generalEndomorphism(N, o);
     -- assert(N === target pr);
     -- TODO: currently this still computes End_0(N)
     -- figure out a way to compute the inverse without doing so
