@@ -1,9 +1,8 @@
 debug needsPackage "FGLM" -- for LUincremental
 
 fieldElements = method()
-fieldElements QuotientRing := ZZp -> apply(ZZp.order, i -> i_ZZp)
-fieldElements GaloisField  := GFq -> prepend_(0_GFq) apply(GFq.order - 1, i -> GFq_0^i)
-fieldElements' = memoize fieldElements -- FIXME: don't cache globally
+fieldElements QuotientRing := ZZp -> ZZp.cache.elements ??= apply(ZZp.order, i -> i_ZZp)
+fieldElements GaloisField  := GFq -> GFq.cache.elements ??= prepend_(0_GFq) apply(GFq.order - 1, i -> GFq_0^i)
 
 -- given {({e},c),...} make c*m^e + ...
 evalListForm = (L, m) -> sum(L, (e, c) -> c * m ^ (first e))
@@ -24,18 +23,17 @@ char Matrix := A -> A.cache.char ??= (
     -- TODO: this is a major step in large examples
     det(B - T_0 * I, Strategy => Bareiss))
 
--- TODO: is it worth it to use mutable matrices to concatenate?
-minimalPolynomial = A -> (
+minimalPolynomial = A -> A.cache.minimalPolynomial ??= (
     kk := ring A;
     t := local t;
     T := kk(monoid[t]);
     --
-    -- exact method
+    -- naive exact method
     -- B := id_(target A);
     -- m := transpose flatten B;
     -- while syz m == 0 do m |= transpose flatten(B *= A);
     --
-    -- probabilistic method
+    -- naive probabilistic method
     -- m := v := random(target A, kk^1);
     -- while syz m == 0 do m |= (v = A * v);
     -- polynomial(entries (syz m)_0, T_0)
@@ -45,7 +43,7 @@ minimalPolynomial = A -> (
     N := n^2;
     -- initiating LU-decomposition matrices
     P := toList(0..N-1);
-    B := id_(kk^n);
+    B := id_(target A);
     v := mutableMatrix reshape(kk^N, kk^1, B);
     LU := mutableMatrix map(kk^N, kk^(N+1), 0);
     LUincremental(P, LU, v, s := 0);
@@ -59,7 +57,7 @@ minimalPolynomial = A -> (
     backSub(submatrix(LU, toList(0..s-1), toList(0..s)), lambda, s);
     T_{s} - polynomial(flatten entries lambda, T_0))
 
--- TODO: is it faster to search over fieldElements' for finite fields?
+-- TODO: is it faster to search over fieldElements for finite fields?
 roots' = f -> (
     R := ring f;
     p := char R;
@@ -69,10 +67,10 @@ roots' = f -> (
     -- fallback for characteristic 0 or very large fields
     if p == 0 or not F.?order or F.order > 1000
     then flatten rationalPoints ideal f
-    else select(fieldElements' F, e -> zero evalListForm(L, e)))
+    else select(fieldElements F, e -> zero evalListForm(L, e)))
 
 -- Linear algebra 101 algorithm
-eigenvalues' = A -> roots' char A
+eigenvalues' = A -> roots' minimalPolynomial A
 
 -- Naive search over finite fields
 eigenvalues'' = A -> (
@@ -82,9 +80,7 @@ eigenvalues'' = A -> (
     I := id_(target A);
     -- fallback to LA101 algorithm for characteristic 0 or very large fields
     if p == 0 or not F.?order or F.order > 1000 then return eigenvalues' A;
-    select(fieldElements' F, e -> zero det(A - e * I)))
-
-eigenvalues''' = A -> roots' minimalPolynomial A
+    select(fieldElements F, e -> zero det(A - e * I)))
 
 end--
 

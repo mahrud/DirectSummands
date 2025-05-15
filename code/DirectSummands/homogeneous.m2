@@ -35,7 +35,7 @@ findProjectors Module := opts -> M -> (
 	    -- e.g. based on the characteristic polynomial factoring completely
 	    -- but having a single root only? (= End_0(M) has only one generator?)
 	    -- TODO: expand for inexact fields
-	    if L === null and not instance(F, InexactField) then L = extField { char f0 };
+	    if L === null and not instance(F, InexactField) then L = extField { minimalPolynomial f0 };
 	    continue);
 	return projs
     );

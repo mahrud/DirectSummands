@@ -56,7 +56,9 @@ groundField = method()
 groundField Ring := R -> ultimate(K -> if isField K then K else coefficientRing K, R)
 
 potentialExtension = method()
-potentialExtension Module := M -> extField {char generalEndomorphism M}
+potentialExtension Module := M -> (
+    f0 := sub(cover generalEndomorphism M, groundField ring M);
+    extField { minimalPolynomial f0 })
 potentialExtension CoherentSheaf := M -> potentialExtension module M
 
 -- e.g. given a field isomorphic to GF(p,e), returns e
@@ -131,7 +133,7 @@ findIdempotents Module        := opts -> M -> (
 	if #eigen <= 1 then (
 	    -- to be used as a suggestion in the error
 	    -- TODO: expand for inexact fields
-	    if L === null and not inexactFlag then L = try extField { char fm };
+	    if L === null and not inexactFlag then L = try extField { minimalPolynomial fm };
 	    -- if char fm doesn't factor over F, or if it fully factors
 	    -- but has only one eigenvalue, we can't find an idempotent
 	    if #eigen == 1 and F === L
