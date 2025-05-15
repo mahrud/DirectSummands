@@ -25,13 +25,15 @@ newPackage(
 	},
     Keywords => { "Commutative Algebra" },
     PackageImports => {
-	"Isomorphism",     -- for isIsomorphic
 	"Polyhedra",       -- for coneFromVData and coneComp
-	"PushForward",     -- only for frobenius.m2
-	"RationalPoints2", -- for rationalPoints in findIdempotents
 	"Truncations",     -- for effGenerators
 	"LocalRings",      -- for the local examples
 	"Varieties",       -- for the geometric examples
+	},
+    PackageExports => {
+	"Isomorphism",     -- for isIsomorphic
+	"PushForward",     -- only for frobenius.m2
+	"RationalPoints2", -- for rationalPoints
 	},
     AuxiliaryFiles => true,
     DebuggingMode => false
@@ -93,6 +95,7 @@ defaultNumTries = p -> ceiling(0.1 + 100 / log p)
 -- helpers for computing Frobenius pushforwards of modules and sheaves
 -- TODO: move to PushForward package?
 load "./DirectSummands/pushforward2.m2"
+load "./DirectSummands/linearalgebra.m2"
 load "./DirectSummands/frobenius.m2"
 -- helpers for finding random idempotents of a module for the local case
 load "./DirectSummands/idempotents.m2"

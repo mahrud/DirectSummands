@@ -68,36 +68,6 @@ fieldExponent = R -> (
     while a^(p^e) != a do (e = e + 1);
     e)
 
--- finds the characteristic polynomial of a matrix mod the maximal ideal
-char Matrix := A -> A.cache.char ??= (
-    if numRows A != numColumns A then error "expected a square matrix";
-    b := symbol b;
-    T := (groundField ring A)(monoid[b]);
-    B := sub(cover A, T);
-    I := id_(source B);
-    -- TODO: this is a major step in large examples
-    det(B - T_0 * I, Strategy => Bareiss))
-
-eigenvalues' = A -> (
-    Chi := char A;
-    F := groundField ring A;
-    if instance(F, InexactField) then roots Chi
-    else flatten rationalPoints ideal Chi)
-
-fieldElements = method()
-fieldElements QuotientRing := ZZp -> apply(ZZp.order, i -> i_ZZp)
-fieldElements GaloisField  := GFq -> prepend_(0_GFq) apply(GFq.order - 1, i -> GFq_0^i)
-fieldElements' = memoize fieldElements -- FIXME: don't cache globally
-
--- dumb search over finite fields ...
-eigenvalues'' = A -> (
-    R := ring A;
-    p := char R;
-    F := groundField R;
-    I := id_(target A);
-    if p == 0 or not F.?order or F.order > 1000 then return eigenvalues' A;
-    select(fieldElements' F, e -> zero det(A - e * I)))
-
 largePower = (p,l,M) -> (
     if p^l < 2^30 then return M^(p^l);
     --should have this line check for monomial size of ambient ring also

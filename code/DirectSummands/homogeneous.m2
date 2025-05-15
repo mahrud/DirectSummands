@@ -55,7 +55,7 @@ findBasicProjectors = M -> (
 	f := homomorphism B_{c};
 	if f == id_M then return;
 	f0 := sub(K ** cover f, F);
-	eigen := eigenvalues' f0;
+	eigen := eigenvalues'' f0;
 	if #eigen > 1 then return for y in eigen list (f - y * id_M)^n);
     {})
 
