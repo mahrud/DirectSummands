@@ -152,7 +152,7 @@ TEST ///
   S = ZZ/32003[x_0..x_(n-1)]
   I = trim minors_2 matrix { S_*_{0..n-2}, S_*_{1..n-1}}
   R = quotient I
-  C = res coker vars R
+  C = res(coker vars R, LengthLimit => 3)
   M = prune image C.dd_3
   elapsedTime L = summands M
   assert(6 == #L)
