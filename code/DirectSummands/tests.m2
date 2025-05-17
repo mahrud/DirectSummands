@@ -329,6 +329,15 @@ TEST ///
   summands changeBaseField(2, M)
 ///
 
+TEST ///
+  debug needsPackage "DirectSummands"
+  m1 = matrix {{1,1},{0,1}}
+  m2 = matrix {{2,1,1},{0,2,1},{0,0,2}}
+  f = m1 ++ m2
+  assert("t^5-8*t^4+25*t^3-38*t^2+28*t-8" == toString minimalPolynomial f)
+  assert((f - 1)^2 == minimalProjectorFromEigenvalue(f-1, f-1))
+  assert((f - 2)^4 == minimalProjectorFromEigenvalue(f-2, f-2))
+///
 load "./large-tests.m2"
 
 end--

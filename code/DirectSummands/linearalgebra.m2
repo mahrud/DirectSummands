@@ -55,8 +55,18 @@ minimalPolynomial = A -> A.cache.minimalPolynomial ??= (
     T_{s} - polynomial(flatten entries lambda, T_0))
 
 projectorsFromMinimalPolynomial = (f, mp) -> (
-    L := select(value \ toList factor mp, p -> degree p > {0});
+    --F := groundField ring mp;
+    --if groundField ring f =!= F then f = extendGroundField(F, f);
+    L := select(value \ toList factor mp,
+	p -> degree mp > degree p and degree p > {0});
     apply(L, p -> evalListForm(listForm p, f)))
+
+-- TODO: is there an efficient algorithm to find multiplicity
+-- of an eigenvalue in the minimal polynomial? Short of that,
+-- given f (or f minus eigenvalue), this finds smallest f^(2^k)
+-- such that 2^k > multiplicity of 0 in the min. poly. of f
+minimalProjectorFromEigenvalue = (f, fm) -> (
+    e := 1; while rank ker fm != rank ker(fm = fm * fm) do e += e; f^e)
 
 -- TODO: is it faster to search over fieldElements for finite fields?
 roots' = f -> (

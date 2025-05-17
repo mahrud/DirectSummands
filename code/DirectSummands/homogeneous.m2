@@ -32,7 +32,7 @@ findProjectors Module := opts -> M -> (
 	-- computed already, we get projectors from its factors
 	projs := if #eigen < 1 or f0.cache.?minimalPolynomial
 	then projectorsFromMinimalPolynomial(f, minimalPolynomial f0)
-	else apply(eigen, y -> (f - y * id_M)^n);
+	else apply(eigen, y -> minimalProjectorFromEigenvalue(f - y, f0 - y));
 	projs = select(projs, g -> not zero g and not isInjective g);
 	if #projs < 1 then (
 	    -- to be used as a suggestion in the error
@@ -44,9 +44,7 @@ findProjectors Module := opts -> M -> (
 	    continue);
 	return projs
     );
-    if opts.Verbose then printerr("try using changeBaseField with ", toString L);
-    -- TODO: skip the "Try using" line if the field is large enough, e.g. L === K
-    -- TODO: if L is still null, change the error
+    if L =!= null and L =!= F then printerr("try using changeBaseField with ", toString L);
     error("no projectors found after ", tries, " attempts."))
 
 -- TODO: can this be useful?
