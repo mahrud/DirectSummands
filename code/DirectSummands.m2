@@ -65,6 +65,7 @@ importFrom_Core {
     "raw", "rawReshape",
     "rawNumberOfColumns",
     "rawNumberOfRows",
+    "localRandom",
     "tryHooks",
     "sortBy",
     }
@@ -300,20 +301,6 @@ gensEnd0 = M -> M.cache#"End0" ??= (
     then smartBasis(zdeg, A)
     else inducedMap(A, , gens A))
 
--- give a random vector in a module over a local ring
-localRandom = (M, opts) -> (
-    R := ring M;
-    -- TODO: which coefficient ring do we want?
-    K := try coefficientRing R else R;
-    v := random(cover M ** K, module K, opts);
-    -- TODO: sub should be unnecessary, but see https://github.com/Macaulay2/M2/issues/3638
-    vector inducedMap(M, , generators M * sub(v, R)))
-
-random(ZZ,   Module) :=
-random(List, Module) := Vector => o -> (d, M) -> vector map(M, , random(cover M, (ring M)^{-d}, o))
-random       Module  := Vector => o ->     M  -> (
-    if isHomogeneous M then random(degree 1_(ring M), M, o) else localRandom(M, o))
-
 generalEndomorphism = method(Options => options random)
 generalEndomorphism Module := Matrix => o -> M0 -> (
     R := ring M0;
@@ -327,29 +314,6 @@ generalEndomorphism Module := Matrix => o -> M0 -> (
 -- the sheaf needs to be pruned to prevent missing endomorphisms
 generalEndomorphism CoherentSheaf := SheafMap => o -> F -> (
     sheaf generalEndomorphism(module prune F, o))
-
--- overwrite two existing hooks, to be updated in Core
-addHook((quotient, Matrix, Matrix), Strategy => Default,
-    -- Note: this strategy only works if the remainder is zero, i.e.:
-    -- homomorphism' f % image Hom(source f, g) == 0
-    (opts, f, g) -> (
-	opts = new OptionTable from {
-	    DegreeLimit       => opts.DegreeLimit,
-	    MinimalGenerators => opts.MinimalGenerators };
-	map(source g, source f, homomorphism(homomorphism'(f, opts) // Hom(source f, g, opts)))))
-
-addHook((quotient', Matrix, Matrix), Strategy => Default,
-    -- Note: this strategy only works if the remainder is zero, i.e.:
-    -- homomorphism' f % image Hom(g, target f) == 0
-    (opts, f, g) -> (
-	opts = new OptionTable from {
-	    DegreeLimit       => opts.DegreeLimit,
-	    MinimalGenerators => opts.MinimalGenerators };
-	map(target f, target g, homomorphism(homomorphism'(f, opts) // Hom(g, target f, opts)))))
-
-importFrom_Core {"Hooks", "HookPriority"}
-Matrix.Hooks#(quotient,  Matrix, Matrix).HookPriority = drop(Matrix.Hooks#(quotient,  Matrix, Matrix).HookPriority, -1)
-Matrix.Hooks#(quotient', Matrix, Matrix).HookPriority = drop(Matrix.Hooks#(quotient', Matrix, Matrix).HookPriority, -1)
 
 -- left inverse of a split injection
 -- TODO: figure out if we can ever do this without computing End source g
