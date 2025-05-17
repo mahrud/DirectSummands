@@ -16,7 +16,7 @@ findProjectors Module := opts -> M -> (
     tries := opts.Tries ?? defaultNumTries p;
     for c to tries - 1 do (
 	f := generalEndomorphism(M, pr, inc); -- about 20% of computation
-	if f == 0 then continue;
+	if f == 0 or f === id_M then continue;
 	-- eigenvalues of f are over an extension of the field,
 	-- and f can be made in upper block triangular form over R
 	-- (i.e. without passing to frac R), where the blocks
@@ -33,16 +33,15 @@ findProjectors Module := opts -> M -> (
 	projs := if #eigen < 1 or f0.cache.?minimalPolynomial
 	then projectorsFromMinimalPolynomial(f, minimalPolynomial f0)
 	else apply(eigen, y -> minimalProjectorFromEigenvalue(f - y, f0 - y));
+	-- TODO: why are the projectors sometimes zero or injective?
 	projs = select(projs, g -> not zero g and not isInjective g);
-	if #projs < 1 then (
-	    -- to be used as a suggestion in the error
-	    -- TODO: is there any way to tell if the module is indecomposable here?
-	    -- e.g. based on the characteristic polynomial factoring completely
-	    -- but having a single root only? (= End_0(M) has only one generator?)
-	    -- TODO: expand for inexact fields
-	    if L === null and not instance(F, InexactField) then L = extField { minimalPolynomial f0 };
-	    continue);
-	return projs
+	if 0 < #projs then return projs;
+	-- TODO: is there any way to tell if the module is indecomposable here?
+	-- e.g. based on the characteristic polynomial factoring completely
+	-- but having a single root only? (= End_0(M) has only one generator?)
+	if L === null and isField F then L = if char F === 0
+	then "i^2 + 1" else extField { minimalPolynomial f0 };
+	continue
     );
     if L =!= null and L =!= F then printerr("try using changeBaseField with ", toString L);
     error("no projectors found after ", tries, " attempts."))

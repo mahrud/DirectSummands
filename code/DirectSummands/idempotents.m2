@@ -124,7 +124,7 @@ findIdempotents Module        := opts -> M -> (
     for c to tries - 1 do (
 	f := generalEndomorphism(M, pr, inc);
 	fm := sub(K ** cover f, F);
-	if fm == 0 then continue;
+	if fm == 0 or fm === id_M then continue;
 	-- if at most one eigenvalue is found the module is probably indecomposable,
 	-- unless the characteristic polynomial has odd degree, then one is enough.
 	eigen := eigenvalues'' fm;
