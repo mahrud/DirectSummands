@@ -262,9 +262,35 @@ TEST ///
 ///
 
 TEST ///
+  kk = QQ
+  kk' = toField(kk[i]/(i^2+1))
+  R = kk[x,y]
+  m = matrix {{x, y}, {-y, x}}
+  M = coker(m ++ m)
+  --errorDepth=2
+  --findProjectors M
+  assert(1 == # summands coker m)
+  --assert(2 == # summands coker(m ++ m))
+  assert(2 == # summands changeBaseField(kk', coker m))
+  --assert(4 == # summands changeBaseField(kk', coker(m ++ m)))
+  --
   kk = ZZ/13
   R = kk[x,y]
   m = matrix {{x, 2*y}, {-y, x}}
+  assert(1 == # summands coker m)
+  assert(2 == # summands coker(m ++ m))
+  assert(2 == # summands changeBaseField_2 coker m)
+  assert(4 == # summands changeBaseField_2 coker(m ++ m))
+  --
+  kk = ZZ/17
+  R = kk[x,y]
+  m = matrix {{x, y}, {-y, x}}
+  assert(2 == # summands coker m)
+  assert(4 == # summands coker(m ++ m))
+  --
+  kk = ZZ/19
+  R = kk[x,y]
+  m = matrix {{x, y}, {-y, x}}
   assert(1 == # summands coker m)
   assert(2 == # summands coker(m ++ m))
   assert(2 == # summands changeBaseField_2 coker m)
@@ -274,14 +300,9 @@ TEST ///
   R = kk[x,y]
   m = matrix {{x, y}, {-y, x}}
   assert(1 == # summands coker m)
-  -- FIXME: this seems to almost always fail!!!
-  --assert(2 == # summands coker(m ++ m))
+  assert(2 == # summands coker(m ++ m))
   assert(2 == # summands changeBaseField_2 coker m)
   assert(4 == # summands changeBaseField_2 coker(m ++ m))
-  end--
-  findProjectors(coker(m ++ m), Tries => 100)
-  factor char generalEndomorphism(coker m ++ coker m)
-  eigenvalues'' generalEndomorphism(coker m ++ coker m)
 ///
 
 ///
