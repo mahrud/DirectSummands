@@ -17,9 +17,10 @@ findProjectors Module := opts -> M -> (
     for c to tries - 1 do (
 	f := generalEndomorphism(M, pr, inc); -- about 20% of computation
 	if f == 0 then continue;
-	-- eigenvalues of f are necessarily over the field,
-	-- and we can prove that f can be diagonalized over R
-	-- (i.e. without passing to frac R), hence we can
+	-- eigenvalues of f are over an extension of the field,
+	-- and f can be made in upper block triangular form over R
+	-- (i.e. without passing to frac R), where the blocks
+	-- are over the field (not its extension), hence we can
 	-- compute the eigenvalues by going to the field
 	f0 := sub(K ** cover f, F);
 	-- finding eigenvalues would be faster if the matrix
@@ -27,8 +28,12 @@ findProjectors Module := opts -> M -> (
 	-- TODO: computing eigenvalues over coefficient field
 	-- would significantly speed up this step
 	eigen := eigenvalues'' f0; -- about 25% of computation
-	projs := select(for y in eigen list (f - y * id_M)^n,
-	    g -> not zero g and not isInjective g);
+	-- no eigenvalues are found or the min. poly. has been
+	-- computed already, we get projectors from its factors
+	projs := if #eigen < 1 or f0.cache.?minimalPolynomial
+	then projectorsFromMinimalPolynomial(f, minimalPolynomial f0)
+	else apply(eigen, y -> (f - y * id_M)^n);
+	projs = select(projs, g -> not zero g and not isInjective g);
 	if #projs < 1 then (
 	    -- to be used as a suggestion in the error
 	    -- TODO: is there any way to tell if the module is indecomposable here?
@@ -39,10 +44,10 @@ findProjectors Module := opts -> M -> (
 	    continue);
 	return projs
     );
+    if opts.Verbose then printerr("try using changeBaseField with ", toString L);
     -- TODO: skip the "Try using" line if the field is large enough, e.g. L === K
     -- TODO: if L is still null, change the error
-    error("no idempotent found after ", tries, " attempts. ",
-	"Try using changeBaseField with ", toString L))
+    error("no projectors found after ", tries, " attempts."))
 
 -- TODO: can this be useful?
 findBasicProjectors = M -> (
