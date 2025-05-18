@@ -262,47 +262,85 @@ TEST ///
 ///
 
 TEST ///
+  -- testing handling of eigenvalues over extensions
+  debug needsPackage "DirectSummands"
+  randomChangeOfBasis = m -> randomIsomorphism target m * m * randomIsomorphism source m
+  -- FIXME: doesn't work over RR yet
   kk = QQ
   kk' = toField(kk[i]/(i^2+1))
   R = kk[x,y]
-  m = matrix {{x, y}, {-y, x}}
-  M = coker(m ++ m)
-  --errorDepth=2
-  --findProjectors M
-  assert(1 == # summands coker m)
-  --assert(2 == # summands coker(m ++ m))
-  assert(2 == # summands changeBaseField(kk', coker m))
-  --assert(4 == # summands changeBaseField(kk', coker(m ++ m)))
+  n = matrix {{x, y}, {-y, x}}; m = n ++ n;
+  assert(1 == # summands coker n)
+  assert(2 == # summands coker m)
+  assert(2 == # summands changeBaseField(kk', coker n))
+  assert(4 == # summands changeBaseField(kk', coker m))
+  --
+  n = randomChangeOfBasis n
+  m = randomChangeOfBasis m
+  assert(1 == # summands coker n)
+  assert(2 == # summands coker m)
+  assert(2 == # summands changeBaseField(kk', coker n))
+  assert(4 == # summands changeBaseField(kk', coker m))
   --
   kk = ZZ/13
   R = kk[x,y]
-  m = matrix {{x, 2*y}, {-y, x}}
-  assert(1 == # summands coker m)
-  assert(2 == # summands coker(m ++ m))
-  assert(2 == # summands changeBaseField_2 coker m)
-  assert(4 == # summands changeBaseField_2 coker(m ++ m))
+  n = matrix {{x, 2*y}, {-y, x}}; m = n ++ n;
+  assert(1 == # summands coker n)
+  assert(2 == # summands coker m)
+  assert(2 == # summands changeBaseField_2 coker n)
+  assert(4 == # summands changeBaseField_2 coker m)
+  --
+  n = randomChangeOfBasis n
+  m = randomChangeOfBasis m
+  assert(1 == # summands coker n)
+  assert(2 == # summands coker m)
+  assert(2 == # summands changeBaseField_2 coker n)
+  assert(4 == # summands changeBaseField_2 coker m)
   --
   kk = ZZ/17
   R = kk[x,y]
-  m = matrix {{x, y}, {-y, x}}
-  assert(2 == # summands coker m)
-  assert(4 == # summands coker(m ++ m))
+  n = matrix {{x, y}, {-y, x}}; m = n ++ n;
+  assert(2 == # summands coker n)
+  assert(4 == # summands coker m)
+  assert(2 == # summands changeBaseField_2 coker n)
+  assert(4 == # summands changeBaseField_2 coker m)
+  --
+  n = randomChangeOfBasis n
+  m = randomChangeOfBasis m
+  assert(2 == # summands coker n)
+  assert(4 == # summands coker m)
+  assert(2 == # summands changeBaseField_2 coker n)
+  assert(4 == # summands changeBaseField_2 coker m)
   --
   kk = ZZ/19
   R = kk[x,y]
-  m = matrix {{x, y}, {-y, x}}
-  assert(1 == # summands coker m)
-  assert(2 == # summands coker(m ++ m))
-  assert(2 == # summands changeBaseField_2 coker m)
-  assert(4 == # summands changeBaseField_2 coker(m ++ m))
+  n = matrix {{x, y}, {-y, x}}; m = n ++ n;
+  assert(1 == # summands coker n)
+  assert(2 == # summands coker m)
+  assert(2 == # summands changeBaseField_2 coker n)
+  assert(4 == # summands changeBaseField_2 coker m)
+  --
+  n = randomChangeOfBasis n
+  m = randomChangeOfBasis m
+  assert(1 == # summands coker n)
+  assert(2 == # summands coker m)
+  assert(2 == # summands changeBaseField_2 coker n)
+  assert(4 == # summands changeBaseField_2 coker m)
   --
   kk = ZZ/32003
   R = kk[x,y]
-  m = matrix {{x, y}, {-y, x}}
-  assert(1 == # summands coker m)
-  assert(2 == # summands coker(m ++ m))
-  assert(2 == # summands changeBaseField_2 coker m)
-  assert(4 == # summands changeBaseField_2 coker(m ++ m))
+  n = matrix {{x, y}, {-y, x}}; m = n ++ n;
+  assert(1 == # summands coker n)
+  assert(2 == # summands coker m)
+  assert(2 == # summands changeBaseField_2 coker n)
+  assert(4 == # summands changeBaseField_2 coker m)
+  --
+  n = randomChangeOfBasis n
+  m = randomChangeOfBasis m
+  assert(1 == # summands coker n)
+  assert(2 == # summands coker m)
+  assert(2 == # summands changeBaseField_2 coker n)
+  assert(4 == # summands changeBaseField_2 coker m)
 ///
 
 ///
