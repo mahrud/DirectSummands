@@ -226,8 +226,8 @@ module Module := identity
 -- TODO: speed this up
 -- TODO: implement isIsomorphic for sheaves
 -- TODO: add strict option
-tallySummands = L -> tally (
-    opts := Homogeneous => all(L, isHomogeneous);
+tallySummands = method(Options => options isIsomorphic)
+tallySummands List := Tally => opts -> L -> tally (
     L  = new MutableList from module \ L;
     b := new MutableList from #L : true;
     for i to #L-2 do if b#i then for j from i+1 to #L-1 do if b#j then (
@@ -235,11 +235,10 @@ tallySummands = L -> tally (
 	then ( b#j = false; L#j = L#i ));
     new List from L)
 
-isomorphismTally = method()
-isomorphismTally List := L -> (
+isomorphismTally = method(Options => options isIsomorphic)
+isomorphismTally List := opts -> L -> (
     if not uniform L then error "expected list of elements of the same type";
     if not (class L_0 === Module or class L_0 === CoherentSheaf ) then error "expected list of modules or sheaves";
-    opts := Homogeneous => all(L, isHomogeneous);
     --L = new MutableList from L;
     j := 0;
     while j < #L list (
