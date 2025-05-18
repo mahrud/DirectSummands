@@ -50,25 +50,11 @@ isWeakIdempotent = h -> all(flatten entries flattenMorphism(reduceCoefficient(h^
 
 -----------------------------------------------------------------------------
 
--- e.g. given a tower such as K[x][y]/I, returns K
--- TODO: use in localRandom?
-groundField = method()
-groundField Ring := R -> ultimate(K -> if isField K then K else coefficientRing K, R)
-
 potentialExtension = method()
 potentialExtension Module := M -> (
     f0 := sub(cover generalEndomorphism M, groundField ring M);
     extField { minimalPolynomial f0 })
-potentialExtension CoherentSheaf := M -> potentialExtension module M
-
--- e.g. given a field isomorphic to GF(p,e), returns e
-fieldExponent = R -> (
-    L := groundField R;
-    (p, e) := (char L, 1);
-    if p == 0 then return e;
-    a := L_0; -- primitive element of L
-    while a^(p^e) != a do (e = e + 1);
-    e)
+potentialExtension CoherentSheaf := F -> potentialExtension module prune F
 
 largePower = (p,l,M) -> (
     if p^l < 2^30 then return M^(p^l);
@@ -110,7 +96,7 @@ findIdempotents Module        := opts -> M -> (
     R := ring M;
     p := char R;
     F := groundField R;
-    e := fieldExponent R;
+    e := fieldExponent F;
     K := residueMap' R;
     V := K ** M;
     inexactFlag := instance(F, InexactField);

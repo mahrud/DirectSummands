@@ -1,8 +1,63 @@
 debug needsPackage "FGLM" -- for LUincremental
 
+-- e.g. given a tower such as K[x][y]/I, returns K
+-- TODO: for ambient GF 4 returns ZZ/2, which may not be desired
+-- this is because isField doesn't actually test being a field
+-- TODO: should localRandom use this?
+groundField = method()
+groundField Ring := R -> (
+    K := ultimate(K -> if isField K then K else coefficientRing K, R);
+    if K =!= ZZ then K else error "no ground field found")
+
+-- e.g. given GF(4) or ZZ/2[a]/(a^2+a+1) returns {0, 1, a, a + 1}
 fieldElements = method()
-fieldElements QuotientRing := ZZp -> ZZp.cache.elements ??= apply(ZZp.order, i -> i_ZZp)
-fieldElements GaloisField  := GFq -> GFq.cache.elements ??= prepend_(0_GFq) apply(GFq.order - 1, i -> GFq_0^i)
+fieldElements QuotientRing := R -> R.cache.elements ??= (
+    --if not isField R then error "expected a field";
+    if isFinitePrimeField R then apply(R.order, i -> i_R)        -- if R = ZZ/p
+    else join({0_R, x := 1_R}, while (x = R_0 * x) != 1 list x)) -- if R = GF(q)
+fieldElements GaloisField  := GFq -> GFq.cache.elements ??= (
+    prepend_(0_GFq) apply(GFq.order - 1, i -> GFq_0^i))
+
+-- e.g. given a field isomorphic to GF(p,e), returns e
+-- FIXME: doesn't work for ZZ/2[a]/(a^2+a+1), since groundField gives ZZ/2
+fieldExponent = method()
+fieldExponent GaloisField  := GFq -> GFq.degree
+fieldExponent QuotientRing := R -> (
+    L := groundField R;
+    (p, e) := (char L, 1);
+    if p == 0 then return e;
+    a := L_0; -- primitive element of L
+    while true do (
+	if a^(p^e) != a
+	then e = e + 1
+	else break e))
+
+TEST ///
+  debug needsPackage "DirectSummands"
+
+  assert try groundField(ZZ/4) else true
+  assert(groundField(ZZ/5) === ZZ/5)
+  assert(groundField(GF 5) === GF 5)
+  assert(groundField(GF 4) === GF 4)
+  -- TODO
+  --assert(groundField ambient GF 5 === ???)
+  --assert(groundField ambient GF 4 === ???)
+
+  assert try fieldElements(ZZ/4) else true
+  assert(fieldElements(ZZ/5) == apply(5, identity))
+  assert(fieldElements(GF 5) == {0, 1, 2, -1, -2})
+  assert(fieldElements(GF 4) == {0, 1, a, a + 1})
+  assert(fieldElements ambient GF 5 == {0, 1, 2, -1, -2})
+  assert(fieldElements ambient GF 4 == {0, 1, a, a + 1})
+
+  assert try fieldExponent(ZZ/4) else true
+  assert(fieldExponent(ZZ/5) == 1)
+  assert(fieldExponent(GF 5) == 1)
+  assert(fieldExponent(GF 4) == 2)
+  assert(fieldExponent(GF 8) == 3)
+  assert(fieldExponent ambient GF 5 == 1)
+  -- FIXME: assert(fieldExponent ambient GF 4 == 2)
+///
 
 -- given {({e},c),...} make c*m^e + ...
 evalListForm = (L, m) -> sum(L, (e, c) -> c * m ^ (first e))
