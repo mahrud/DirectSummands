@@ -56,10 +56,15 @@ findBasicProjectors = M -> (
     B := gensEnd0 M;
     for c to numcols B - 1 do (
 	f := homomorphism B_{c};
-	if f == id_M then return;
+	if f === id_M then continue;
 	f0 := sub(K ** cover f, F);
 	eigen := eigenvalues'' f0;
-	if #eigen > 1 then return for y in eigen list (f - y * id_M)^n);
+	projs := if #eigen < 1 or f0.cache.?minimalPolynomial
+	then projectorsFromMinimalPolynomial(f, minimalPolynomial f0)
+	else apply(eigen, y -> minimalProjectorFromEigenvalue(f - y, f0 - y));
+	-- if the min. poly. was linear, the single projector is zero
+	projs = select(projs, g -> not zero g and not isInjective g);
+	if 0 < #projs then return projs);
     {})
 
 -- this algorithm does not depend on finding idempotents,
@@ -71,7 +76,8 @@ summandsFromProjectors Module := opts -> M -> (
     if rank cover M <= 1 or prune' M == 0 then return {M};
     -- TODO: if M.cache.Idempotents is nonempty, should we use it here?
     -- maps M -> M whose (co)kernel is a (usually indecomposable) summand
-    projs := try findProjectors(M, opts) else return {M};
+    projs := try findProjectors(M, opts) else
+    if char ring M == 0 then findBasicProjectors M else return {M};
     summandsFromProjectors(M, projs, opts))
 
 -- keep close to summandsFromIdempotents
@@ -79,6 +85,7 @@ summandsFromProjectors Module := opts -> M -> (
 -- chance of splitting the module in a single iteration.
 summandsFromProjectors(Module, Matrix) := opts -> (M, pr) -> summandsFromProjectors(M, {pr}, opts)
 summandsFromProjectors(Module, List) := opts -> (M, ends) -> (
+    if #ends == 0 then return {M};
     checkRecursionDepth();
     -- in some examples, we use barebones splitComponentsBasic
     if opts.Strategy & 4 == 4 or not isHomogeneous M

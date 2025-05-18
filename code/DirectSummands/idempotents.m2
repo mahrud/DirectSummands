@@ -195,6 +195,7 @@ summandsFromIdempotents Module := opts -> M -> (
 -- keep close to summandsFromProjectors
 summandsFromIdempotents(Module, Matrix) := opts -> (M, h) -> summandsFromIdempotents(M, {h}, opts)
 summandsFromIdempotents(Module, List)   := opts -> (M, ends) -> (
+    if #ends == 0 then return {M};
     checkRecursionDepth();
     -- in some examples, we use barebones splitComponentsBasic
     if opts.Strategy & 4 == 4 or not isHomogeneous M
