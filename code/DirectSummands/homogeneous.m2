@@ -28,19 +28,19 @@ findProjectors Module := opts -> M -> (
 	-- TODO: computing eigenvalues over coefficient field
 	-- would significantly speed up this step
 	eigen := eigenvalues'' f0; -- about 25% of computation
-	-- no eigenvalues are found or the min. poly. has been
+	-- if no eigenvalues are found or the min. poly. has been
 	-- computed already, we get projectors from its factors
 	projs := if #eigen < 1 or f0.cache.?minimalPolynomial
 	then projectorsFromMinimalPolynomial(f, minimalPolynomial f0)
 	else apply(eigen, y -> minimalProjectorFromEigenvalue(f - y, f0 - y));
-	-- TODO: why are the projectors sometimes zero or injective?
+	-- if the min. poly. was linear, the single projector is zero
 	projs = select(projs, g -> not zero g and not isInjective g);
 	if 0 < #projs then return projs;
-	-- TODO: is there any way to tell if the module is indecomposable here?
-	-- e.g. based on the characteristic polynomial factoring completely
-	-- but having a single root only? (= End_0(M) has only one generator?)
-	if L === null and isField F then L = if char F === 0
-	then "i^2 + 1" else extField { minimalPolynomial f0 };
+	-- if the min. poly. is (t - y)^n, M is likely indecomposable over k
+	-- and if it is (t - y), then it is probably indecomposable over \bar{k}
+	-- TODO: can we store and use this info somewhere? e.g. isIndecomposable?
+	if L === null and isField F and {1} < degree(mp := minimalPolynomial f0)
+	then L = if instance(F, InexactField) then CC else extField { mp };
 	continue
     );
     if L =!= null and L =!= F
