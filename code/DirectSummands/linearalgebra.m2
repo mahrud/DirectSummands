@@ -156,6 +156,11 @@ eigenvalues'' = A -> (
     if p == 0 or not F.?order or F.order > 1000 then return eigenvalues' A;
     select(fieldElements F, e -> zero det(A - e * I)))
 
+isNilpotent = A -> A == 0 or (
+    -- TODO: is this the fastest way?
+    mp := minimalPolynomial A;
+    mp == (ring mp)_(degree mp))
+
 end--
 
 check "DirectSummands"

@@ -621,7 +621,8 @@ load "./DirectSummands/docs.m2"
 end--
 
 restart
-check needsPackage "DirectSummands"
+needsPackage "DirectSummands"
+elapsedTime check "DirectSummands" -- ~135s
 
 uninstallPackage "DirectSummands"
 restart
@@ -639,9 +640,3 @@ n = 1000
 d = {100}
 elapsedTime smartBasis(0, Hom(R^n, R^d));
 elapsedTime smartBasis(0, Hom(R^n, R^d, DegreeLimit => 0));
-
-
---------
--- summand of 4th syzygy of residue field of ring defined by
--- ideal(y*z,x*z,y^3,x*y^2+z^3,x^2*y,x^3) is indecomposable,
--- but the current method doesn't really show that definitively

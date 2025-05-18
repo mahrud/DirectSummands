@@ -147,6 +147,18 @@ TEST ///
 ///
 
 TEST ///
+  R = ZZ/32003[x,y,z]/(y*z,x*z,y^3,x*y^2+z^3,x^2*y,x^3)
+  F = res(coker vars R, LengthLimit => 4)
+  M = coker F.dd_4
+  elapsedTime L = sort summands(M, Verbose => true)
+  assert({1, 1, 1, 1, 8, 8, 8, 34} == 9 * (rank \ L))
+  -- summand of 4th syzygy of residue field of ring defined by
+  -- ideal(y*z,x*z,y^3,x*y^2+z^3,x^2*y,x^3) is indecomposable,
+  -- but it has many nilpotent endomorphisms
+  assert all(L, isIndecomposable)
+///
+
+TEST ///
   -- ~1.7s
   n = 4
   S = ZZ/32003[x_0..x_(n-1)]

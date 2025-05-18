@@ -171,8 +171,8 @@ findBasicIdempotents = options findIdempotents >> opts -> M -> (
     -- TODO: parallelized this and break on first success
     idemp := scan(numcols B, c -> (
 	    h := homomorphism B_{c};
-	    if zero h or h == id_M
-	    or zero(hm := K ** cover h) then return;
+	    if h == 0 or h == id_M
+	    or isNilpotent(hm := K ** cover h) then return;
 	    certified = false;
 	    if isWeakIdempotent hm then break h));
     if idemp =!= null then (
