@@ -365,6 +365,12 @@ generalEndomorphism(Module, Matrix, Matrix)  := Matrix => o -> (N, pr, inc) -> (
     -- assert(N === target pr and source pr === target inc and N === source inc);
     pr * generalEndomorphism(source pr, o) * inc)
 
+randomIsomorphism = method(Options => options random)
+randomIsomorphism Module := Matrix => o -> M -> (
+    -- FIXME: random with MaximalRank returns inhomogeneous matrices
+    --if isFreeModule M then random(M, M, o, MaximalRank => true)
+    generalEndomorphism(M, o, MaximalRank => true))
+
 -----------------------------------------------------------------------------
 -- helpers for splitting and caching projection maps
 -----------------------------------------------------------------------------
