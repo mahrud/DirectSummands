@@ -303,6 +303,9 @@ gensEnd0 = M -> M.cache#"End0" ??= (
 
 generalEndomorphism = method(Options => options random)
 generalEndomorphism Module := Matrix => o -> M0 -> (
+    -- FIXME: random with MaximalRank gives inhomogeneous results
+    verify := o.MaximalRank;
+    o = o ++ { MaximalRank => false };
     R := ring M0;
     -- TODO: avoid this hack for local rings
     M := if instance(R, LocalRing) then liftUp M0 else M0;
@@ -310,7 +313,11 @@ generalEndomorphism Module := Matrix => o -> M0 -> (
     r := if isHomogeneous M
     then random(source B, o)
     else localRandom(source B, o);
-    R ** homomorphism(B * r))
+    -- TODO: this is a minor bottleneck
+    h := R ** homomorphism(B * r);
+    -- if MaximalRank is true verify that the map is an isomorphism
+    if not verify or isSurjective sub(cover h, groundField R)
+    then h else generalEndomorphism(M0, o))
 -- the sheaf needs to be pruned to prevent missing endomorphisms
 generalEndomorphism CoherentSheaf := SheafMap => o -> F -> (
     sheaf generalEndomorphism(module prune F, o))
