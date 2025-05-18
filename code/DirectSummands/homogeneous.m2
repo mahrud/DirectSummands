@@ -16,13 +16,13 @@ findProjectors Module := opts -> M -> (
     tries := opts.Tries ?? defaultNumTries p;
     for c to tries - 1 do (
 	f := generalEndomorphism(M, pr, inc); -- about 20% of computation
-	if f == 0 or f === id_M then continue;
 	-- eigenvalues of f are over an extension of the field,
 	-- and f can be made in upper block triangular form over R
 	-- (i.e. without passing to frac R), where the blocks
 	-- are over the field (not its extension), hence we can
 	-- compute the eigenvalues by going to the field
 	f0 := sub(K ** cover f, F);
+	if f0 == 1 or not isSurjective f0 then continue;
 	-- finding eigenvalues would be faster if the matrix
 	-- was put in Jordan form first, but this is easier...
 	-- TODO: computing eigenvalues over coefficient field
