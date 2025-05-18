@@ -68,6 +68,11 @@ polynomial = (L, t) -> evalListForm(apply(#L, i -> ({i}, L#i)), t)
 -- TODO: adjust RingElement Array to check if the input is a Matrix?
 RingElement Matrix := (f, m) -> evalListForm(listForm f, m)
 
+-- FIXME: given r in CC and m in RR[t], this doesn't work
+-- RingElement * Matrix := (r, m) -> (
+--     if ring r =!= ring m then try r = promote(r, ring m) else m = promote(m, ring r);
+--     map(target m, source m, reduce(target m, raw r * raw m)))
+
 -- finds the characteristic polynomial of a matrix mod the maximal ideal
 char Matrix := A -> A.cache.char ??= (
     if source A =!= target A then error "expected an endomorphism";
@@ -101,7 +106,7 @@ minimalPolynomial = A -> A.cache.minimalPolynomial ??= (
     v := mutableMatrix reshape(kk^N, kk^1, B);
     LU := mutableMatrix map(kk^N, kk^(n+1), 0);
     LUincremental(P, LU, v, s := 0);
-    while LU_(s, s) != 0 do (
+    while not isZero LU_(s, s) do (
 	s = s + 1;
 	v = mutableMatrix reshape(kk^N, kk^1, B *= A);
 	P = LUincremental(P, LU, v, s));
@@ -112,6 +117,9 @@ minimalPolynomial = A -> A.cache.minimalPolynomial ??= (
 projectorsFromMinimalPolynomial = (f, mp) -> (
     --F := groundField ring mp;
     --if groundField ring f =!= F then f = extendGroundField(F, f);
+    -- FIXME: see the RingElement * Matrix issue above
+    -- if instance(F, InexactField) then return apply(roots mp,
+    -- 	y -> minimalProjectorFromEigenvalue(f - y, f - y));
     L := select(value \ toList factor mp,
 	p -> degree mp > degree p and degree p > {0});
     apply(L, p -> evalListForm(listForm p, f)))
