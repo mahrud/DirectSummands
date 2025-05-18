@@ -154,10 +154,9 @@ findIdempotents Module        := opts -> M -> (
 		-- for inexact fields, we compose the idempotent until the determinant is zero
 		if inexactFlag then idem = idem ^ (findErrorMargin idem);
 		idem)));
-    -- TODO: skip the "Try using" line if the field is large enough, e.g. L === K
-    -- TODO: if L is still null, change the error
-    error("no idempotent found after ", tries, " attempts. ",
-	"Try using changeBaseField with ", toString L))
+    if L =!= null and L =!= F
+    then printerr("try using changeBaseField with ", toString L);
+    error("no idempotent found after ", tries, " attempts."))
 
 -- for backwards compatibility
 findIdempotent = options findIdempotents >> opts -> M -> first findIdempotents(M, opts)

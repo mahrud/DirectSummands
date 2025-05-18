@@ -43,7 +43,8 @@ findProjectors Module := opts -> M -> (
 	then "i^2 + 1" else extField { minimalPolynomial f0 };
 	continue
     );
-    if L =!= null and L =!= F then printerr("try using changeBaseField with ", toString L);
+    if L =!= null and L =!= F
+    then printerr("try using changeBaseField with ", toString L);
     error("no projectors found after ", tries, " attempts."))
 
 -- TODO: can this be useful?
