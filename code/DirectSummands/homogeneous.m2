@@ -22,7 +22,7 @@ findProjectors Module := opts -> M -> (
 	-- are over the field (not its extension), hence we can
 	-- compute the eigenvalues by going to the field
 	f0 := sub(K ** cover f, F);
-	if f0 == 1 or not isSurjective f0 then continue;
+	if f0 == 1 or f0 == 0 then continue;
 	-- finding eigenvalues would be faster if the matrix
 	-- was put in Jordan form first, but this is easier...
 	-- TODO: computing eigenvalues over coefficient field
