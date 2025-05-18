@@ -74,9 +74,8 @@ summandsFromProjectors Module := opts -> M -> (
     if not isHomogeneous M then error "expected homogeneous module";
     if opts.Verbose then printerr "splitting summands using projectors";
     if rank cover M <= 1 or prune' M == 0 then return {M};
-    -- TODO: if M.cache.Idempotents is nonempty, should we use it here?
-    -- maps M -> M whose (co)kernel is a (usually indecomposable) summand
-    projs := try findProjectors(M, opts) else
+    projs := try M.cache.Idempotents else {};
+    if 0 == #projs then projs = try findProjectors(M, opts) else
     if char ring M == 0 then findBasicProjectors M else return {M};
     summandsFromProjectors(M, projs, opts))
 
