@@ -27,7 +27,7 @@ newPackage(
     PackageImports => {
 	"Polyhedra",       -- for coneFromVData and coneComp
 	"Truncations",     -- for effGenerators
-	"LocalRings",      -- for the local examples
+	--"LocalRings",      -- for the local examples
 	"Varieties",       -- for the geometric examples
 	},
     PackageExports => {
@@ -69,6 +69,8 @@ importFrom_Core {
     "tryHooks",
     "sortBy",
     }
+
+LocalRing = new Type
 
 -----------------------------------------------------------------------------
 -* Code section *-
@@ -207,11 +209,12 @@ prune' Module := M0 -> M0.cache.prune' ??= (
     R := ring M;
     if isHomogeneous M0
     or instance(R, LocalRing) then return M;
-    S := ambient R;
-    MS := flattenModule M;
-    Sm := localRing(S, ideal gens S);
-    MSm := prune(MS ** Sm);
-    R ** liftUp MSm)
+    return M)
+    -- S := ambient R;
+    -- MS := flattenModule M;
+    -- Sm := localRing(S, ideal gens S);
+    -- MSm := prune(MS ** Sm);
+    -- R ** liftUp MSm)
 
 nonzero = x -> select(x, i -> i != 0)
 nonnull = x -> select(x, i -> i =!= null)
@@ -309,7 +312,7 @@ generalEndomorphism Module := Matrix => o -> M0 -> (
     o = o ++ { MaximalRank => false };
     R := ring M0;
     -- TODO: avoid this hack for local rings
-    M := if instance(R, LocalRing) then liftUp M0 else M0;
+    M := M0; -- if instance(R, LocalRing) then liftUp M0 else M0;
     B := gensEnd0 M;
     r := if isHomogeneous M
     then random(source B, o)
