@@ -53,7 +53,7 @@ isWeakIdempotent = h -> all(flatten entries flattenMorphism(reduceCoefficient(h^
 potentialExtension = method()
 potentialExtension Module := M -> (
     f0 := sub(cover generalEndomorphism M, groundField ring M);
-    extField { minimalPolynomial f0 })
+    splittingField minimalPolynomial f0)
 potentialExtension CoherentSheaf := F -> potentialExtension module prune F
 
 largePower = (p,l,M) -> (
@@ -119,7 +119,7 @@ findIdempotents Module        := opts -> M -> (
 	if #eigen <= 1 then (
 	    -- to be used as a suggestion in the error
 	    -- TODO: expand for inexact fields
-	    if L === null and not inexactFlag then L = try extField { minimalPolynomial fm };
+	    if L === null and not inexactFlag then L = try splittingField minimalPolynomial fm;
 	    -- if char fm doesn't factor over F, or if it fully factors
 	    -- but has only one eigenvalue, we can't find an idempotent
 	    if #eigen == 1 and F === L

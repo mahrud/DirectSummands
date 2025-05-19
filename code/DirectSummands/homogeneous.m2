@@ -40,7 +40,7 @@ findProjectors Module := opts -> M -> (
 	-- and if it is (t - y), then it is probably indecomposable over \bar{k}
 	-- TODO: can we store and use this info somewhere? e.g. isIndecomposable?
 	if L === null and isField F and {1} < degree(mp := minimalPolynomial f0)
-	then L = if instance(F, InexactField) then CC else extField { mp };
+	then L = if instance(F, InexactField) then CC else splittingField mp;
 	continue
     );
     if L =!= null and L =!= F
