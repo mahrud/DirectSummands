@@ -360,6 +360,7 @@ TEST ///
   errorDepth=2
   debug needsPackage "DirectSummands"
   -- TODO: ARRGGAGGGHHHH GF is fucking up 'a'
+  -- see https://github.com/Macaulay2/M2/issues/3834
   R = ZZ/101[a,b, Degrees => {6,2}]/(a^2+b^6)
   assert(2 == #summands coker matrix {{a, b^3}, {-b^3, a}})
   R = ZZ/32003[a,b, Degrees => {6,2}]/(a^2+b^6)
@@ -388,6 +389,30 @@ TEST ///
   assert((f - 1)^2 == minimalProjectorFromEigenvalue(f-1, f-1))
   assert((f - 2)^4 == minimalProjectorFromEigenvalue(f-2, f-2))
 ///
+
+TEST ///
+  -- testing splitByDegrees
+  -- let G be the grading group of R and M a G-graded R-module
+  -- with monomials in degrees L, then L is a G-module.
+  -- we split L first, then split M based on that
+  debug needsPackage "DirectSummands"
+  kk = ZZ/32003
+  R = kk[s,t,u, Degrees => {1,2,3}]
+  f = sum flatten entries basis(6, R)
+  E1 = R/ideal f
+  n = 2
+  PPn = kk[X_0..X_n]
+  I = ker (map(E1, PPn, basis(n+1, E1)))
+  E = PPn/I
+  B = basis(n+1, E1)
+  phi = map(E1, E, B, DegreeMap => i -> {n+1})
+  assert isHomogeneous phi
+  M = pushForward'(phi, module E1, options pushForward)
+  assert({1,1,1} == rank \ summands M)
+  assert({1,1,1} == rank \ M.cache#"DegreeSummands")
+  assert isIsomorphic(M, directSum M.cache#"DegreeSummands")
+///
+
 load "./large-tests.m2"
 
 end--

@@ -130,6 +130,8 @@ position' = method()
 position'(VisibleList, VisibleList, Function) := (B, C, f) -> for b in B do for c in C do if f(b, c) then return (b, c)
 position'(ZZ,          ZZ,          Function) := (B, C, f) -> position'(0..B-1, 0..C-1, f)
 
+partition(ZZ, Function) := HashTable => (n, f) -> partition(f, toList(0..n-1), {})
+
 scan' = method()
 scan'(VisibleList, VisibleList, Function) := (B, C, f) -> for b in B do for c in C do f(b,c)
 
@@ -390,6 +392,17 @@ splitFreeModule = (M, opts) -> components directSum apply(R := ring M; -degrees 
 splitFreeSummands = (M, opts) -> M.cache#"FreeSummands" ??= (
     directSummands(R := ring M; apply(-unique degrees M, d -> R^{d}), M, opts))
 
+isDegreeSplit = M -> isHomogeneous M and 1 < #splitByDegrees M
+
+-- helper for splitting a graded module M when Eff(R) is not smooth
+-- in this case the degree support of M can split over Eff(R)
+splitByDegrees = M -> M.cache#"DegreeSummands" ??= (
+    degs := matrix transpose degrees M;
+    eff := matrix transpose degrees ring M;
+    if minors(rank eff, eff) == 1 then return {M};
+    H := partition(numgens M, i -> flatten entries(degs_{i} % eff));
+    apply(values H, ell -> image M_ell))
+
 -- helper for splitting a module with known components
 -- (in particular, the components may also have summands)
 -- TODO: can we sort the summands here?
@@ -442,6 +455,7 @@ directSummands Module := List => opts -> M -> M.cache.summands ??= (
     if opts.Verbose then printerr("splitting module of rank: ", toString rank M);
     if rank cover M <= 1 then return M.cache.summands = { M.cache.isIndecomposable = true; M };
     if isDirectSum  M    then return M.cache.summands = splitComponents(M, components M, directSummands_opts);
+    if isDegreeSplit M   then return M.cache.summands = splitComponents(M, splitByDegrees M, directSummands_opts);
     if isFreeModule M    then return M.cache.summands = splitFreeModule(M, opts);
     if strategy & 1 == 1 then return M.cache.summands = (
 	splitComponents(M, splitFreeSummands(M, opts),

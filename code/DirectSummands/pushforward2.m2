@@ -2,6 +2,7 @@
 -* Pushforwards of coherent sheaves *-
 -----------------------------------------------------------------------------
 
+-- TODO: should this call splitByDegrees?
 decomposePushforwardPresentation = method()
 decomposePushforwardPresentation(List, Matrix) := (d, f) -> (
     if #d == 1 then decomposePushforwardPresentation(d#0, f)
