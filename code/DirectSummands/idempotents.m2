@@ -34,6 +34,9 @@ magnitude = x -> x * conjugate x
 isZero = x -> if not instance(F := ultimate(coefficientRing, ring x), InexactField) then x == 0 else (
     leadCoefficient magnitude x < 2^(-precision F))
 
+-- TODO: is this okay?
+presentation Ring := Matrix => R -> map(R^1, R^0, 0)
+
 -- borrowed from Varieties as hack to get around
 -- https://github.com/Macaulay2/M2/issues/3407
 flattenMorphism = f -> (
