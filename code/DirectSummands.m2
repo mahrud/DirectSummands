@@ -403,6 +403,11 @@ splitByDegrees = M -> M.cache#"DegreeSummands" ??= (
     H := partition(numgens M, i -> flatten entries(degs_{i} % eff));
     apply(values H, ell -> image M_ell))
 
+-- helper for splitting a module over a PID or field (e.g. ZZ, QQ, ZZ[x], etc.)
+-- TODO: check if R is PID; currently this is only used if R has degree length zero.
+-- TODO: get projection/inclusion maps working
+splitPIDModule = M -> components directSum apply(numgens M, i -> prune image M_{i})
+
 -- helper for splitting a module with known components
 -- (in particular, the components may also have summands)
 -- TODO: can we sort the summands here?
@@ -457,6 +462,7 @@ directSummands Module := List => opts -> M -> M.cache.summands ??= (
     if isDirectSum  M    then return M.cache.summands = splitComponents(M, components M, directSummands_opts);
     if isDegreeSplit M   then return M.cache.summands = splitComponents(M, splitByDegrees M, directSummands_opts);
     if isFreeModule M    then return M.cache.summands = splitFreeModule(M, opts);
+    if degrees R == {}   then return M.cache.summands = splitComponents(M, splitPIDModule M, N -> {N});
     if strategy & 1 == 1 then return M.cache.summands = (
 	splitComponents(M, splitFreeSummands(M, opts),
 	    directSummands_(opts, Strategy => strategy - 1)));

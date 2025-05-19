@@ -11,8 +11,27 @@ TEST /// -- basic test
   A = summands M
   B = summands prune M
   C = summands trim M
-  -- FIXME: this keeps annoyingly breaking
   assert same(prune \ A, {prune M}, B, prune \ C)
+///
+
+TEST /// -- vector space and ZZ-module tests
+  M = QQ^3
+  assert(summands M == toList(3:QQ^1))
+  -- FIXME: what do we want here?
+  summands coker matrix(QQ, {{0,0},{2,0},{0,5}})
+  summands coker matrix(QQ, {{0,0},{2,0},{0,5},{0,0}})
+  summands coker matrix(QQ, {{2,1},{3,5},{0,0}})
+  -- TODO: also test projection/injection maps
+  --
+  M = coker matrix {{5,0},{0,3},{0,0},{0,0}}
+  N = coker matrix {{0,0},{0,0},{2,0},{0,6}}
+  P = coker matrix {{0,0},{1,0},{0,0},{0,6}}
+  assert(summands M == {coker matrix{{5}}, coker matrix{{3}}, ZZ^1, ZZ^1})
+  assert(summands N == {ZZ^1, ZZ^1, coker matrix{{2}}, coker matrix{{6}}})
+  assert(summands P == {ZZ^1, ZZ^0, ZZ^1, coker matrix{{6}}}) -- TODO: keep zeros?
+  -- TODO: also test projection/injection maps
+  -- M^[0]
+  -- M_[0]
 ///
 
 TEST /// -- direct summands of a free module
@@ -26,6 +45,10 @@ TEST /// -- direct summands of a free module
   E = summands changeBaseField(GF(2,2), M);
   assert same(M, directSum A)
   assert same apply({A, B, C, D, E}, length)
+  --
+  M = R^{1,2,3}
+  summands M
+  -- TODO: M^[0]
 ///
 
 TEST /// -- direct summands of a multigraded free module
@@ -36,6 +59,7 @@ TEST /// -- direct summands of a multigraded free module
   assert same(M, directSum summands M)
   assert same(M, directSum sort summandsFromProjectors M)
   assert same(M, directSum sort summandsFromIdempotents M)
+  -- TODO: M^[0]
 ///
 
 TEST /// -- direct summands of a ring
@@ -411,6 +435,7 @@ TEST ///
   assert({1,1,1} == rank \ summands M)
   assert({1,1,1} == rank \ M.cache#"DegreeSummands")
   assert isIsomorphic(M, directSum M.cache#"DegreeSummands")
+  -- TODO: M^[0] doesn't work
 ///
 
 load "./large-tests.m2"
