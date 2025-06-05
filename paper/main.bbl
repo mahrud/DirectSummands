@@ -67,6 +67,13 @@ Robert Friedman.
 The GAP~Group.
 \newblock {\em {GAP -- Groups, Algorithms, and Programming}}.
 
+\bibitem[GL02]{GL02}
+Sudhir~R. Ghorpade and Gilles Lachaud.
+\newblock \'etale cohomology, {L}efschetz theorems and number of points of
+  singular varieties over finite fields.
+\newblock volume~2, pages 589--631. 2002.
+\newblock Dedicated to Yuri I. Manin on the occasion of his 65th birthday.
+
 \bibitem[GS93]{M2}
 Daniel~R. Grayson and Michael~E. Stillman.
 \newblock Macaulay2, a software system for research in algebraic geometry,
@@ -125,11 +132,23 @@ Theo Raedschelders, \v{S}pela {\v{S}}penko, and Michel Van~den Bergh.
 \newblock The {F}robenius morphism in invariant theory {II}.
 \newblock {\em Adv. Math.}, 410:Paper No. 108587, 64, 2022.
 
+\bibitem[ST16]{ST}
+Akiyoshi Sannai and Hiromu Tanaka.
+\newblock A characterization of ordinary abelian varieties by the {Frobenius}
+  push-forward of the structure sheaf.
+\newblock {\em Math. Ann.}, 366(3-4):1067--1087, 2016.
+
 \bibitem[SVdB97]{SVdB97}
 Karen~E. Smith and Michel Van~den Bergh.
 \newblock Simplicity of rings of differential operators in prime
   characteristic.
 \newblock {\em Proc. London Math. Soc. (3)}, 75(1):32--62, 1997.
+
+\bibitem[Tan72]{Tango}
+Hiroshi Tango.
+\newblock On the behavior of extensions of vector bundles under the {Frobenius}
+  map.
+\newblock {\em Nagoya Math. J.}, 48:73--89, 1972.
 
 \bibitem[Tho00]{Thomsen00}
 Jesper~Funch Thomsen.
