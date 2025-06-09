@@ -1,13 +1,16 @@
-\documentclass[12pt]{article}
+\documentclass[12pt]{amsart}
 
-\let\oldb\b
-\usepackage[dvipsnames]{xcolor}
-\usepackage{notes,hyperref}
+\usepackage{amsmath, amssymb, amsthm, amsthm, amscd, amsfonts}
 \usepackage{mathtools}
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage[alphabetic,lite,backrefs]{amsrefs}
+\usepackage[colorlinks=true,hyperindex,linkcolor=magenta,pagebackref=false,citecolor=cyan]{hyperref}
+
+\usepackage{notes}
 \usepackage{cleveref}
 \usepackage{enumitem}
 \crefformat{equation}{(#2#1#3)} % omit eq.
-\let\b\beta
 
 %\usepackage[notref,notcite]{showkeys}
 
@@ -25,22 +28,21 @@
 
 \let\wtilde\widetilde
 \let\bar\overline
-\def\sing{{\mathrm{sing}}}
 
 \def\cF{\mathcal F}
 \def\OO{\mathcal O}
 \def\FF{\mathbb F}
 \def\PP{\mathbb P}
 \def\ZZ{\mathbb Z}
-\makeop{Gr}
-\makeop{Bl}
-\makeop{Eff}
+\def\NN{\mathbb N}
+\def\QQ{\mathbb Q}
+\def\CC{\mathbb C}
 \def\wpsi{\widehat\psi}
+\def\n{\mathfrak n}
+\def\m{\mathfrak m}
 
 \let\inc\hookrightarrow
 \let\xinc\xhookrightarrow
-
-\let\d\partial
 
 \theoremstyle{theorem}
 \newtheorem{thm}{Theorem}
@@ -57,27 +59,25 @@
 \newtheorem{nota}[thm]{Notation}
 \newtheorem{quest}[thm]{Question}
 \newtheorem{rem}[thm]{Remark}
-\def\defn#1{{\it #1}}
 
 \newcommand{\mahrud}[1]{{\color{ForestGreen} \sf $\blacklozenge$ Mahrud: [#1]}}
 \newcommand{\devlin}[1]{{\color{red} \sf $\clubsuit$ Devlin: [#1]}}
-\def\n{\mathfrak n}
+\newcommand{\red}[1]{{\color{red}#1}}
 
 \title{Computing Direct Sum Decompositions}
 
-\author{Devlin Mallory and Mahrud Sayrafi}
+\author{Devlin Mallory}
+\address{Basque Center for Applied Mathematics, Bilbao, Basque Country, Spain}
+\email{\href{mailto:dmallory@bcamath.org}{dmallory@bcamath.org}}
 
-%% \author{Devlin Mallory}
-%% \address{Basque Center for Applied Mathematics, Bilbao, Basque Country, Spain}
-%% \email{\href{mailto:dmallory@bcamath.org}{dmallory@bcamath.org}}
+\author{Mahrud Sayrafi}
+\address{Max Planck Institute for Mathematics in the Sciences, Leipzig, Germany}
+\email{\href{mailto:mahrud@mis.mpg.de}{mahrud@mis.mpg.de}}
 
-%% \author{Mahrud Sayrafi}
-%% \address{Max Planck Institute for Mathematics in the Sciences, Leipzig, Germany}
-%% \email{\href{mailto:mahrud@mis.mpg.de}{mahrud@mis.mpg.de}}
-
-%% \subjclass[2020]{16D70; 14F06, 13A35}
+\subjclass[2020]{16D70; 14F06, 13A35}
 
 \begin{document}
+
 \maketitle
 
 \begin{abstract}
@@ -660,7 +660,7 @@ For completeness, we give the standard proof (see, e.g., \cite[Exercise~4.1]{Fri
 \end{proof}
 
 \begin{dfn}
-  $\lambda \in k$ is an \defn{eigenvalue} of $f \in \End_{\OO_X}(E)$ if $\det(f-\lambda \id_E)= 0$. In other words, the eigenvalues of $f$ are the zeroes of the univariate polynomial $\det(f - \lambda\id _E)$ with coefficients in $k$.
+  $\lambda \in k$ is an \emph{eigenvalue} of $f \in \End_{\OO_X}(E)$ if $\det(f-\lambda \id_E)= 0$. In other words, the eigenvalues of $f$ are the zeroes of the univariate polynomial $\det(f - \lambda\id _E)$ with coefficients in $k$.
 \end{dfn}
 
 Note that $f$ is an isomorphism if and only if $\lambda=0$ is not an eigenvalue of $f$, just as for ordinary linear operators on vector spaces.
@@ -710,10 +710,8 @@ we have the desired direct sum decomposition of $E$.
 
 In this section, we give examples of the kind of calculations and observations \Cref{alg:graded} and \Cref{alg:local} allow us to make.
 
-\renewcommand{\char}{\operatorname{char}}
-
 \begin{exa}[Frobenius pushforward on the projective space $\P^n$]
-  Let $S = k[x_0,\dots,x_n]$ be a polynomial ring with $\char k = p$ and $\deg x_i = 1$ and consider the Frobenius endomorphism
+  Let $S = k[x_0,\dots,x_n]$ be a polynomial ring with $\operatorname{char} k = p$ and $\deg x_i = 1$ and consider the Frobenius endomorphism
   \[ F\colon S\to S \quad \text{given by} \quad f \to f^p. \]
   Hartshorne \cite{Hartshorne1970} proved that for any line bundle $L\in\Pic\P^n$, the Frobenius pushforward $F_*L$ splits as a sum of line bundles. While the following calculations are straightforward to do by hand, they are immediately calculated via our algorithm:
   \begin{align*}
@@ -866,7 +864,7 @@ In this section, we give examples of the kind of calculations and observations \
     c&d&a&b\\
     b&c&d&a
   \end{pmatrix}. \]
-  Then the splittings of $\coker A$ over $K = \Q$ and $K = \Q(i)$ have the following presentations, respectively:
+  Then the splittings of $\coker A$ over $K = \QQ$ and $K = \QQ(i)$ have the following presentations, respectively:
   \[
   \thinmuskip1mu
   \medmuskip0mu \begin{pmatrix}
@@ -892,7 +890,8 @@ In this section, we give examples of the kind of calculations and observations \
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bibliographystyle{alpha}
-\bibliography{references}
+\bibliography{references.bib}
+
 \end{document}
 
 

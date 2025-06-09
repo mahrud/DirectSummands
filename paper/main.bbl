@@ -1,169 +1,356 @@
-\newcommand{\etalchar}[1]{$^{#1}$}
-\begin{thebibliography}{R{\v{S}}VdB22}
+% \bib, bibdiv, biblist are defined by the amsrefs package.
+\begin{bibdiv}
+\begin{biblist}
 
-\bibitem[Ach15]{Achinger15}
-Piotr Achinger.
-\newblock A characterization of toric varieties in characteristic {$p$}.
-\newblock {\em Int. Math. Res. Not. IMRN}, (16):6879--6892, 2015.
+\bib{Achinger15}{article}{
+      author={Achinger, Piotr},
+       title={A characterization of toric varieties in characteristic {$p$}},
+        date={2015},
+        ISSN={1073-7928,1687-0247},
+     journal={Int. Math. Res. Not. IMRN},
+      number={16},
+       pages={6879\ndash 6892},
+         url={https://doi.org/10.1093/imrn/rnu151},
+      review={\MR{3428948}},
+}
 
-\bibitem[Art77]{Artin77}
-M.~Artin.
-\newblock Coverings of the rational double points in characteristic p.
-\newblock Complex {Anal}. algebr. {Geom}., {Collect}. {Pap}. dedic. {K}.
-  {Kodaira}, 11-22 (1977)., 1977.
+\bib{Artin77}{misc}{
+      author={Artin, M.},
+       title={Coverings of the rational double points in characteristic p},
+    language={English},
+         how={Complex {Anal}. algebr. {Geom}., {Collect}. {Pap}. dedic. {K}.
+  {Kodaira}, 11-22 (1977).},
+        date={1977},
+}
 
-\bibitem[Ati57]{Atiyah57}
-Michael~F. Atiyah.
-\newblock Complex analytic connections in fibre bundles.
-\newblock {\em Trans. Am. Math. Soc.}, 85:181--207, 1957.
+\bib{Atiyah57}{article}{
+      author={Atiyah, Michael~F.},
+       title={Complex analytic connections in fibre bundles},
+    language={English},
+        date={1957},
+        ISSN={0002-9947},
+     journal={Trans. Am. Math. Soc.},
+      volume={85},
+       pages={181\ndash 207},
+}
 
-\bibitem[BCP97]{MAGMA}
-Wieb Bosma, John Cannon, and Catherine Playoust.
-\newblock The {M}agma algebra system. {I}. {T}he user language.
-\newblock {\em J. Symbolic Comput.}, 24(3-4):235--265, 1997.
-\newblock Computational algebra and number theory (London, 1993).
+\bib{MAGMA}{article}{
+      author={Bosma, Wieb},
+      author={Cannon, John},
+      author={Playoust, Catherine},
+       title={The {M}agma algebra system. {I}. {T}he user language},
+        date={1997},
+        ISSN={0747-7171},
+     journal={J. Symbolic Comput.},
+      volume={24},
+      number={3-4},
+       pages={235\ndash 265},
+         url={http://dx.doi.org/10.1006/jsco.1996.0125},
+        note={Computational algebra and number theory (London, 1993)},
+      review={\MR{MR1484478}},
+}
 
-\bibitem[BL23]{BL23}
-Magnus~Bakke Botnan and Michael Lesnick.
-\newblock An introduction to multiparameter persistence.
-\newblock In {\em Representations of Algebras and Related Structures}, {{EMS
-  Ser}}. {{Congr}}. {{Rep}}., pages 77--150. EMS Press, Berlin, 2023.
+\bib{Bogvad98}{article}{
+      author={B{\o}gvad, Rikard},
+       title={Splitting of the direct image of sheaves under the {F}robenius},
+        date={1998},
+        ISSN={0002-9939,1088-6826},
+     journal={Proc. Amer. Math. Soc.},
+      volume={126},
+      number={12},
+       pages={3447\ndash 3454},
+         url={https://doi.org/10.1090/S0002-9939-98-05000-X},
+      review={\MR{1622797}},
+}
 
-\bibitem[B{\o}g98]{Bogvad98}
-Rikard B{\o}gvad.
-\newblock Splitting of the direct image of sheaves under the {F}robenius.
-\newblock {\em Proc. Amer. Math. Soc.}, 126(12):3447--3454, 1998.
+\bib{BL23}{incollection}{
+      author={Botnan, Magnus~Bakke},
+      author={Lesnick, Michael},
+       title={An introduction to multiparameter persistence},
+        date={2023},
+   booktitle={Representations of algebras and related structures},
+      series={{{EMS Ser}}. {{Congr}}. {{Rep}}.},
+   publisher={EMS Press, Berlin},
+       pages={77\ndash 150},
+}
 
-\bibitem[CDE{\etalchar{+}}24]{CDE24}
-Doan~Trung Cuong, Hailong Dao, David Eisenbud, Toshinori Kobayashi, Claudia
-  Polini, and Bernd Ulrich.
-\newblock Syzygies of the residue field over {{Golod}} rings.
-\newblock 2024.
+\bib{CDE24}{article}{
+      author={Cuong, Doan~Trung},
+      author={Dao, Hailong},
+      author={Eisenbud, David},
+      author={Kobayashi, Toshinori},
+      author={Polini, Claudia},
+      author={Ulrich, Bernd},
+       title={Syzygies of the residue field over {{Golod}} rings},
+        date={2024},
+      eprint={2408.13425},
+}
 
-\bibitem[DE23]{DE23}
-Hailong Dao and David Eisenbud.
-\newblock Burch index, summands of syzygies and linearity in resolutions.
-\newblock {\em Bull. Iranian Math. Soc.}, 49(2):Paper No. 10, 10, 2023.
+\bib{DE23}{article}{
+      author={Dao, Hailong},
+      author={Eisenbud, David},
+       title={Burch index, summands of syzygies and linearity in resolutions},
+        date={2023},
+        ISSN={1017-060X,1735-8515},
+     journal={Bull. Iranian Math. Soc.},
+      volume={49},
+      number={2},
+       pages={Paper No. 10, 10},
+         url={https://doi.org/10.1007/s41980-023-00755-x},
+      review={\MR{4549775}},
+}
 
-\bibitem[DX22]{DX22}
-Tamal~K. Dey and Cheng Xin.
-\newblock Generalized persistence algorithm for decomposing multiparameter
-  persistence modules.
-\newblock {\em Journal of Applied and Computational Topology}, 6(3):271--322,
-  2022.
+\bib{DX22}{article}{
+      author={Dey, Tamal~K.},
+      author={Xin, Cheng},
+       title={Generalized persistence algorithm for decomposing multiparameter
+  persistence modules},
+        date={2022},
+        ISSN={2367-1726,2367-1734},
+     journal={Journal of Applied and Computational Topology},
+      volume={6},
+      number={3},
+       pages={271\ndash 322},
+}
 
-\bibitem[Eis95]{Eisenbud95}
-David Eisenbud.
-\newblock {\em Commutative Algebra with a View Toward Algebraic Geometry},
-  volume 150 of {\em Graduate Texts in Mathematics}.
-\newblock Springer-Verlag, Berlin, 1995.
+\bib{Eisenbud95}{book}{
+      author={Eisenbud, David},
+       title={Commutative algebra with a view toward algebraic geometry},
+      series={Graduate Texts in Mathematics},
+   publisher={Springer-Verlag, Berlin},
+        date={1995},
+      volume={150},
+        ISBN={3-540-94269-6; 3-540-94268-8},
+}
 
-\bibitem[Fri98]{Friedman98}
-Robert Friedman.
-\newblock {\em Algebraic surfaces and holomorphic vector bundles}.
-\newblock Universitext. Springer-Verlag, New York, 1998.
+\bib{Friedman98}{book}{
+      author={Friedman, Robert},
+       title={Algebraic surfaces and holomorphic vector bundles},
+      series={Universitext},
+   publisher={Springer-Verlag, New York},
+        date={1998},
+        ISBN={0-387-98361-9},
+         url={https://doi.org/10.1007/978-1-4612-1688-9},
+      review={\MR{1600388}},
+}
 
-\bibitem[GAP]{GAP}
-The GAP~Group.
-\newblock {\em {GAP -- Groups, Algorithms, and Programming}}.
+\bib{GAP}{manual}{
+       title={{GAP -- Groups, Algorithms, and Programming}},
+organization={The GAP~Group},
+         url={\url{https://www.gap-system.org}},
+}
 
-\bibitem[GL02]{GL02}
-Sudhir~R. Ghorpade and Gilles Lachaud.
-\newblock \'etale cohomology, {L}efschetz theorems and number of points of
-  singular varieties over finite fields.
-\newblock volume~2, pages 589--631. 2002.
-\newblock Dedicated to Yuri I. Manin on the occasion of his 65th birthday.
+\bib{GL02}{incollection}{
+      author={Ghorpade, Sudhir~R.},
+      author={Lachaud, Gilles},
+       title={\'etale cohomology, {L}efschetz theorems and number of points of
+  singular varieties over finite fields},
+        date={2002},
+      volume={2},
+       pages={589\ndash 631},
+         url={https://doi.org/10.17323/1609-4514-2002-2-3-589-631},
+        note={Dedicated to Yuri I. Manin on the occasion of his 65th birthday},
+      review={\MR{1988974}},
+}
 
-\bibitem[GS93]{M2}
-Daniel~R. Grayson and Michael~E. Stillman.
-\newblock Macaulay2, a software system for research in algebraic geometry,
-  1993.
+\bib{M2}{misc}{
+       label={M2},
+      author={Grayson, Daniel~R.},
+      author={Stillman, Michael~E.},
+       title={Macaulay2, a software system for research in algebraic geometry},
+   publisher={M2},
+        date={1993},
+}
 
-\bibitem[Har70]{Hartshorne1970}
-Robin Hartshorne.
-\newblock {\em Ample subvarieties of algebraic varieties}, volume Vol. 156 of
-  {\em Lecture Notes in Mathematics}.
-\newblock Springer-Verlag, Berlin-New York, 1970.
-\newblock Notes written in collaboration with C. Musili.
+\bib{Hara15}{article}{
+      author={Hara, Nobuo},
+       title={Looking out for {F}robenius summands on a blown-up surface of
+  {$\mathbb P^2$}},
+        date={2015},
+        ISSN={0019-2082,1945-6581},
+     journal={Illinois J. Math.},
+      volume={59},
+      number={1},
+       pages={115\ndash 142},
+}
 
-\bibitem[Har15]{Hara15}
-Nobuo Hara.
-\newblock Looking out for {F}robenius summands on a blown-up surface of
-  {$\mathbb P^2$}.
-\newblock {\em Illinois J. Math.}, 59(1):115--142, 2015.
+\bib{Hartshorne1970}{book}{
+      author={Hartshorne, Robin},
+       title={Ample subvarieties of algebraic varieties},
+      series={Lecture Notes in Mathematics},
+   publisher={Springer-Verlag, Berlin-New York},
+        date={1970},
+      volume={Vol. 156},
+        note={Notes written in collaboration with C. Musili},
+      review={\MR{282977}},
+}
 
-\bibitem[HK00]{HK00}
-Yi~Hu and Sean Keel.
-\newblock Mori dream spaces and {GIT}.
-\newblock {\em Michigan Math. J.}, 48:331--348, 2000.
-\newblock Dedicated to William Fulton on the occasion of his 60th birthday.
+\bib{HK00}{article}{
+      author={Hu, Yi},
+      author={Keel, Sean},
+       title={Mori dream spaces and {GIT}},
+        date={2000},
+        ISSN={0026-2285,1945-2365},
+     journal={Michigan Math. J.},
+      volume={48},
+       pages={331\ndash 348},
+         url={https://doi.org/10.1307/mmj/1030132722},
+        note={Dedicated to William Fulton on the occasion of his 60th
+  birthday},
+      review={\MR{1786494}},
+}
 
-\bibitem[Hol98]{Holt98}
-D.~F. Holt.
-\newblock {\em The Meataxe as a tool in computational group theory}, page
-  74–81.
-\newblock London Mathematical Society Lecture Note Series. Cambridge University
-  Press, 1998.
+\bib{Holt98}{incollection}{
+      author={Holt, D.~F.},
+       title={The meataxe as a tool in computational group theory},
+        date={1998},
+   booktitle={The atlas of finite groups - ten years on},
+      series={London Mathematical Society Lecture Note Series},
+   publisher={Cambridge University Press},
+       pages={74–81},
+}
 
-\bibitem[HR94]{HR94}
-Derek~F. Holt and Sarah Rees.
-\newblock Testing modules for irreducibility.
-\newblock {\em J. Austral. Math. Soc. Ser. A}, 57(1):1--16, 1994.
+\bib{HR94}{article}{
+      author={Holt, Derek~F.},
+      author={Rees, Sarah},
+       title={Testing modules for irreducibility},
+        date={1994},
+        ISSN={0263-6115},
+     journal={J. Austral. Math. Soc. Ser. A},
+      volume={57},
+      number={1},
+       pages={1\ndash 16},
+      review={\MR{1279282}},
+}
 
-\bibitem[IL00]{IL00}
-G\'abor Ivanyos and Klaus Lux.
-\newblock Treating the exceptional cases of the {M}eat{A}xe.
-\newblock {\em Experiment. Math.}, 9(3):373--381, 2000.
+\bib{IL00}{article}{
+      author={Ivanyos, G\'abor},
+      author={Lux, Klaus},
+       title={Treating the exceptional cases of the {M}eat{A}xe},
+        date={2000},
+        ISSN={1058-6458,1944-950X},
+     journal={Experiment. Math.},
+      volume={9},
+      number={3},
+       pages={373\ndash 381},
+         url={http://projecteuclid.org/euclid.em/1045604672},
+      review={\MR{1795309}},
+}
 
-\bibitem[LW12]{LW12}
-Graham~J. Leuschke and Roger Wiegand.
-\newblock {\em Cohen-{Macaulay} representations}, volume 181 of {\em Math.
-  Surv. Monogr.}
-\newblock Providence, RI: American Mathematical Society (AMS), 2012.
+\bib{LW12}{book}{
+      author={Leuschke, Graham~J.},
+      author={Wiegand, Roger},
+       title={Cohen-{Macaulay} representations},
+    language={English},
+      series={Math. Surv. Monogr.},
+   publisher={Providence, RI: American Mathematical Society (AMS)},
+        date={2012},
+      volume={181},
+        ISBN={978-0-8218-7581-0},
+}
 
-\bibitem[Par84]{Parker84}
-R.~A. Parker.
-\newblock The computer calculation of modular characters (the meat-axe).
-\newblock In {\em Computational group theory ({D}urham, 1982)}, pages 267--274.
-  Academic Press, London, 1984.
+\bib{Parker84}{incollection}{
+      author={Parker, R.~A.},
+       title={The computer calculation of modular characters (the meat-axe)},
+        date={1984},
+   booktitle={Computational group theory ({D}urham, 1982)},
+   publisher={Academic Press, London},
+       pages={267\ndash 274},
+      review={\MR{760660}},
+}
 
-\bibitem[R{\v{S}}VdB22]{RSVdB22}
-Theo Raedschelders, \v{S}pela {\v{S}}penko, and Michel Van~den Bergh.
-\newblock The {F}robenius morphism in invariant theory {II}.
-\newblock {\em Adv. Math.}, 410:Paper No. 108587, 64, 2022.
+\bib{RSVdB22}{article}{
+      author={Raedschelders, Theo},
+      author={{\v{S}}penko, \v{S}pela},
+      author={Van~den Bergh, Michel},
+       title={The {F}robenius morphism in invariant theory {II}},
+        date={2022},
+        ISSN={0001-8708,1090-2082},
+     journal={Adv. Math.},
+      volume={410},
+       pages={Paper No. 108587, 64},
+         url={https://doi.org/10.1016/j.aim.2022.108587},
+      review={\MR{4498202}},
+}
 
-\bibitem[ST16]{ST}
-Akiyoshi Sannai and Hiromu Tanaka.
-\newblock A characterization of ordinary abelian varieties by the {Frobenius}
-  push-forward of the structure sheaf.
-\newblock {\em Math. Ann.}, 366(3-4):1067--1087, 2016.
+\bib{ST}{article}{
+      author={Sannai, Akiyoshi},
+      author={Tanaka, Hiromu},
+       title={A characterization of ordinary abelian varieties by the
+  {Frobenius} push-forward of the structure sheaf},
+    language={English},
+        date={2016},
+        ISSN={0025-5831},
+     journal={Math. Ann.},
+      volume={366},
+      number={3-4},
+       pages={1067\ndash 1087},
+}
 
-\bibitem[SVdB97]{SVdB97}
-Karen~E. Smith and Michel Van~den Bergh.
-\newblock Simplicity of rings of differential operators in prime
-  characteristic.
-\newblock {\em Proc. London Math. Soc. (3)}, 75(1):32--62, 1997.
+\bib{SVdB97}{article}{
+      author={Smith, Karen~E.},
+      author={Van~den Bergh, Michel},
+       title={Simplicity of rings of differential operators in prime
+  characteristic},
+        date={1997},
+        ISSN={0024-6115},
+     journal={Proc. London Math. Soc. (3)},
+      volume={75},
+      number={1},
+       pages={32\ndash 62},
+         url={https://doi-org.proxy.lib.umich.edu/10.1112/S0024611597000257},
+      review={\MR{1444312}},
+}
 
-\bibitem[Tan72]{Tango}
-Hiroshi Tango.
-\newblock On the behavior of extensions of vector bundles under the {Frobenius}
-  map.
-\newblock {\em Nagoya Math. J.}, 48:73--89, 1972.
+\bib{Tango}{article}{
+      author={Tango, Hiroshi},
+       title={On the behavior of extensions of vector bundles under the
+  {Frobenius} map},
+    language={English},
+        date={1972},
+        ISSN={0027-7630},
+     journal={Nagoya Math. J.},
+      volume={48},
+       pages={73\ndash 89},
+}
 
-\bibitem[Tho00]{Thomsen00}
-Jesper~Funch Thomsen.
-\newblock Frobenius direct images of line bundles on toric varieties.
-\newblock {\em J. Algebra}, 226(2):865--874, 2000.
+\bib{Thomsen00}{article}{
+      author={Thomsen, Jesper~Funch},
+       title={Frobenius direct images of line bundles on toric varieties},
+        date={2000},
+        ISSN={0021-8693,1090-266X},
+     journal={J. Algebra},
+      volume={226},
+      number={2},
+       pages={865\ndash 874},
+         url={https://doi.org/10.1006/jabr.1999.8184},
+      review={\MR{1752764}},
+}
 
-\bibitem[TT08]{TT08}
-Shunsuke Takagi and Ryo Takahashi.
-\newblock {$D$}-modules over rings with finite {$F$}-representation type.
-\newblock {\em Math. Res. Lett.}, 15(3):563--581, 2008.
+\bib{TT08}{article}{
+      author={Takagi, Shunsuke},
+      author={Takahashi, Ryo},
+       title={{$D$}-modules over rings with finite {$F$}-representation type},
+        date={2008},
+        ISSN={1073-2780},
+     journal={Math. Res. Lett.},
+      volume={15},
+      number={3},
+       pages={563\ndash 581},
+         url={https://doi-org.proxy.lib.umich.edu/10.4310/MRL.2008.v15.n3.a15},
+      review={\MR{2407232}},
+}
 
-\bibitem[Yos90]{Yoshino90}
-Yuji Yoshino.
-\newblock {\em Cohen-{Macaulay} modules over {Cohen}-{Macaulay} rings}, volume
-  146 of {\em Lond. Math. Soc. Lect. Note Ser.}
-\newblock Cambridge (UK): Cambridge University Press, 1990.
+\bib{Yoshino90}{book}{
+      author={Yoshino, Yuji},
+       title={Cohen-{Macaulay} modules over {Cohen}-{Macaulay} rings},
+    language={English},
+      series={Lond. Math. Soc. Lect. Note Ser.},
+   publisher={Cambridge (UK): Cambridge University Press},
+        date={1990},
+      volume={146},
+        ISBN={0-521-35694-6},
+}
 
-\end{thebibliography}
+\end{biblist}
+\end{bibdiv}
