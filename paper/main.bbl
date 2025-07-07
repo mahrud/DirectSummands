@@ -14,13 +14,13 @@
       review={\MR{3428948}},
 }
 
-\bib{Artin77}{misc}{
+\bib{Artin77}{incollection}{
       author={Artin, M.},
-       title={Coverings of the rational double points in characteristic p},
-    language={English},
-         how={Complex {Anal}. algebr. {Geom}., {Collect}. {Pap}. dedic. {K}.
-  {Kodaira}, 11-22 (1977).},
+       title={Coverings of the rational double points in characteristic {$p$}},
         date={1977},
+   booktitle={Complex analysis and algebraic geometry},
+   publisher={Iwanami Shoten Publishers, Tokyo},
+       pages={11\ndash 22},
 }
 
 \bib{Atiyah57}{article}{
@@ -84,6 +84,32 @@
        title={Syzygies of the residue field over {{Golod}} rings},
         date={2024},
       eprint={2408.13425},
+}
+
+\bib{Chi03}{article}{
+      author={Chipalkatti, Jaydeep~V.},
+       title={On equations defining coincident root loci},
+        date={2003},
+        ISSN={0021-8693,1090-266X},
+     journal={J. Algebra},
+      volume={267},
+      number={1},
+       pages={246\ndash 271},
+         url={https://doi.org/10.1016/S0021-8693(03)00336-3},
+      review={\MR{1993476}},
+}
+
+\bib{Chi04}{article}{
+      author={Chipalkatti, Jaydeep~V.},
+       title={Invariant equations defining coincident root loci},
+        date={2004},
+        ISSN={0003-889X,1420-8938},
+     journal={Arch. Math. (Basel)},
+      volume={83},
+      number={5},
+       pages={422\ndash 428},
+         url={https://doi.org/10.1007/s00013-004-1191-z},
+      review={\MR{2102640}},
 }
 
 \bib{DE23}{article}{
