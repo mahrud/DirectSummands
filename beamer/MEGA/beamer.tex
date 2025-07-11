@@ -55,18 +55,19 @@
 
 % I acknowledge that the University of Minnesota stands on Miní Sóta Makhóčhe, the homelands of the Dakhóta Oyáte.
 
-% Abstract: It is known that the Frobenius pushforward of the structure sheaf on toric varieties splits as a sum of line bundles, and high enough pushforwards of it generate the derived category. Working over the multigraded Cox ring of a Mori Dream Space, we discuss algorithms for determining the summands of the Frobenius pushforward of the structure sheaf.
+% Abstract: The problems of finding isomorphism classes of indecomposable modules with certain properties, or determining the indecomposable summands of a module, are ubiquitous in commutative algebra, group theory, representation theory, and other fields. The purpose of this work is to describe and prove correctness of a practical algorithm for computing indecomposable summands of finitely generated modules over a finitely generated k-algebra, for k a field of positive characteristic. Our algorithm works over multigraded rings, which enables the computation of indecomposable summands of coherent sheaves on subvarieties of toric varieties (in particular, for varieties embedded in projective space). We also present multiple examples, including some which present previously unknown phenomena regarding the behavior of summands of Frobenius pushforwards and syzygies over Artinian rings. This is joint work with Devlin Mallory.
 
 \newcommand{\lc}{\MakeLowercase}
-\author[Mahrud Sayrafi]{M\lc{ahrud} S\lc{ayrafi} \\
-  {\footnotesize MPI MiS}}% \\[1em]
+\author[Mahrud Sayrafi]{M\lc{ahrud} S\lc{ayrafi}}
+%\author[Mahrud Sayrafi]{M\lc{ahrud} S\lc{ayrafi} \\
+%  {\footnotesize MPI MiS}}% \\[1em]
 %  {\footnotesize Joint work with Devlin Mallory \\
 %    Basque Center for Applied Mathematics}}
 
 %\institute[UMN]{U\lc{niversity} of M\lc{innesota}, T\lc{win} C\lc{ities}}
 
 % https://www.jointmathematicsmeetings.org/meetings/national/jmm2024/2300_progfull.html
-\date{{\footnotesize Effective Methods in Algebraic Geometry \\ July 30, 2024}}
+%\date{{\footnotesize Effective Methods in Algebraic Geometry \\ July 30, 2024}}
 
 \frame[plain]{\titlepage}
 
@@ -349,7 +350,7 @@
   When $X = \PP{n_1}\times\PP{n_2}\times\cdots\times\PP{n_t}$:
   \begin{theorem}[Eisenbud--Erman--Schreyer '15]
     Let $E$ be a vector bundle on $X$ whose sheaf cohomology matches that of
-    \( \sum_{i=1}^r \OO(\underline{d}_i)^{e_i}, \) for $\underline{d}_i\in\ZZ^r$.
+    \( \sum_1^r \OO(\underline{d}_i)^{e_i}, \) for $\underline{d}_i\in\ZZ^r$.
     {\color{rossred}If $\underline{d}_r \le \cdots \le \underline{d}_1$}, then $E$ splits.
   \end{theorem}
   \pause
@@ -362,7 +363,7 @@
   \pause
   \begin{theorem}[Brown--S. '22]
     Let $E$ be a vector bundle on $X$ whose sheaf cohomology matches that of
-    \( \sum_{i=1}^r \OO(b_i, c_i)^{e_i}. \)
+    \( \sum_1^r \OO(b_i, c_i)^{e_i}. \)
     {\color{rossred}If $(b_r, c_r) \le \cdots \le(b_1, c_1)$}, then $E$ splits.
   \end{theorem}
   \pause
@@ -375,7 +376,7 @@
   When $X$ is an arbitrary smooth projective toric variety:
   \begin{theorem}[S. '24]
     Let $E$ be a vector bundle on $X$ whose sheaf cohomology matches that of
-    \( \sum_{1}^r \OO(D_i)^{e_i}\!, \) $D_i\in\Pic X$\!.
+    \( \sum_1^r \OO(D_i)^{e_i}\!, \) $D_i\in\Pic X$\!.
     {\color{rossred}If $D_{i+1}\!-\!D_i$ is ample}, then $E$ splits.
   \end{theorem}
   \pause
@@ -530,15 +531,17 @@
   sum decompositions is useful for mathematical experiments: \\[1em]
   \; - Finite Cohen--Macaulay-type property of singularities; \\
   \; - $F$-representation type property of cubic surfaces; \\
-  \; - Structure of syzygies over Artinian rings. \\
+  \; - Structure of syzygies of the residue field over Golod rings; \\
+  \; - Inhomogeneous singularities in positive characteristic; \\
+  \; - Multiparameter persistence in topological data analysis. \\
 
-  \vfill
-  \pause
-  \begin{block}{Question for the road:}
-    \centering
-    What are applications of diagonalization of polynomial \\
-    matrices in algebraic geometry and nonlinear algebra?
-  \end{block}
+  %% \vfill
+  %% \pause
+  %% \begin{block}{Question for the road:}
+  %%   \centering
+  %%   What are applications of diagonalization of polynomial \\
+  %%   matrices in algebraic geometry and nonlinear algebra?
+  %% \end{block}
 \end{frame}
 
 
