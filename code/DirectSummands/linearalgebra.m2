@@ -83,21 +83,25 @@ char Matrix := A -> A.cache.char ??= (
     -- TODO: this is a major step in large examples
     det(B - T_0 * I, Strategy => Bareiss))
 
+minimalPolynomial' = A -> A.cache.minimalPolynomial ??= (
+    kk := ring A;
+    t := local t;
+    T := kk(monoid[t]);
+    -- naive exact method
+    B := id_(target A);
+    m := transpose flatten B;
+    while syz m == 0 do m |= transpose flatten(B *= A);
+    -- naive probabilistic method
+    -- m := v := random(target A, kk^1);
+    -- while syz m == 0 do m |= (v = A * v);
+    lambda := (syz m)_{0};
+    lambda  = lambda // last entries lambda_0;
+    polynomial(entries lambda_0, T_0))
+
 minimalPolynomial = A -> A.cache.minimalPolynomial ??= (
     kk := ring A;
     t := local t;
     T := kk(monoid[t]);
-    --
-    -- naive exact method
-    -- B := id_(target A);
-    -- m := transpose flatten B;
-    -- while syz m == 0 do m |= transpose flatten(B *= A);
-    --
-    -- naive probabilistic method
-    -- m := v := random(target A, kk^1);
-    -- while syz m == 0 do m |= (v = A * v);
-    -- polynomial(entries (syz m)_0, T_0)
-    --
     -- incremental method
     n := numcols A;
     N := n^2;
