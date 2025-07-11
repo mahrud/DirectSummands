@@ -11,7 +11,7 @@ myPushForward = (f, M) -> (
     )
 
 -----------------------------------------------------------------------------
--* Frobenius pushforwards *-
+-- Frobenius helpers
 -----------------------------------------------------------------------------
 
 protect FrobeniusRing
@@ -79,9 +79,12 @@ frobeniusMap(ZZ, Ring) := (e, R) -> (
 
 decomposeFrobeniusPresentation = (e, f) -> decomposePushforwardPresentation((char ring f)^e, f)
 
+-----------------------------------------------------------------------------
+-- Frobenius pushforwards
+-----------------------------------------------------------------------------
+
 protect FrobeniusPushforward
 frobeniusPushforward = method()
---frobeniusPushforward(Thing, ZZ)   := (T, e) -> frobeniusPushforward(e, T)
 frobeniusPushforward(ZZ, Ring)    := (e, R) -> frobeniusPushforward(e, module R)
 frobeniusPushforward(ZZ, Ideal)   := (e, I) -> frobeniusPushforward(e, quotient I)
 -- TODO: cache in a way that the second pushforward is the same as applying pushforward twice
@@ -91,32 +94,12 @@ frobeniusPushforward(ZZ, Module)  := (e, M) -> M.cache#(FrobeniusPushforward, e)
 	frobeniusTwist(e, M));
     if not isHomogeneous f then coker f
     else directSum apply(decomposeFrobeniusPresentation(e, f), coker))
-
 frobeniusPushforward(ZZ, Matrix)  := (e, f) -> f.cache#(FrobeniusPushforward, e) ??= (
     g := myPushForward(
 	frobeniusMap(e, ring f),
 	frobeniusTwist(e, f));
     if not isHomogeneous g then g
     else directSum decomposeFrobeniusPresentation(e, g))
-
-frobeniusPushforward(ZZ, SheafMap)  := (e, f) -> f.cache#(FrobeniusPushforward, e) ??= (
-    --if not(isFreeModule module source f and isFreeModule module target f) then error "expected a map between free modules";
-    g := myPushForward(
-	frobeniusMap(e, ring matrix f),
-	frobeniusTwist(e, matrix f));
-    if not isHomogeneous g then g
-    else Fg := first decomposeFrobeniusPresentation(e, g);
-    R := ring matrix f;
-    p := char R;
-    targetPres := presentation target Fg;
-    (tPrestardegs, tPressrcdegs) := toSequence(-degrees targetPres // p^e);
-    Fgtarget := sheaf coker map(R^tPrestardegs, R^tPressrcdegs, sub(targetPres, R));
-    sourcePres := presentation source Fg;
-    (sPrestardegs, sPressrcdegs) := toSequence(-degrees sourcePres // p^e);
-    Fgsource := sheaf coker map(R^sPrestardegs, R^sPressrcdegs, sub(sourcePres, R));
-    sheaf map(module Fgtarget, module Fgsource, sub(cover Fg, R)))
-
---frobeniusPushforward(ZZ, Complex) := (e, C) -> () -- TODO
 
 frobeniusPushforward(ZZ, SheafOfRings)  := (e, O) -> (
     X := variety O;
@@ -134,19 +117,68 @@ frobeniusPushforward(ZZ, CoherentSheaf) := (e, N) -> N.cache#(FrobeniusPushforwa
     -- TODO: how long does this take? is it worth caching?
     sheaf prune coker map(R^tardegs, R^srcdegs, Fmatrix)) else (
     frobeniusPushforward(1, frobeniusPushforward(e-1, N)))
+frobeniusPushforward(ZZ, SheafMap)  := (e, f) -> f.cache#(FrobeniusPushforward, e) ??= (
+    --if not(isFreeModule module source f and isFreeModule module target f) then error "expected a map between free modules";
+    g := myPushForward(
+	frobeniusMap(e, ring matrix f),
+	frobeniusTwist(e, matrix f));
+    if not isHomogeneous g then g
+    else Fg := first decomposeFrobeniusPresentation(e, g);
+    R := ring matrix f;
+    p := char R;
+    targetPres := presentation target Fg;
+    (tPrestardegs, tPressrcdegs) := toSequence(-degrees targetPres // p^e);
+    Fgtarget := sheaf coker map(R^tPrestardegs, R^tPressrcdegs, sub(targetPres, R));
+    sourcePres := presentation source Fg;
+    (sPrestardegs, sPressrcdegs) := toSequence(-degrees sourcePres // p^e);
+    Fgsource := sheaf coker map(R^sPrestardegs, R^sPressrcdegs, sub(sourcePres, R));
+    sheaf map(module Fgtarget, module Fgsource, sub(cover Fg, R)))
+
+-- frobeniusPushforward(ZZ, Complex) := (e, C) -> (
+--     (lo, hi) := concentration C;
+--     if lo == hi
+--     then complex(frobeniusPushforward(e, C_lo), Base => lo)
+--     else complex applyValues(C.dd.map,
+-- 	m -> frobeniusPushforward(e, m, o)))
+
+-----------------------------------------------------------------------------
+-- Frobenius pullbacks
+-----------------------------------------------------------------------------
 
 protect FrobeniusPullback
 frobeniusPullback = method()
---frobeniusPullback(Thing, ZZ)  := (T, e) -> frobeniusPullback(e, T)
+frobeniusPullback(ZZ, Ring)   := (e, R) -> frobeniusPullback(e, module R)
+frobeniusPullback(ZZ, Ideal)  := (e, I) -> frobeniusPullback(e, quotient I)
 frobeniusPullback(ZZ, Module) := (e, M) -> M.cache#(FrobeniusPullback, e) ??= (
-	R := ring M;
-	p := char R;
-	F := frobeniusMap(R, e);
-	R0 := source F;
-	A := presentation M;
-	A0 := sub(A, R0);
-	coker(F ** map(R0^(-(p^e) * degrees target A0), , A0)))
+    R := ring M;
+    p := char R;
+    F := frobeniusMap(R, e);
+    R0 := source F;
+    A := presentation M;
+    A0 := sub(A, R0);
+    coker(F ** map(R0^(-(p^e) * degrees target A0), , A0)))
+-- TODO: does the degree need adjusting?
+frobeniusPullback(ZZ, Matrix) := (e, h) -> (
+    q := (char ring h)^e;
+    map(frobeniusPullback(e, target h),
+	frobeniusPullback(e, source h),
+	applyTable(entries h, a -> a^q)))
+
+frobeniusPushforward(ZZ, SheafOfRings)  := (e, O) -> (
+    X := variety O;
+    X.cache.FrobeniusPushforward   ??= new MutableHashTable;
+    X.cache.FrobeniusPushforward#e ??= frobeniusPushforward(e, O^1))
 frobeniusPullback(ZZ, CoherentSheaf) := (e, F) -> sheaf frobeniusPullback(e, module F)
+frobeniusPullback(ZZ, SheafMap) := (e, h) -> sheaf frobeniusPullback(e, matrix h)
+
+-- frobeniusPullback(ZZ, Complex) := (e, C) -> (
+--     (lo, hi) := concentration C;
+--     if lo == hi
+--     then complex(frobeniusPullback(e, C_lo), Base => lo)
+--     else complex applyValues(C.dd.map,
+-- 	m -> frobeniusPullback(e, m, o)))
+
+-----------------------------------------------------------------------------
 
 end--
 restart
