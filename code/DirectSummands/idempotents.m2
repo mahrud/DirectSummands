@@ -133,6 +133,7 @@ findIdempotents Module        := opts -> M -> (
 	-- TODO: use limit here
         idems := nonnull flatten for y in eigen list (
 	    if p > 0 then for j from 0 to e do (
+		-- TODO: need to go to e' with e' the splitting field of chi(fm)
 		if isUsable largePow(j, fm - y*id_V) then break (j, f - y*id_M))
 	    else if isUsable(fm - y*id_V) then (1, f - y*id_M));
 	idems = select(idems, (j, f) ->
@@ -174,8 +175,12 @@ findBasicIdempotents = options findIdempotents >> opts -> M -> (
     -- TODO: parallelized this and break on first success
     idemp := scan(numcols B, c -> (
 	    h := homomorphism B_{c};
-	    if h == 0 or h == id_M
-	    or isNilpotent(hm := K ** cover h) then return;
+	    if zero h or h == id_M
+	    or zero(hm := K ** cover h) then return;
+	    -- TODO: sadly can't just check that the generators are
+	    -- nilpotent, but if generators of a sufficiently high
+	    -- truncation of End(M)_0 are nilpotent, that would work
+	    -- or isNilpotent(hm := K ** cover h) then return;
 	    certified = false;
 	    if isWeakIdempotent hm then break h));
     if idemp =!= null then (
