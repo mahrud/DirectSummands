@@ -111,11 +111,10 @@ Finally, we note that there is a ``missing'' case of our algorithm: when $R$ is 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection*{Acknowledgements}
 
-The authors would like to thank David Eisenbud for several very useful conversations and ideas, Ezra Miller for pointing out the relevance of this algorithm in topological data analysis.
-We also thank the American Institute of Mathematics for hosting the ``Macaulay2: expanded functionality and improved efficiency'' workshop, during which some of this work took place.
-We also thank the referees for their careful reading and suggestions, which significantly improved the exposition of the paper.
-The work of the first author was supported in by the National Science Foundation RTG Grant No.~1840190.
-The second author was supported in part by the Doctoral Dissertation Fellowship at the University of Minnesota and the National Science Foundation under Grant No.~2001101.
+The authors would like to thank David Eisenbud for several very useful conversations and ideas, and Ezra Miller for pointing out the relevance of this algorithm in topological data analysis. We also thank the referees for their careful reading and suggestions, which significantly improved the exposition of the paper.
+
+The first author was supported in by the National Science Foundation under the RTG Grant No.~1840190.
+The second author was supported in part by the Doctoral Dissertation Fellowship at the University of Minnesota and the National Science Foundation under the Grant No.~2001101. Some of this work took place at the American Institute of Mathematics during the workshop ``Macaulay2: expanded functionality and improved efficiency.''
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Notation}
@@ -190,7 +189,7 @@ We will use nonzero eigenvalues of $\phi$ to get nontrivial splittings of $M$. A
   as desired.
 \end{proof}
 
-Note that while $\im\psi$ may be zero, as long as each $\psi_i$ in \Cref{lem:decomposition} is nontrivial (not the zero or identity endomorphism), the kernel summands will be nontrivial (although they may not necessarily be indecomposable).
+Note that while $\im\psi$ may be zero, as long as each $\psi_i$ in \Cref{lem:decomposition} is not zero or an isomorphism, the kernel summands will be nontrivial (although they may not necessarily be indecomposable).
 
 The following proposition is a module-theoretic analogue of the primary decomposition theorem in linear algebra:
 
@@ -272,7 +271,7 @@ We will see via \Cref{lem:general} that this results in an indecomposable decomp
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{The local case}\label{sec:local-alg}
 
-Throughout this section, $R$ will be a local ring over a field of positive characteristic $k \subset \overline{\FF_p}$ with maximal ideal $\m$ and $M$ a finitely generated $R$-module. Recall that if $\psi\in\End_R(M)$ is an idempotent, then $M$ decomposes as $\im \psi \oplus \coker \psi$. If $\psi$ is nontrivial (not zero or an isomorphism), then both factors are nonzero and $M$ is decomposable.
+Throughout this section, $R$ will be a local ring over a field of positive characteristic $k \subset \overline{\FF_p}$ with maximal ideal $\m$ and $M$ a finitely generated $R$-module. Recall that if $\psi\in\End_R(M)$ is an idempotent, then $M$ decomposes as $\im \psi \oplus \coker \psi$. If $\psi$ is not zero or an isomorphism, then both factors are nonzero and $M$ is decomposable.
 
 We begin with the observation that $\psi$ also acts on the $k$-vector space $M/\m M$. The following lemma allows us to check only for idempotents modulo the maximal ideal.
 
@@ -289,7 +288,7 @@ We begin with the observation that $\psi$ also acts on the $k$-vector space $M/\
   \[ M \xra{\psi} N \xra{\alpha\inv} N, \]
   and thus $M$ decomposes as claimed.
 
-  To check the surjectivity of \eqref{eq:N-M-N}, we may complete at the maximal ideal: completion is flat, and thus preserves cokernels, and the cokernel of $M\to N$ is supported on $\m$; thus if the cokernel is nonzero it must remain so after completion. We may thus assume $R$, $M$, and $N$ are complete. Observe that by assumption we can write $\psi^2 = \psi + \psi'$ with $\psi'(M)\subset \m M$.
+  To check the surjectivity of \eqref{eq:N-M-N}, we may complete at the maximal ideal: by Nakayama's lemma, it suffices to check surjectivity of the map modulo $\mathfrak m$, and completing and reducing modulo $\mathfrak m$ is the same as just reducing modulo $\mathfrak m$. We may thus assume $R$, $M$, and $N$ are complete. Observe that by assumption we can write $\psi^2 = \psi + \psi'$ with $\psi'(M)\subset \m M$.
   Note that if $x \in \m^\ell M$, then $\psi'(x) = \psi^2(x) - \psi(x)$ lies in $\m^{\ell+1}M$.
 
 
